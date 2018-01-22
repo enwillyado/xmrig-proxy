@@ -29,86 +29,82 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <string>
 
 class Addr
 {
 public:
-    constexpr static uint16_t kDefaultPort = 3333;
+	constexpr static uint16_t kDefaultPort = 3333;
 
+	inline Addr() :
+		m_host(""),
+		m_port(kDefaultPort),
+		m_keystream("")
+	{}
 
-    inline Addr() :
-        m_host(nullptr),
-        m_port(kDefaultPort),
-        m_keystream(nullptr)
-    {}
-        
-    inline Addr(const Addr * const other)
-    {
-        m_port = other->m_port;
-        m_host = strdup(other->m_host);
-        if(other->m_keystream)
-        {
-            m_keystream = strdup (other->m_keystream);
-        }
-        else
-        {
-            m_keystream = nullptr;
-        }
-    }
+	inline Addr(const Addr & other)
+	{
+		m_host = other.m_host;
+		m_port = other.m_port;
+		m_keystream = other.m_keystream;
+	}
 
-    inline Addr(const char *addr) :
-        m_host(nullptr),
-        m_port(kDefaultPort),
-        m_keystream(nullptr)
-    {
-        if (!addr) {
-            return;
-        }
+	inline Addr(const std::string & addr) :
+		m_host(""),
+		m_port(kDefaultPort),
+		m_keystream("")
+	{
+		if (addr.empty())
+		{
+			return;
+		}
 
-        const char *port = strchr(addr, ':');
-        if (!port) {
-            m_host = strdup(addr);
-            return;
-        }
+		const size_t port = addr.find_first_of(':');
+		if (port == std::string::npos)
+		{
+			m_host = addr.substr(port);
+			return;
+		}
 
-        const size_t size = port++ - addr + 1;
-        m_host = static_cast<char*>(malloc(size));
-        memcpy(m_host, addr, size - 1);
-        m_host[size - 1] = '\0';
+		m_host = addr.substr(0, port - 1);
+		m_port = (uint16_t) strtol(addr.substr(port + 1).c_str(), nullptr, 10);
 
-        m_port = (uint16_t) strtol(port, nullptr, 10);
+		const size_t keystream = addr.find_first_of('#', port);
+		if (keystream != std::string::npos)
+		{
+			m_keystream = addr.substr(keystream + 1);
+		}
+	}
 
-        const char* keystream = strchr(port, '#');
-        if(keystream)
-        {
-            m_keystream = strdup(keystream + 1);
-        }
-    }
-
-
-    inline ~Addr()
-    {
-        free(m_host);
-    }
-
-
-    inline bool isValid() const     { return m_host && m_port > 0; }
-    inline const char *host() const { return m_host; }
-    inline uint16_t port() const    { return m_port; }
-    inline bool hasKeystream() const         { return m_keystream; }
-    void copyKeystream(char *keystreamDest, const size_t keystreamLen) const
-    {
-        if(m_keystream)
-        {
-            memset(keystreamDest, 1, keystreamLen);
-            memcpy(keystreamDest, m_keystream, std::min(keystreamLen, strlen(m_keystream)));
-        }
-    }
+	inline bool isValid() const
+	{
+		return m_host.size() && m_port > 0;
+	}
+	inline const char* host() const
+	{
+		return m_host.c_str();
+	}
+	inline uint16_t port() const
+	{
+		return m_port;
+	}
+	inline bool hasKeystream() const
+	{
+		return !m_keystream.empty();
+	}
+	void copyKeystream(char* keystreamDest, const size_t keystreamLen) const
+	{
+		if (0 < m_keystream.size())
+		{
+			memset(keystreamDest, 1, keystreamLen);
+			memcpy(keystreamDest, m_keystream.c_str(), std::min(keystreamLen, m_keystream.size()));
+		}
+	}
 
 private:
-    char *m_host;
-    uint16_t m_port;
-    char* m_keystream;
+	std::string m_host;
+	uint16_t m_port;
+	std::string  m_keystream;
 };
 
 #endif /* __ADDR_H__ */

@@ -32,15 +32,15 @@
 class Server
 {
 public:
-    Server(const Addr *addr);
-    bool bind();
+	Server(const Addr & addr);
+	bool bind();
 
 private:
-    static void onConnection(uv_stream_t *server, int status);
+	static void onConnection(uv_stream_t* server, int status);
 
-    const Addr m_bindAddr;
-    struct sockaddr_in m_addr;
-    uv_tcp_t m_server;
+	const Addr m_bindAddr;
+	struct sockaddr_in m_addr;
+	uv_tcp_t m_server;
 };
 
 #endif /* __SERVER_H__ */

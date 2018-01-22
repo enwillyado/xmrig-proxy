@@ -47,42 +47,42 @@ class Workers;
 class Proxy
 {
 public:
-    Proxy(const Options *options);
-    ~Proxy();
+	Proxy(const Options* options);
+	~Proxy();
 
-    void connect();
-    void printConnections();
-    void printHashrate();
-    void printWorkers();
-    void toggleDebug();
+	void connect();
+	void printConnections();
+	void printHashrate();
+	void printWorkers();
+	void toggleDebug();
 
 #   ifdef APP_DEVEL
-    void printState();
+	void printState();
 #   endif
 
 private:
-    constexpr static int kPrintInterval = 60;
-    constexpr static int kGCInterval    = 60;
+	constexpr static int kPrintInterval = 60;
+	constexpr static int kGCInterval    = 60;
 
-    void bind(const Addr *addr);
-    void gc();
-    void print();
-    void tick();
+	void bind(const Addr & addr);
+	void gc();
+	void print();
+	void tick();
 
-    static void onTick(uv_timer_t *handle);
-    static void onTimer(uv_timer_t *handle);
+	static void onTick(uv_timer_t* handle);
+	static void onTimer(uv_timer_t* handle);
 
-    AccessLog *m_accessLog;
-    CustomDiff m_customDiff;
-    Miners *m_miners;
-    NonceSplitter *m_splitter;
-    ProxyDebug *m_debug;
-    ShareLog *m_shareLog;
-    Stats m_stats;
-    std::vector<Server*> m_servers;
-    uint64_t m_ticks;
-    uv_timer_t m_timer;
-    Workers *m_workers;
+	AccessLog* m_accessLog;
+	CustomDiff m_customDiff;
+	Miners* m_miners;
+	NonceSplitter* m_splitter;
+	ProxyDebug* m_debug;
+	ShareLog* m_shareLog;
+	Stats m_stats;
+	std::vector<Server*> m_servers;
+	uint64_t m_ticks;
+	uv_timer_t m_timer;
+	Workers* m_workers;
 };
 
 

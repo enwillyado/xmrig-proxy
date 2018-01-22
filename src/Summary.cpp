@@ -35,93 +35,107 @@
 
 static void print_versions()
 {
-    char buf[16];
+	char buf[16];
 
 #   if defined(__clang__)
-    snprintf(buf, 16, " clang/%d.%d.%d", __clang_major__, __clang_minor__, __clang_patchlevel__);
+	snprintf(buf, 16, " clang/%d.%d.%d", __clang_major__, __clang_minor__, __clang_patchlevel__);
 #   elif defined(__GNUC__)
-    snprintf(buf, 16, " gcc/%d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
+	snprintf(buf, 16, " gcc/%d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
 #   elif defined(_MSC_VER)
-    snprintf(buf, 16, " MSVC/%d", MSVC_VERSION);
+	snprintf(buf, 16, " MSVC/%d", MSVC_VERSION);
 #   else
-    buf[0] = '\0';
+	buf[0] = '\0';
 #   endif
 
 
-    if (Options::i()->colors()) {
-        Log::i()->text("\x1B[01;32m * \x1B[01;37mVERSIONS:     \x1B[01;36mxmrig-proxy/%s\x1B[01;37m libuv/%s%s", APP_VERSION, uv_version_string(), buf);
-    } else {
-        Log::i()->text(" * VERSIONS:     xmrig-proxy/%s libuv/%s%s", APP_VERSION, uv_version_string(), buf);
-    }
+	if (Options::i()->colors())
+	{
+		Log::i()->text("\x1B[01;32m * \x1B[01;37mVERSIONS:     \x1B[01;36mxmrig-proxy/%s\x1B[01;37m libuv/%s%s",
+		               APP_VERSION, uv_version_string(), buf);
+	}
+	else
+	{
+		Log::i()->text(" * VERSIONS:     xmrig-proxy/%s libuv/%s%s", APP_VERSION, uv_version_string(), buf);
+	}
 }
 
 
 static void print_pools()
 {
-    const std::vector<Url*> &pools = Options::i()->pools();
+	const std::vector<Url*> & pools = Options::i()->pools();
 
-    for (size_t i = 0; i < pools.size(); ++i) {
-        Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mPOOL #%d:\x1B[0m      \x1B[36m%s:%d" : " * POOL #%d:      %s:%d",
-                       i + 1,
-                       pools[i]->host(),
-                       pools[i]->port());
-    }
+	for (size_t i = 0; i < pools.size(); ++i)
+	{
+		Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mPOOL #%d:\x1B[0m      \x1B[36m%s:%d" :
+		               " * POOL #%d:      %s:%d",
+		               i + 1,
+		               pools[i]->host(),
+		               pools[i]->port());
+	}
 
 #   ifdef APP_DEBUG
-    for (size_t i = 0; i < pools.size(); ++i) {
-        Log::i()->text("%s:%d, user: %s, pass: %s, ka: %d, nicehash: %d", pools[i]->host(), pools[i]->port(), pools[i]->user(), pools[i]->password(), pools[i]->isKeepAlive(), pools[i]->isNicehash());
-    }
+	for (size_t i = 0; i < pools.size(); ++i)
+	{
+		Log::i()->text("%s:%d, user: %s, pass: %s, ka: %d, nicehash: %d", pools[i]->host(), pools[i]->port(),
+		               pools[i]->user(), pools[i]->password(), pools[i]->isKeepAlive(), pools[i]->isNicehash());
+	}
 #   endif
 }
 
 
 static void print_bind()
 {
-    const std::vector<Addr*> &addrs = Options::i()->addrs();
+	const std::vector<Addr> & addrs = Options::i()->addrs();
 
-    for (size_t i = 0; i < addrs.size(); ++i) {
-        Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mBIND #%d:\x1B[0m      \x1B[36m%s:%d" : " * BIND #%d:      %s:%d",
-                       i + 1,
-                       addrs[i]->host(),
-                       addrs[i]->port());
-    }
+	for (size_t i = 0; i < addrs.size(); ++i)
+	{
+		Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mBIND #%d:\x1B[0m      \x1B[36m%s:%d" :
+		               " * BIND #%d:      %s:%d",
+		               i + 1,
+		               addrs[i].host(),
+		               addrs[i].port());
+	}
 }
 
 
 #ifndef XMRIG_NO_API
 static void print_api()
 {
-    if (Options::i()->apiPort() == 0) {
-        return;
-    }
+	if (Options::i()->apiPort() == 0)
+	{
+		return;
+	}
 
-    Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mAPI PORT:     \x1B[01;36m%d" : " * API PORT:     %d", Options::i()->apiPort());
+	Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mAPI PORT:     \x1B[01;36m%d" :
+	               " * API PORT:     %d", Options::i()->apiPort());
 }
 #endif
 
 
 static void print_commands()
 {
-    if (Options::i()->colors()) {
-        Log::i()->text("\x1B[01;32m * \x1B[01;37mCOMMANDS:     \x1B[01;35mh\x1B[01;37mashrate, \x1B[01;35mc\x1B[01;37monnections, \x1B[01;35mv\x1B[01;37merbose, \x1B[01;35mw\x1B[01;37morkers");
-    }
-    else {
-        Log::i()->text(" * COMMANDS:     'h' hashrate, 'c' connections, 'v' verbose, 'w' workers");
-    }
+	if (Options::i()->colors())
+	{
+		Log::i()->text("\x1B[01;32m * \x1B[01;37mCOMMANDS:     \x1B[01;35mh\x1B[01;37mashrate, \x1B[01;35mc\x1B[01;37monnections, \x1B[01;35mv\x1B[01;37merbose, \x1B[01;35mw\x1B[01;37morkers");
+	}
+	else
+	{
+		Log::i()->text(" * COMMANDS:     'h' hashrate, 'c' connections, 'v' verbose, 'w' workers");
+	}
 }
 
 
 void Summary::print()
 {
-    print_versions();
-    print_pools();
-    print_bind();
+	print_versions();
+	print_pools();
+	print_bind();
 
 #   ifndef XMRIG_NO_API
-    print_api();
+	print_api();
 #   endif
 
-    print_commands();
+	print_commands();
 }
 
 

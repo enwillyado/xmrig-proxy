@@ -28,50 +28,55 @@
 #include "proxy/Server.h"
 
 
-Server::Server(const Addr *addr) :
-    m_bindAddr(addr)
+Server::Server(const Addr & addr) :
+	m_bindAddr(addr)
 {
-    uv_tcp_init(uv_default_loop(), &m_server);
-    m_server.data = this;
+	uv_tcp_init(uv_default_loop(), &m_server);
+	m_server.data = this;
 
-    uv_ip4_addr(m_bindAddr.host(), m_bindAddr.port(), &m_addr);
-    uv_tcp_nodelay(&m_server, 1);
+	uv_ip4_addr(m_bindAddr.host(), m_bindAddr.port(), &m_addr);
+	uv_tcp_nodelay(&m_server, 1);
 }
 
 
 bool Server::bind()
 {
-    uv_tcp_bind(&m_server, reinterpret_cast<const sockaddr*>(&m_addr), 0);
+	uv_tcp_bind(&m_server, reinterpret_cast<const sockaddr*>(&m_addr), 0);
 
-    const int r = uv_listen(reinterpret_cast<uv_stream_t*>(&m_server), 511, Server::onConnection);
-    if (r) {
-        LOG_ERR("[%s:%u] listen error: \"%s\"", m_bindAddr.host(), m_bindAddr.port(), uv_strerror(r));
-        return false;
-    }
+	const int r = uv_listen(reinterpret_cast<uv_stream_t*>(&m_server), 511, Server::onConnection);
+	if (r)
+	{
+		LOG_ERR("[%s:%u] listen error: \"%s\"", m_bindAddr.host(), m_bindAddr.port(), uv_strerror(r));
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 
-void Server::onConnection(uv_stream_t *server, int status)
+void Server::onConnection(uv_stream_t* server, int status)
 {
-    auto instance = static_cast<Server*>(server->data);
+	auto instance = static_cast<Server*>(server->data);
 
-    if (status < 0) {
-        LOG_ERR("[%s:%u] new connection error: \"%s\"", instance->m_bindAddr.host(), instance->m_bindAddr.port(), uv_strerror(status));
-        return;
-    }
+	if (status < 0)
+	{
+		LOG_ERR("[%s:%u] new connection error: \"%s\"", instance->m_bindAddr.host(), instance->m_bindAddr.port(),
+		        uv_strerror(status));
+		return;
+	}
 
-    Miner *miner = new Miner(instance->m_bindAddr);
-    if (!miner) {
-        LOG_ERR("NEW FAILED");
-        return;
-    }
+	Miner* miner = new Miner(instance->m_bindAddr);
+	if (!miner)
+	{
+		LOG_ERR("NEW FAILED");
+		return;
+	}
 
-    if (!miner->accept(server)) {
-        delete miner;
-        return;
-    }
+	if (!miner->accept(server))
+	{
+		delete miner;
+		return;
+	}
 
-    ConnectionEvent::start(miner, instance->m_bindAddr.port());
+	ConnectionEvent::start(miner, instance->m_bindAddr.port());
 }
