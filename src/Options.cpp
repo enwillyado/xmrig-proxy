@@ -169,7 +169,7 @@ static struct option const api_options[] =
 Options* Options::parse(int argc, char** argv)
 {
 	Options* options = new Options(argc, argv);
-	if (options->isReady())
+	if(options->isReady())
 	{
 		m_self = options;
 		return m_self;
@@ -204,38 +204,38 @@ Options::Options(int argc, char** argv) :
 
 	int key;
 
-	while (1)
+	while(1)
 	{
 		key = getopt_long(argc, argv, short_options, options, NULL);
-		if (key < 0)
+		if(key < 0)
 		{
 			break;
 		}
 
-		if (!parseArg(key, optarg))
+		if(!parseArg(key, optarg))
 		{
 			return;
 		}
 	}
 
-	if (optind < argc)
+	if(optind < argc)
 	{
 		fprintf(stderr, "%s: unsupported non-option argument '%s'\n", argv[0], argv[optind]);
 		return;
 	}
 
-	if (!m_pools[0]->isValid())
+	if(!m_pools[0]->isValid())
 	{
 		parseConfig(Platform::defaultConfigName());
 	}
 
-	if (!m_pools[0]->isValid())
+	if(!m_pools[0]->isValid())
 	{
 		fprintf(stderr, "No pool URL supplied. Exiting.\n");
 		return;
 	}
 
-	if (m_addrs.empty())
+	if(m_addrs.empty())
 	{
 		m_addrs.push_back(Addr("0.0.0.0:3333"));
 	}
@@ -246,7 +246,7 @@ Options::Options(int argc, char** argv) :
 
 Options::~Options()
 {
-	for (Url* url : m_pools)
+	for(Url* url : m_pools)
 	{
 		delete url;
 	}
@@ -267,7 +267,7 @@ bool Options::getJSON(const char* fileName, rapidjson::Document & doc)
 {
 	uv_fs_t req;
 	const int fd = uv_fs_open(uv_default_loop(), &req, fileName, O_RDONLY, 0644, nullptr);
-	if (fd < 0)
+	if(fd < 0)
 	{
 		fprintf(stderr, "unable to open %s: %s\n", fileName, uv_strerror(fd));
 		return false;
@@ -284,7 +284,7 @@ bool Options::getJSON(const char* fileName, rapidjson::Document & doc)
 	uv_fs_close(uv_default_loop(), &req, fd, nullptr);
 	uv_fs_req_cleanup(&req);
 
-	if (doc.HasParseError())
+	if(doc.HasParseError())
 	{
 		printf("%s:%d: %s\n", fileName, (int) doc.GetErrorOffset(), rapidjson::GetParseError_En(doc.GetParseError()));
 		return false;
@@ -296,12 +296,12 @@ bool Options::getJSON(const char* fileName, rapidjson::Document & doc)
 
 bool Options::parseArg(int key, const char* arg)
 {
-	switch (key)
+	switch(key)
 	{
 	case 'b': /* --bind */
 	{
 		const Addr addr = Addr(arg);
-		if (addr.isValid())
+		if(addr.isValid())
 		{
 			m_addrs.push_back(addr);
 		}
@@ -309,7 +309,7 @@ bool Options::parseArg(int key, const char* arg)
 	break;
 
 	case 'O': /* --userpass */
-		if (!m_pools.back()->setUserpass(arg))
+		if(!m_pools.back()->setUserpass(arg))
 		{
 			return false;
 		}
@@ -317,10 +317,10 @@ bool Options::parseArg(int key, const char* arg)
 		break;
 
 	case 'o': /* --url */
-		if (m_pools.size() > 1 || m_pools[0]->isValid())
+		if(m_pools.size() > 1 || m_pools[0]->isValid())
 		{
 			Url* url = new Url(arg);
-			if (url->isValid())
+			if(url->isValid())
 			{
 				m_pools.push_back(url);
 			}
@@ -334,7 +334,7 @@ bool Options::parseArg(int key, const char* arg)
 			m_pools[0]->parse(arg);
 		}
 
-		if (!m_pools.back()->isValid())
+		if(!m_pools.back()->isValid())
 		{
 			return false;
 		}
@@ -387,7 +387,7 @@ bool Options::parseArg(int key, const char* arg)
 		return parseBoolean(key, false);
 
 	case 1003: /* --donate-level */
-		if (strncmp(arg, "minemonero.pro", 14) == 0)
+		if(strncmp(arg, "minemonero.pro", 14) == 0)
 		{
 			m_donateLevel = 0;
 		}
@@ -430,10 +430,10 @@ bool Options::parseArg(int key, const char* arg)
 
 bool Options::parseArg(int key, uint64_t arg)
 {
-	switch (key)
+	switch(key)
 	{
 	case 'r': /* --retries */
-		if (arg < 1 || arg > 1000)
+		if(arg < 1 || arg > 1000)
 		{
 			showUsage(1);
 			return false;
@@ -443,7 +443,7 @@ bool Options::parseArg(int key, uint64_t arg)
 		break;
 
 	case 'R': /* --retry-pause */
-		if (arg < 1 || arg > 3600)
+		if(arg < 1 || arg > 3600)
 		{
 			showUsage(1);
 			return false;
@@ -453,7 +453,7 @@ bool Options::parseArg(int key, uint64_t arg)
 		break;
 
 	case 1003: /* --donate-level */
-		if (arg < 1 || arg > 99)
+		if(arg < 1 || arg > 99)
 		{
 			return true;
 		}
@@ -462,14 +462,14 @@ bool Options::parseArg(int key, uint64_t arg)
 		break;
 
 	case 4000: /* --api-port */
-		if (arg <= 65536)
+		if(arg <= 65536)
 		{
 			m_apiPort = (int) arg;
 		}
 		break;
 
 	case 1102: /* --custom-diff */
-		if (arg >= 100 && arg < INT_MAX)
+		if(arg >= 100 && arg < INT_MAX)
 		{
 			m_diff = arg;
 		}
@@ -485,7 +485,7 @@ bool Options::parseArg(int key, uint64_t arg)
 
 bool Options::parseBoolean(int key, bool enable)
 {
-	switch (key)
+	switch(key)
 	{
 	case 'B': /* --background */
 		m_background = enable;
@@ -530,7 +530,7 @@ bool Options::parseBoolean(int key, bool enable)
 Url* Options::parseUrl(const char* arg) const
 {
 	auto url = new Url(arg);
-	if (!url->isValid())
+	if(!url->isValid())
 	{
 		delete url;
 		return nullptr;
@@ -543,27 +543,27 @@ Url* Options::parseUrl(const char* arg) const
 void Options::parseConfig(const char* fileName)
 {
 	rapidjson::Document doc;
-	if (!getJSON(fileName, doc))
+	if(!getJSON(fileName, doc))
 	{
 		return;
 	}
 
-	for (size_t i = 0; i < ARRAY_SIZE(config_options); i++)
+	for(size_t i = 0; i < ARRAY_SIZE(config_options); i++)
 	{
 		parseJSON(&config_options[i], doc);
 	}
 
 	const rapidjson::Value & pools = doc["pools"];
-	if (pools.IsArray())
+	if(pools.IsArray())
 	{
-		for (const rapidjson::Value & value : pools.GetArray())
+		for(const rapidjson::Value & value : pools.GetArray())
 		{
-			if (!value.IsObject())
+			if(!value.IsObject())
 			{
 				continue;
 			}
 
-			for (size_t i = 0; i < ARRAY_SIZE(pool_options); i++)
+			for(size_t i = 0; i < ARRAY_SIZE(pool_options); i++)
 			{
 				parseJSON(&pool_options[i], value);
 			}
@@ -571,11 +571,11 @@ void Options::parseConfig(const char* fileName)
 	}
 
 	const rapidjson::Value & bind = doc["bind"];
-	if (bind.IsArray())
+	if(bind.IsArray())
 	{
-		for (const rapidjson::Value & value : bind.GetArray())
+		for(const rapidjson::Value & value : bind.GetArray())
 		{
-			if (!value.IsString())
+			if(!value.IsString())
 			{
 				continue;
 			}
@@ -585,9 +585,9 @@ void Options::parseConfig(const char* fileName)
 	}
 
 	const rapidjson::Value & api = doc["api"];
-	if (api.IsObject())
+	if(api.IsObject())
 	{
-		for (size_t i = 0; i < ARRAY_SIZE(api_options); i++)
+		for(size_t i = 0; i < ARRAY_SIZE(api_options); i++)
 		{
 			parseJSON(&api_options[i], api);
 		}
@@ -597,22 +597,22 @@ void Options::parseConfig(const char* fileName)
 
 void Options::parseJSON(const struct option* option, const rapidjson::Value & object)
 {
-	if (!option->name || !object.HasMember(option->name))
+	if(!option->name || !object.HasMember(option->name))
 	{
 		return;
 	}
 
 	const rapidjson::Value & value = object[option->name];
 
-	if (option->has_arg && value.IsString())
+	if(option->has_arg && value.IsString())
 	{
 		parseArg(option->val, value.GetString());
 	}
-	else if (option->has_arg && value.IsUint64())
+	else if(option->has_arg && value.IsUint64())
 	{
 		parseArg(option->val, value.GetUint64());
 	}
-	else if (!option->has_arg && value.IsBool())
+	else if(!option->has_arg && value.IsBool())
 	{
 		parseBoolean(option->val, value.IsTrue());
 	}
@@ -621,7 +621,7 @@ void Options::parseJSON(const struct option* option, const rapidjson::Value & ob
 
 void Options::showUsage(int status) const
 {
-	if (status)
+	if(status)
 	{
 		fprintf(stderr, "Try \"" APP_ID "\" --help' for more information.\n");
 	}

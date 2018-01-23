@@ -54,13 +54,13 @@ public:
 		m_port(kDefaultPort),
 		m_keystream("")
 	{
-		if (addr.empty())
+		if(addr.empty())
 		{
 			return;
 		}
 
 		const size_t port = addr.find_first_of(':');
-		if (port == std::string::npos)
+		if(port == std::string::npos)
 		{
 			m_host = addr.substr(port);
 			return;
@@ -70,7 +70,7 @@ public:
 		m_port = (uint16_t) strtol(addr.substr(port + 1).c_str(), nullptr, 10);
 
 		const size_t keystream = addr.find_first_of('#', port);
-		if (keystream != std::string::npos)
+		if(keystream != std::string::npos)
 		{
 			m_keystream = addr.substr(keystream + 1);
 		}
@@ -94,7 +94,7 @@ public:
 	}
 	void copyKeystream(char* keystreamDest, const size_t keystreamLen) const
 	{
-		if (0 < m_keystream.size())
+		if(0 < m_keystream.size())
 		{
 			memset(keystreamDest, 1, keystreamLen);
 			memcpy(keystreamDest, m_keystream.c_str(), std::min(keystreamLen, m_keystream.size()));

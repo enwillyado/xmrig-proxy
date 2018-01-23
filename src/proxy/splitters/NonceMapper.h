@@ -48,54 +48,57 @@ class Url;
 class SubmitCtx
 {
 public:
-    inline SubmitCtx() : id(0), minerId(0), miner(nullptr) {}
-    inline SubmitCtx(int64_t id, int64_t minerId) : id(id), minerId(minerId), miner(nullptr) {}
+	inline SubmitCtx() : id(0), minerId(0), miner(nullptr) {}
+	inline SubmitCtx(int64_t id, int64_t minerId) : id(id), minerId(minerId), miner(nullptr) {}
 
-    int64_t id;
-    int64_t minerId;
-    Miner *miner;
+	int64_t id;
+	int64_t minerId;
+	Miner* miner;
 };
 
 
 class NonceMapper : public IStrategyListener
 {
 public:
-    NonceMapper(size_t id, const Options *options, const char *agent);
-    ~NonceMapper();
+	NonceMapper(size_t id, const Options* options, const char* agent);
+	~NonceMapper();
 
-    bool add(Miner *miner, const LoginRequest &request);
-    bool isActive() const;
-    void gc();
-    void remove(const Miner *miner);
-    void start();
-    void submit(SubmitEvent *event);
-    void tick(uint64_t ticks, uint64_t now);
+	bool add(Miner* miner, const LoginRequest & request);
+	bool isActive() const;
+	void gc();
+	void remove(const Miner* miner);
+	void start();
+	void submit(SubmitEvent* event);
+	void tick(uint64_t ticks, uint64_t now);
 
-    inline bool isSuspended() const { return m_suspended; }
+	inline bool isSuspended() const
+	{
+		return m_suspended;
+	}
 
 #   ifdef APP_DEVEL
-    void printState();
+	void printState();
 #   endif
 
 protected:
-    void onActive(Client *client) override;
-    void onJob(Client *client, const Job &job) override;
-    void onPause(IStrategy *strategy) override;
-    void onResultAccepted(Client *client, const SubmitResult &result, const char *error) override;
+	void onActive(Client* client) override;
+	void onJob(Client* client, const Job & job) override;
+	void onPause(IStrategy* strategy) override;
+	void onResultAccepted(Client* client, const SubmitResult & result, const char* error) override;
 
 private:
-    SubmitCtx submitCtx(int64_t seq);
-    void connect();
-    void suspend();
+	SubmitCtx submitCtx(int64_t seq);
+	void connect();
+	void suspend();
 
-    bool m_suspended;
-    const char *m_agent;
-    const Options *m_options;
-    DonateStrategy *m_donate;
-    IStrategy *m_strategy;
-    NonceStorage *m_storage;
-    size_t m_id;
-    std::map<int64_t, SubmitCtx> m_results;
+	bool m_suspended;
+	const char* m_agent;
+	const Options* m_options;
+	DonateStrategy* m_donate;
+	IStrategy* m_strategy;
+	NonceStorage* m_storage;
+	size_t m_id;
+	std::map<int64_t, SubmitCtx> m_results;
 };
 
 

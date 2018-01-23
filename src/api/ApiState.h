@@ -36,28 +36,28 @@ class Hashrate;
 class ApiState
 {
 public:
-    ApiState();
-    ~ApiState();
+	ApiState();
+	~ApiState();
 
-    char *get(const char *url, int *status) const;
-    void tick(const StatsData &data);
-    void tick(const std::vector<Worker> &workers);
+	char* get(const char* url, int* status) const;
+	void tick(const StatsData & data);
+	void tick(const std::vector<Worker> & workers);
 
 private:
-    char *finalize(rapidjson::Document &doc) const;
-    void genId();
-    void getHashrate(rapidjson::Document &doc) const;
-    void getIdentify(rapidjson::Document &doc) const;
-    void getMiner(rapidjson::Document &doc) const;
-    void getMinersSummary(rapidjson::Document &doc) const;
-    void getResources(rapidjson::Document &doc) const;
-    void getResults(rapidjson::Document &doc) const;
-    void getWorkers(rapidjson::Document &doc) const;
+	char* finalize(rapidjson::Document & doc) const;
+	void genId();
+	void getHashrate(rapidjson::Document & doc) const;
+	void getIdentify(rapidjson::Document & doc) const;
+	void getMiner(rapidjson::Document & doc) const;
+	void getMinersSummary(rapidjson::Document & doc) const;
+	void getResources(rapidjson::Document & doc) const;
+	void getResults(rapidjson::Document & doc) const;
+	void getWorkers(rapidjson::Document & doc) const;
 
-    char m_id[17];
-    char m_workerId[128];
-    StatsData m_stats;
-    std::vector<Worker> m_workers;
+	char m_id[17];
+	char m_workerId[128];
+	StatsData m_stats;
+	std::vector<Worker> m_workers;
 };
 
 #endif /* __APISTATE_H__ */

@@ -32,20 +32,21 @@
 class LoginEvent : public MinerEvent
 {
 public:
-    static inline LoginEvent *create(Miner *miner, int64_t id, const char *login, const char *pass, const char *agent)
-    {
-        return new (m_buf) LoginEvent(miner, id, login, pass, agent);
-    }
+	static inline LoginEvent* create(Miner* miner, int64_t id, const char* login, const char* pass,
+	                                 const char* agent)
+	{
+		return new(m_buf) LoginEvent(miner, id, login, pass, agent);
+	}
 
 
-    LoginRequest request;
+	LoginRequest request;
 
 
 protected:
-    inline LoginEvent(Miner *miner, int64_t id, const char *login, const char *pass, const char *agent)
-        : MinerEvent(LoginType, miner),
-          request(id, login, pass, agent)
-    {}
+	inline LoginEvent(Miner* miner, int64_t id, const char* login, const char* pass, const char* agent)
+		: MinerEvent(LoginType, miner),
+		  request(id, login, pass, agent)
+	{}
 };
 
 #endif /* __LOGINEVENT_H__ */

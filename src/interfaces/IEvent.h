@@ -28,19 +28,20 @@
 class IEvent
 {
 public:
-    enum Type {
-        ConnectionType,
-        CloseType,
-        LoginType,
-        SubmitType,
-        AcceptType
-    };
+	enum Type
+	{
+		ConnectionType,
+		CloseType,
+		LoginType,
+		SubmitType,
+		AcceptType
+	};
 
-    virtual ~IEvent() {}
+	virtual ~IEvent() {}
 
-    virtual bool isRejected() const = 0;
-    virtual Type type() const       = 0;
-    virtual void reject()           = 0;
+	virtual bool isRejected() const = 0;
+	virtual Type type() const       = 0;
+	virtual void reject()           = 0;
 };
 
 

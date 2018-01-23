@@ -43,29 +43,29 @@ class SubmitEvent;
 class NonceSplitter : public IEventListener
 {
 public:
-    NonceSplitter();
-    ~NonceSplitter();
+	NonceSplitter();
+	~NonceSplitter();
 
-    uint32_t activeUpstreams() const;
-    void connect();
-    void gc();
-    void printConnections();
-    void tick(uint64_t ticks);
+	uint32_t activeUpstreams() const;
+	void connect();
+	void gc();
+	void printConnections();
+	void tick(uint64_t ticks);
 
 #   ifdef APP_DEVEL
-    void printState();
+	void printState();
 #   endif
 
 protected:
-    void onEvent(IEvent *event) override;
-    inline void onRejectedEvent(IEvent *event) override {}
+	void onEvent(IEvent* event) override;
+	inline void onRejectedEvent(IEvent* event) override {}
 
 private:
-    void login(LoginEvent *event);
-    void remove(Miner *miner);
-    void submit(SubmitEvent *event);
+	void login(LoginEvent* event);
+	void remove(Miner* miner);
+	void submit(SubmitEvent* event);
 
-    std::vector<NonceMapper*> m_upstreams;
+	std::vector<NonceMapper*> m_upstreams;
 };
 
 

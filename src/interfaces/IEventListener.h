@@ -31,10 +31,10 @@ class IEvent;
 class IEventListener
 {
 public:
-    virtual ~IEventListener() {}
+	virtual ~IEventListener() {}
 
-    virtual void onEvent(IEvent *event)         = 0;
-    virtual void onRejectedEvent(IEvent *event) = 0;
+	virtual void onEvent(IEvent* event)         = 0;
+	virtual void onRejectedEvent(IEvent* event) = 0;
 };
 
 

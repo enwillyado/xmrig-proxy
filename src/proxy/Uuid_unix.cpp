@@ -27,9 +27,9 @@
 #include "proxy/Uuid.h"
 
 
-void Uuid::create(char *out, size_t size)
+void Uuid::create(char* out, size_t size)
 {
-    uuid_t id;
-    uuid_generate(id);
-    uuid_unparse_lower(id, out);
+	uuid_t id;
+	uuid_generate(id);
+	uuid_unparse_lower(id, out);
 }

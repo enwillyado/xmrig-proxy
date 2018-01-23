@@ -21,7 +21,7 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- 
+
 #include <CoreFoundation/CFUUID.h>
 #include <string.h>
 
@@ -29,13 +29,13 @@
 #include "proxy/Uuid.h"
 
 
-void Uuid::create(char *out, size_t size)
+void Uuid::create(char* out, size_t size)
 {
-    CFUUIDRef id = CFUUIDCreate(nullptr);
-    CFStringRef str = CFUUIDCreateString(nullptr, id);
+	CFUUIDRef id = CFUUIDCreate(nullptr);
+	CFStringRef str = CFUUIDCreateString(nullptr, id);
 
-    strncpy(out, CFStringGetCStringPtr(str, kCFStringEncodingASCII), size);
+	strncpy(out, CFStringGetCStringPtr(str, kCFStringEncodingASCII), size);
 
-    CFRelease(str);
-    CFRelease(id);
+	CFRelease(str);
+	CFRelease(id);
 }

@@ -28,58 +28,61 @@
 #include "api/ApiState.h"
 
 
-ApiState *Api::m_state = nullptr;
+ApiState* Api::m_state = nullptr;
 uv_mutex_t Api::m_mutex;
 
 
 bool Api::start()
 {
-    uv_mutex_init(&m_mutex);
-    m_state = new ApiState();
+	uv_mutex_init(&m_mutex);
+	m_state = new ApiState();
 
-    return true;
+	return true;
 }
 
 
 void Api::release()
 {
-    delete m_state;
+	delete m_state;
 }
 
 
-char *Api::get(const char *url, int *status)
+char* Api::get(const char* url, int* status)
 {
-    if (!m_state) {
-        return nullptr;
-    }
+	if(!m_state)
+	{
+		return nullptr;
+	}
 
-    uv_mutex_lock(&m_mutex);
-    char *buf = m_state->get(url, status);
-    uv_mutex_unlock(&m_mutex);
+	uv_mutex_lock(&m_mutex);
+	char* buf = m_state->get(url, status);
+	uv_mutex_unlock(&m_mutex);
 
-    return buf;
+	return buf;
 }
 
 
-void Api::tick(const StatsData &data)
+void Api::tick(const StatsData & data)
 {
-    if (!m_state) {
-        return;
-    }
+	if(!m_state)
+	{
+		return;
+	}
 
-    uv_mutex_lock(&m_mutex);
-    m_state->tick(data);
-    uv_mutex_unlock(&m_mutex);
+	uv_mutex_lock(&m_mutex);
+	m_state->tick(data);
+	uv_mutex_unlock(&m_mutex);
 }
 
 
-void Api::tick(const std::vector<Worker> &workers)
+void Api::tick(const std::vector<Worker> & workers)
 {
-    if (!m_state) {
-        return;
-    }
+	if(!m_state)
+	{
+		return;
+	}
 
-    uv_mutex_lock(&m_mutex);
-    m_state->tick(workers);
-    uv_mutex_unlock(&m_mutex);
+	uv_mutex_lock(&m_mutex);
+	m_state->tick(workers);
+	uv_mutex_unlock(&m_mutex);
 }

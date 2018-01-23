@@ -31,9 +31,9 @@
 
 
 Stats::Stats() :
-    m_hashrate(4)
+	m_hashrate(4)
 {
-    m_data.startTime = uv_now(uv_default_loop());
+	m_data.startTime = uv_now(uv_default_loop());
 }
 
 
@@ -42,98 +42,102 @@ Stats::~Stats()
 }
 
 
-void Stats::tick(uint64_t ticks, const NonceSplitter &splitter)
+void Stats::tick(uint64_t ticks, const NonceSplitter & splitter)
 {
-    ticks++;
+	ticks++;
 
-    if ((ticks % m_hashrate.tickTime()) == 0) {
-        m_hashrate.tick();
+	if((ticks % m_hashrate.tickTime()) == 0)
+	{
+		m_hashrate.tick();
 
 #       ifndef XMRIG_NO_API
-        m_data.hashrate[0] = hashrate(60);
-        m_data.hashrate[1] = hashrate(600);
-        m_data.hashrate[2] = hashrate(3600);
-        m_data.hashrate[3] = hashrate(3600 * 12);
-        m_data.hashrate[4] = hashrate(3600 * 24);
+		m_data.hashrate[0] = hashrate(60);
+		m_data.hashrate[1] = hashrate(600);
+		m_data.hashrate[2] = hashrate(3600);
+		m_data.hashrate[3] = hashrate(3600 * 12);
+		m_data.hashrate[4] = hashrate(3600 * 24);
 
-        m_data.upstreams = splitter.activeUpstreams();
-        m_data.miners    = Counters::miners();
-        m_data.maxMiners = Counters::maxMiners();
-        m_data.expired   = Counters::expired;
-        Api::tick(m_data);
+		m_data.upstreams = splitter.activeUpstreams();
+		m_data.miners    = Counters::miners();
+		m_data.maxMiners = Counters::maxMiners();
+		m_data.expired   = Counters::expired;
+		Api::tick(m_data);
 #       endif
-    }
+	}
 }
 
 
-void Stats::onEvent(IEvent *event)
+void Stats::onEvent(IEvent* event)
 {
-    switch (event->type())
-    {
-    case IEvent::ConnectionType:
-        m_data.connections++;
-        break;
+	switch(event->type())
+	{
+	case IEvent::ConnectionType:
+		m_data.connections++;
+		break;
 
-    case IEvent::CloseType:
-        m_data.connections--;
-        break;
+	case IEvent::CloseType:
+		m_data.connections--;
+		break;
 
-    case IEvent::AcceptType:
-        accept(static_cast<AcceptEvent*>(event));
-        break;
+	case IEvent::AcceptType:
+		accept(static_cast<AcceptEvent*>(event));
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
-void Stats::onRejectedEvent(IEvent *event)
+void Stats::onRejectedEvent(IEvent* event)
 {
-    switch (event->type())
-    {
-    case IEvent::SubmitType:
-        m_data.invalid++;
-        break;
+	switch(event->type())
+	{
+	case IEvent::SubmitType:
+		m_data.invalid++;
+		break;
 
-    case IEvent::AcceptType:
-        reject(static_cast<AcceptEvent*>(event));
-        break;
+	case IEvent::AcceptType:
+		reject(static_cast<AcceptEvent*>(event));
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
-void Stats::accept(const AcceptEvent *event)
+void Stats::accept(const AcceptEvent* event)
 {
-    m_hashrate.add(event->result.diff);
+	m_hashrate.add(event->result.diff);
 
-    m_data.accepted++;
-    m_data.hashes += event->result.diff;
+	m_data.accepted++;
+	m_data.hashes += event->result.diff;
 
-    if (event->isDonate()) {
-        m_data.donateHashes += event->result.diff;
-    }
+	if(event->isDonate())
+	{
+		m_data.donateHashes += event->result.diff;
+	}
 
-    Counters::accepted++;
+	Counters::accepted++;
 
-    const size_t ln = m_data.topDiff.size() - 1;
-    if (event->result.actualDiff > m_data.topDiff[ln]) {
-        m_data.topDiff[ln] = event->result.actualDiff;
-        std::sort(m_data.topDiff.rbegin(), m_data.topDiff.rend());
-    }
+	const size_t ln = m_data.topDiff.size() - 1;
+	if(event->result.actualDiff > m_data.topDiff[ln])
+	{
+		m_data.topDiff[ln] = event->result.actualDiff;
+		std::sort(m_data.topDiff.rbegin(), m_data.topDiff.rend());
+	}
 
-    m_data.latency.push_back(event->result.elapsed > 0xFFFF ? 0xFFFF : (uint16_t) event->result.elapsed);
+	m_data.latency.push_back(event->result.elapsed > 0xFFFF ? 0xFFFF : (uint16_t) event->result.elapsed);
 }
 
 
-void Stats::reject(const AcceptEvent *event)
+void Stats::reject(const AcceptEvent* event)
 {
-    if (event->isDonate()) {
-        return;
-    }
+	if(event->isDonate())
+	{
+		return;
+	}
 
-    m_data.rejected++;
+	m_data.rejected++;
 }

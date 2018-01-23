@@ -32,16 +32,20 @@
 
 void App::background()
 {
-    if (!m_options->background()) {
-        return;
-    }
+	if(!m_options->background())
+	{
+		return;
+	}
 
-    HWND hcon = GetConsoleWindow();
-    if (hcon) {
-        ShowWindow(hcon, SW_HIDE);
-    } else {
-        HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
-        CloseHandle(h);
-        FreeConsole();
-    }
+	HWND hcon = GetConsoleWindow();
+	if(hcon)
+	{
+		ShowWindow(hcon, SW_HIDE);
+	}
+	else
+	{
+		HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+		CloseHandle(h);
+		FreeConsole();
+	}
 }

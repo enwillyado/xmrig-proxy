@@ -31,22 +31,25 @@
 class ConnectionEvent : public MinerEvent
 {
 public:
-    static inline bool start(Miner *miner, int port)
-    {
-        return exec(new (m_buf) ConnectionEvent(miner, port));
-    }
+	static inline bool start(Miner* miner, int port)
+	{
+		return exec(new(m_buf) ConnectionEvent(miner, port));
+	}
 
-    inline int port() const { return m_port; }
+	inline int port() const
+	{
+		return m_port;
+	}
 
 
 protected:
-    inline ConnectionEvent(Miner *miner, int port)
-        : MinerEvent(ConnectionType, miner),
-          m_port(port)
-    {}
+	inline ConnectionEvent(Miner* miner, int port)
+		: MinerEvent(ConnectionType, miner),
+		  m_port(port)
+	{}
 
 private:
-    int m_port;
+	int m_port;
 };
 
 

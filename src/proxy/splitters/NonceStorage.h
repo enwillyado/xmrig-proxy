@@ -39,34 +39,43 @@ class Miner;
 class NonceStorage
 {
 public:
-    NonceStorage();
-    ~NonceStorage();
+	NonceStorage();
+	~NonceStorage();
 
-    bool add(Miner *miner, const LoginRequest &request);
-    bool isUsed() const;
-    bool isValidJobId(const JobId &id);
-    Miner *miner(int64_t id);
-    void remove(const Miner *miner);
-    void reset();
-    void setJob(const Job &job);
+	bool add(Miner* miner, const LoginRequest & request);
+	bool isUsed() const;
+	bool isValidJobId(const JobId & id);
+	Miner* miner(int64_t id);
+	void remove(const Miner* miner);
+	void reset();
+	void setJob(const Job & job);
 
-    inline bool isActive() const       { return m_active; }
-    inline const Job &job() const      { return m_job; }
-    inline void setActive(bool active) { m_active = active; }
+	inline bool isActive() const
+	{
+		return m_active;
+	}
+	inline const Job & job() const
+	{
+		return m_job;
+	}
+	inline void setActive(bool active)
+	{
+		m_active = active;
+	}
 
 #   ifdef APP_DEVEL
-    void printState(size_t id);
+	void printState(size_t id);
 #   endif
 
 private:
-    int nextIndex(int start) const;
+	int nextIndex(int start) const;
 
-    bool m_active;
-    Job m_job;
-    Job m_prevJob;
-    std::map<int64_t, Miner*> m_miners;
-    std::vector<int64_t> m_used;
-    uint8_t m_index;
+	bool m_active;
+	Job m_job;
+	Job m_prevJob;
+	std::map<int64_t, Miner*> m_miners;
+	std::vector<int64_t> m_used;
+	uint8_t m_index;
 };
 
 
