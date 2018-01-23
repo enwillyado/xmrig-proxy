@@ -31,17 +31,17 @@
 
 SysLog::SysLog()
 {
-    openlog(APP_ID, LOG_PID, LOG_USER);
+	openlog(APP_ID, LOG_PID, LOG_USER);
 }
 
-
-void SysLog::message(int level, const char *fmt, va_list args)
+void SysLog::text(const std::string & txt)
 {
-    vsyslog(level, fmt, args);
+	message(INFO, txt);
 }
 
 
-void SysLog::text(const char *fmt, va_list args)
+void SysLog::message(Level level, const std::string & txt)
 {
-    message(LOG_INFO, fmt, args);
+	syslog(level == INFO ? LOG_INFO : LOG_NOTICE, "%s", txt);
 }
+

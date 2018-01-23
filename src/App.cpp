@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <uv.h>
-
+#include <ios>
 
 #include "api/Api.h"
 #include "App.h"
@@ -48,174 +48,180 @@
 #   include "api/Httpd.h"
 #endif
 
-App *App::m_self = nullptr;
+App* App::m_self = nullptr;
 
 
 
-App::App(int argc, char **argv) :
-    m_console(nullptr),
-    m_httpd(nullptr),
-    m_proxy(nullptr),
-    m_options(nullptr)
+App::App(int argc, char** argv) :
+	m_console(nullptr),
+	m_httpd(nullptr),
+	m_proxy(nullptr),
+	m_options(nullptr)
 {
-    m_self    = this;
-    m_options = Options::parse(argc, argv);
-    if (!m_options) {
-        return;
-    }
+	m_self    = this;
+	m_options = Options::parse(argc, argv);
+	if(!m_options)
+	{
+		return;
+	}
 
-    Log::init();
+	Log::init();
 
-    if (!m_options->background()) {
-        Log::add(new ConsoleLog(m_options->colors()));
-        m_console = new Console(this);
-    }
+	if(!m_options->background())
+	{
+		Log::add(new ConsoleLog(m_options->colors()));
+		m_console = new Console(this);
+	}
 
-    if (m_options->logFile()) {
-        Log::add(new FileLog(m_options->logFile()));
-    }
+	if(m_options->logFile())
+	{
+		Log::add(new FileLog(m_options->logFile()));
+	}
 
 #   ifdef HAVE_SYSLOG_H
-    if (m_options->syslog()) {
-        Log::add(new SysLog());
-    }
+	if(m_options->syslog())
+	{
+		Log::add(new SysLog());
+	}
 #   endif
 
-    Platform::init(m_options->userAgent());
+	Platform::init(m_options->userAgent());
 
-    m_proxy = new Proxy(m_options);
+	m_proxy = new Proxy(m_options);
 
-    uv_signal_init(uv_default_loop(), &m_sigHUP);
-    uv_signal_init(uv_default_loop(), &m_sigINT);
-    uv_signal_init(uv_default_loop(), &m_sigTERM);
+	uv_signal_init(uv_default_loop(), &m_sigHUP);
+	uv_signal_init(uv_default_loop(), &m_sigINT);
+	uv_signal_init(uv_default_loop(), &m_sigTERM);
 }
 
 
 App::~App()
 {
-    uv_tty_reset_mode();
+	uv_tty_reset_mode();
 
-    delete m_console;
-    delete m_proxy;
+	delete m_console;
+	delete m_proxy;
 
 #   ifndef XMRIG_NO_HTTPD
-    delete m_httpd;
+	delete m_httpd;
 #   endif
 
-    Log::release();
+	Log::release();
 }
 
 
 int App::exec()
 {
-    if (!m_options) {
-        return 0;
-    }
+	if(!m_options)
+	{
+		return 0;
+	}
 
-    uv_signal_start(&m_sigHUP,  App::onSignal, SIGHUP);
-    uv_signal_start(&m_sigINT,  App::onSignal, SIGINT);
-    uv_signal_start(&m_sigTERM, App::onSignal, SIGTERM);
+	uv_signal_start(&m_sigHUP,  App::onSignal, SIGHUP);
+	uv_signal_start(&m_sigINT,  App::onSignal, SIGINT);
+	uv_signal_start(&m_sigTERM, App::onSignal, SIGTERM);
 
-    background();
+	background();
 
-    Summary::print();
+	Summary::print();
 
 #   ifndef XMRIG_NO_API
-    Api::start();
+	Api::start();
 #   endif
 
 #   ifndef XMRIG_NO_HTTPD
-    m_httpd = new Httpd(m_options->apiPort(), m_options->apiToken());
-    m_httpd->start();
+	m_httpd = new Httpd(m_options->apiPort(), m_options->apiToken());
+	m_httpd->start();
 #   endif
 
-    m_proxy->connect();
+	m_proxy->connect();
 
-    const int r = uv_run(uv_default_loop(), UV_RUN_DEFAULT);
-    uv_loop_close(uv_default_loop());
+	const int r = uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_loop_close(uv_default_loop());
 
-    Options::release();
-    Platform::release();
+	Options::release();
+	Platform::release();
 
-    return r;
+	return r;
 }
 
 
 void App::onConsoleCommand(char command)
 {
-    switch (command) {
+	switch(command)
+	{
 #   ifdef APP_DEVEL
-    case 's':
-    case 'S':
-        m_proxy->printState();
-        break;
+	case 's':
+	case 'S':
+		m_proxy->printState();
+		break;
 #   endif
 
-    case 'v':
-    case 'V':
-        Options::i()->toggleVerbose();
-        LOG_NOTICE("verbose: %d", Options::i()->verbose());
-        break;
+	case 'v':
+	case 'V':
+		Options::i()->toggleVerbose();
+		LOG_NOTICE("verbose: " << std::boolalpha << Options::i()->verbose());
+		break;
 
-    case 'h':
-    case 'H':
-        m_proxy->printHashrate();
-        break;
+	case 'h':
+	case 'H':
+		m_proxy->printHashrate();
+		break;
 
-    case 'c':
-    case 'C':
-        m_proxy->printConnections();
-        break;
+	case 'c':
+	case 'C':
+		m_proxy->printConnections();
+		break;
 
-    case 'd':
-    case 'D':
-        Options::i()->toggleDebug();
-        m_proxy->toggleDebug();
-        LOG_NOTICE("debug: %d", Options::i()->isDebug());
-        break;
+	case 'd':
+	case 'D':
+		Options::i()->toggleDebug();
+		m_proxy->toggleDebug();
+		LOG_NOTICE("debug: " << std::boolalpha << Options::i()->isDebug());
+		break;
 
-    case 'w':
-    case 'W':
-        m_proxy->printWorkers();
-        break;
+	case 'w':
+	case 'W':
+		m_proxy->printWorkers();
+		break;
 
-    case 3:
-        LOG_WARN("Ctrl+C received, exiting");
-        close();
-        break;
+	case 3:
+		LOG_WARN("Ctrl+C received, exiting");
+		close();
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
 void App::close()
 {
-    uv_stop(uv_default_loop());
+	uv_stop(uv_default_loop());
 }
 
 
-void App::onSignal(uv_signal_t *handle, int signum)
+void App::onSignal(uv_signal_t* handle, int signum)
 {
-    switch (signum)
-    {
-    case SIGHUP:
-        LOG_WARN("SIGHUP received, exiting");
-        break;
+	switch(signum)
+	{
+	case SIGHUP:
+		LOG_WARN("SIGHUP received, exiting");
+		break;
 
-    case SIGTERM:
-        LOG_WARN("SIGTERM received, exiting");
-        break;
+	case SIGTERM:
+		LOG_WARN("SIGTERM received, exiting");
+		break;
 
-    case SIGINT:
-        LOG_WARN("SIGINT received, exiting");
-        break;
+	case SIGINT:
+		LOG_WARN("SIGINT received, exiting");
+		break;
 
-    default:
-        LOG_WARN("signal %d received, ignore", signum);
-        return;
-    }
+	default:
+		LOG_WARN("signal " << signum << " received, ignoring...");
+		return;
+	}
 
-    m_self->close();
+	m_self->close();
 }

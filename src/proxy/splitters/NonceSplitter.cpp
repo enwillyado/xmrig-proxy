@@ -53,148 +53,169 @@ NonceSplitter::~NonceSplitter()
 
 uint32_t NonceSplitter::activeUpstreams() const
 {
-    uint32_t active = 0;
+	uint32_t active = 0;
 
-    for (const NonceMapper *mapper : m_upstreams) {
-        if (mapper->isActive()) {
-            active++;
-        }
-    }
+	for(const NonceMapper* mapper : m_upstreams)
+	{
+		if(mapper->isActive())
+		{
+			active++;
+		}
+	}
 
-    return active;
+	return active;
 }
 
 
 void NonceSplitter::connect()
 {
-    auto upstream = new NonceMapper(m_upstreams.size(), Options::i(), Platform::userAgent());
-    m_upstreams.push_back(upstream);
+	auto upstream = new NonceMapper(m_upstreams.size(), Options::i(), Platform::userAgent());
+	m_upstreams.push_back(upstream);
 
-    upstream->start();
+	upstream->start();
 }
 
 
 void NonceSplitter::gc()
 {
-    for (NonceMapper *mapper : m_upstreams) {
-        mapper->gc();
-    }
+	for(NonceMapper* mapper : m_upstreams)
+	{
+		mapper->gc();
+	}
 }
 
 
 void NonceSplitter::printConnections()
 {
-    int active    = 0;
-    int suspended = 0;
+	int active    = 0;
+	int suspended = 0;
 
-    for (const NonceMapper *mapper : m_upstreams) {
-        if (mapper->isActive()) {
-            active++;
-            continue;
-        }
+	for(const NonceMapper* mapper : m_upstreams)
+	{
+		if(mapper->isActive())
+		{
+			active++;
+			continue;
+		}
 
-        if (mapper->isSuspended()) {
-            suspended++;
-            continue;
-        }
-    }
+		if(mapper->isSuspended())
+		{
+			suspended++;
+			continue;
+		}
+	}
 
-    const int error    = (int) m_upstreams.size() - active - suspended;
-    const double ratio = active > 0 ? ((double) Counters::miners() / active) : 0;
+	const int error    = (int) m_upstreams.size() - active - suspended;
+	const double ratio = active > 0 ? ((double) Counters::miners() / active) : 0;
 
-    if (Options::i()->colors()) {
-        LOG_INFO("\x1B[01;32m* \x1B[01;37mupstreams\x1B[0m" LABEL("active") "%s%d\x1B[0m" LABEL("sleep") "\x1B[01;37m%d\x1B[0m" LABEL("error") "%s%d\x1B[0m" LABEL("total") "\x1B[01;37m%d",
-                 active ? "\x1B[01;32m" : "\x1B[01;31m", active, suspended, error ? "\x1B[01;31m" : "\x1B[01;37m", error, m_upstreams.size());
+	if(Options::i()->colors())
+	{
+		/*
+		LOG_INFO("\x1B[01;32m* \x1B[01;37mupstreams\x1B[0m" LABEL("active") "%s%d\x1B[0m" LABEL("sleep")
+		         "\x1B[01;37m%d\x1B[0m" LABEL("error") "%s%d\x1B[0m" LABEL("total") "\x1B[01;37m%d",
+		         active ? "\x1B[01;32m" : "\x1B[01;31m", active, suspended, error ? "\x1B[01;31m" : "\x1B[01;37m", error,
+		         m_upstreams.size());
 
-        LOG_INFO("\x1B[01;32m* \x1B[01;37mminers   \x1B[0m" LABEL("active") "%s%" PRIu64 "\x1B[0m" LABEL("max") "\x1B[01;37m%" PRIu64 "\x1B[0m" LABEL("ratio") "%s1:%3.1f",
-                 Counters::miners() ? "\x1B[01;32m" : "\x1B[01;31m", Counters::miners(), Counters::maxMiners(), (ratio > 200 ? "\x1B[01;32m" : "\x1B[01;33m"), ratio);
-    }
-    else {
-        LOG_INFO("* upstreams: active %d sleep %d error %d total %d",
-                 active, suspended, error, m_upstreams.size());
+		LOG_INFO("\x1B[01;32m* \x1B[01;37mminers   \x1B[0m" LABEL("active") "%s%" PRIu64 "\x1B[0m" LABEL("max")
+		         "\x1B[01;37m%" PRIu64 "\x1B[0m" LABEL("ratio") "%s1:%3.1f",
+		         Counters::miners() ? "\x1B[01;32m" : "\x1B[01;31m", Counters::miners(), Counters::maxMiners(),
+		         (ratio > 200 ? "\x1B[01;32m" : "\x1B[01;33m"), ratio);
+		*/
+	}
+	else
+	{
+		LOG_INFO("* upstreams: active " << active << " sleep " << suspended << " error " << error << " total " <<
+		         m_upstreams.size());
 
-        LOG_INFO("* miners:    active %" PRIu64 " max %" PRIu64 " ratio 1:%3.1f",
-                 Counters::miners(), Counters::maxMiners(), ratio);
-    }
+		LOG_INFO("* miners:    active " << Counters::miners() << " max " << Counters::maxMiners() << " ratio 1:" <<
+		         ratio);
+	}
 }
 
 
 void NonceSplitter::tick(uint64_t ticks)
 {
-    const uint64_t now = uv_now(uv_default_loop());
+	const uint64_t now = uv_now(uv_default_loop());
 
-    for (NonceMapper *mapper : m_upstreams) {
-        mapper->tick(ticks, now);
-    }
+	for(NonceMapper* mapper : m_upstreams)
+	{
+		mapper->tick(ticks, now);
+	}
 }
 
 
 #ifdef APP_DEVEL
 void NonceSplitter::printState()
 {
-    for (NonceMapper *mapper : m_upstreams) {
-        mapper->printState();
-    }
+	for(NonceMapper* mapper : m_upstreams)
+	{
+		mapper->printState();
+	}
 }
 #endif
 
 
-void NonceSplitter::onEvent(IEvent *event)
+void NonceSplitter::onEvent(IEvent* event)
 {
-    switch (event->type())
-    {
-    case IEvent::CloseType:
-        remove(static_cast<CloseEvent*>(event)->miner());
-        break;
+	switch(event->type())
+	{
+	case IEvent::CloseType:
+		remove(static_cast<CloseEvent*>(event)->miner());
+		break;
 
-    case IEvent::LoginType:
-        login(static_cast<LoginEvent*>(event));
-        break;
+	case IEvent::LoginType:
+		login(static_cast<LoginEvent*>(event));
+		break;
 
-    case IEvent::SubmitType:
-        submit(static_cast<SubmitEvent*>(event));
-        break;
+	case IEvent::SubmitType:
+		submit(static_cast<SubmitEvent*>(event));
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
-void NonceSplitter::login(LoginEvent *event)
+void NonceSplitter::login(LoginEvent* event)
 {
-    // try reuse active upstreams.
-    for (NonceMapper *mapper : m_upstreams) {
-        if (!mapper->isSuspended() && mapper->add(event->miner(), event->request)) {
-            return;
-        }
-    }
+	// try reuse active upstreams.
+	for(NonceMapper* mapper : m_upstreams)
+	{
+		if(!mapper->isSuspended() && mapper->add(event->miner(), event->request))
+		{
+			return;
+		}
+	}
 
-    // try reuse suspended upstreams.
-    for (NonceMapper *mapper : m_upstreams) {
-        if (mapper->isSuspended() && mapper->add(event->miner(), event->request)) {
-            return;
-        }
-    }
+	// try reuse suspended upstreams.
+	for(NonceMapper* mapper : m_upstreams)
+	{
+		if(mapper->isSuspended() && mapper->add(event->miner(), event->request))
+		{
+			return;
+		}
+	}
 
-    connect();
-    login(event);
+	connect();
+	login(event);
 }
 
 
-void NonceSplitter::remove(Miner *miner)
+void NonceSplitter::remove(Miner* miner)
 {
-    if (miner->mapperId() < 0) {
-        return;
-    }
+	if(miner->mapperId() < 0)
+	{
+		return;
+	}
 
-    m_upstreams[miner->mapperId()]->remove(miner);
+	m_upstreams[miner->mapperId()]->remove(miner);
 }
 
 
-void NonceSplitter::submit(SubmitEvent *event)
+void NonceSplitter::submit(SubmitEvent* event)
 {
-    assert(event->miner()->mapperId() >= 0);
+	assert(event->miner()->mapperId() >= 0);
 
-    m_upstreams[event->miner()->mapperId()]->submit(event);
+	m_upstreams[event->miner()->mapperId()]->submit(event);
 }

@@ -40,13 +40,13 @@
 
 
 ProxyDebug::ProxyDebug(bool enabled) :
-    m_enabled(enabled)
+	m_enabled(enabled)
 {
-    Events::subscribe(IEvent::ConnectionType, this);
-    Events::subscribe(IEvent::CloseType, this);
-    Events::subscribe(IEvent::LoginType, this);
-    Events::subscribe(IEvent::SubmitType, this);
-    Events::subscribe(IEvent::AcceptType, this);
+	Events::subscribe(IEvent::ConnectionType, this);
+	Events::subscribe(IEvent::CloseType, this);
+	Events::subscribe(IEvent::LoginType, this);
+	Events::subscribe(IEvent::SubmitType, this);
+	Events::subscribe(IEvent::AcceptType, this);
 }
 
 
@@ -55,92 +55,112 @@ ProxyDebug::~ProxyDebug()
 }
 
 
-void ProxyDebug::onEvent(IEvent *event)
+void ProxyDebug::onEvent(IEvent* event)
 {
-    if (!m_enabled) {
-        return;
-    }
+	if(!m_enabled)
+	{
+		return;
+	}
 
-    switch (event->type())
-    {
-    case IEvent::ConnectionType: {
-            auto e = static_cast<ConnectionEvent*>(event);
-            LOG_INFO("[debug] connection <Miner id=%" PRId64 ", ip=%s> via port: %d", e->miner()->id(), e->miner()->ip(), e->port());
-        }
-        break;
+	switch(event->type())
+	{
+	case IEvent::ConnectionType:
+	{
+		auto e = static_cast<ConnectionEvent*>(event);
+		LOG_INFO("[debug] connection <Miner id=" << e->miner()->id() << ", ip=" << e->miner()->ip() << "> via port: "
+		         << e->port());
+	}
+	break;
 
-    case IEvent::LoginType: {
-            auto e = static_cast<LoginEvent*>(event);
-            LOG_INFO("[debug] login <Miner id=%" PRId64 ", ip=%s>, <Request login=%s, agent=%s>", e->miner()->id(), e->miner()->ip(), e->request.login(), e->request.agent());
-        }
-        break;
+	case IEvent::LoginType:
+	{
+		auto e = static_cast<LoginEvent*>(event);
+		LOG_INFO("[debug] login <Miner id=" << e->miner()->id() << ", ip=" << e->miner()->ip() << ">, <Request login="
+		         << e->request.login() << ", agent=" <<  e->request.agent() << ">");
+	}
+	break;
 
-    case IEvent::CloseType: {
-            auto e = static_cast<CloseEvent*>(event);
-            LOG_INFO("[debug] close <Miner id=%" PRId64 ", ip=%s>", e->miner()->id(), e->miner()->ip());
-        }
-        break;
+	case IEvent::CloseType:
+	{
+		auto e = static_cast<CloseEvent*>(event);
+		LOG_INFO("[debug] close <Miner id=" << e->miner()->id() << ", ip=" << e->miner()->ip() << ">");
+	}
+	break;
 
-    case IEvent::SubmitType: {
-            auto e = static_cast<SubmitEvent*>(event);
-            LOG_INFO("[debug] submit <Miner id=%" PRId64 ", ip=%s>, <Job actualDiff=%" PRIu64 ">", e->miner()->id(), e->miner()->ip(), e->request.actualDiff());
-        }
-        break;
+	case IEvent::SubmitType:
+	{
+		auto e = static_cast<SubmitEvent*>(event);
+		LOG_INFO("[debug] submit <Miner id=" << e->miner()->id() << ", ip=" << e->miner()->ip() <<
+		         ">, <Job actualDiff=" << e->request.actualDiff() << ">");
+	}
+	break;
 
-    case IEvent::AcceptType: {
-            auto e = static_cast<AcceptEvent*>(event);
-            LOG_INFO("[debug] accepted <Miner id=%" PRId64 ", ip=%s>, <Result diff=%u, actualDiff=%" PRIu64 ", elapsed=%" PRIu64 ">",
-                     e->miner() ? e->miner()->id() : -1, e->miner() ? e->miner()->ip() : "?.?.?.?", e->result.diff, e->result.actualDiff, e->result.elapsed);
-        }
-        break;
+	case IEvent::AcceptType:
+	{
+		auto e = static_cast<AcceptEvent*>(event);
+		LOG_INFO("[debug] accepted <Miner id=" << (e->miner() ? e->miner()->id() : -1) <<
+		         ", ip=" << (e->miner() ? e->miner()->ip() : "?.?.?.?") << ">, <Result diff=%u, actualDiff=" << e->result.diff
+		         << ", elapsed=" << e->result.elapsed);
+	}
+	break;
 
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
-void ProxyDebug::onRejectedEvent(IEvent *event)
+void ProxyDebug::onRejectedEvent(IEvent* event)
 {
-    if (!m_enabled) {
-        return;
-    }
+	if(!m_enabled)
+	{
+		return;
+	}
 
-    switch (event->type())
-    {
-    case IEvent::ConnectionType: {
-            ConnectionEvent *e = static_cast<ConnectionEvent*>(event);
-            LOG_ERR("[error] connection <Miner id=%" PRId64 ", ip=%s> via port: %d", e->miner()->id(), e->miner()->ip(), e->port());
-        }
-        break;
+	switch(event->type())
+	{
+	case IEvent::ConnectionType:
+	{
+		ConnectionEvent* e = static_cast<ConnectionEvent*>(event);
+		LOG_ERR("[error] connection <Miner id=" << e->miner()->id() << ", ip=" << e->miner()->ip() << "> via port: " <<
+		        e->port());
+	}
+	break;
 
-    case IEvent::LoginType: {
-            auto e = static_cast<LoginEvent*>(event);
-            LOG_ERR("[error] login <Miner id=%" PRId64 ", ip=%s>, <Request login=%s, agent=%s>", e->miner()->id(), e->miner()->ip(), e->request.login(), e->request.agent());
-        }
-        break;
+	case IEvent::LoginType:
+	{
+		auto e = static_cast<LoginEvent*>(event);
+		LOG_ERR("[error] login <Miner id=" << e->miner()->id() << ", ip=" << e->miner()->ip() << ">, <Request login="
+		        << e->request.login() << ", agent=" << e->request.agent() << " >");
+	}
+	break;
 
-    case IEvent::CloseType: {
-            auto e = static_cast<CloseEvent*>(event);
-            LOG_ERR("[error] close <Miner id=%" PRId64 ", ip=%s>", e->miner()->id(), e->miner()->ip());
-        }
-        break;
+	case IEvent::CloseType:
+	{
+		auto e = static_cast<CloseEvent*>(event);
+		LOG_ERR("[error] close <Miner id=" << e->miner()->id() << ", ip=" << e->miner()->ip() << ">");
+	}
+	break;
 
-    case IEvent::SubmitType: {
-            auto e = static_cast<SubmitEvent*>(event);
-            LOG_ERR("[error] submit <Miner id=%" PRId64 ", ip=%s>, message=%s", e->miner()->id(), e->miner()->ip(), e->message());
-        }
-        break;
+	case IEvent::SubmitType:
+	{
+		auto e = static_cast<SubmitEvent*>(event);
+		LOG_ERR("[error] submit <Miner id=" << e->miner()->id() << ", ip=" << e->miner()->ip() << ">, message=" <<
+		        e->message());
+	}
+	break;
 
-    case IEvent::AcceptType: {
-            auto e = static_cast<AcceptEvent*>(event);
-            LOG_ERR("[error] rejected <Miner id=%" PRId64 ", ip=%s>, <Result diff=%u, elapsed=%" PRIu64 ">, error=%s",
-                     e->miner() ? e->miner()->id() : -1, e->miner() ? e->miner()->ip() : "?.?.?.?", e->result.diff, e->result.elapsed, e->error());
-        }
-        break;
+	case IEvent::AcceptType:
+	{
+		auto e = static_cast<AcceptEvent*>(event);
+		LOG_ERR("[error] rejected <Miner id=" << (e->miner() ? e->miner()->id() : -1) << ", ip=" <<
+		        (e->miner() ? e->miner()->ip() : "?.?.?.?") << ">, <Result diff=" << e->result.diff << ", elapsed=" <<
+		        e->result.elapsed << ">, error=" << e->error());
+	}
+	break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }

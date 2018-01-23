@@ -107,7 +107,7 @@ void Proxy::connect()
 	m_splitter->connect();
 
 	const std::vector<Addr> & addrs = Options::i()->addrs();
-	for (const Addr addr : addrs)
+	for(const Addr addr : addrs)
 	{
 		bind(addr);
 	}
@@ -124,11 +124,13 @@ void Proxy::printConnections()
 
 void Proxy::printHashrate()
 {
+	/*
 	LOG_INFO(Options::i()->colors() ?
 	         "\x1B[01;32m* \x1B[01;37mspeed\x1B[0m \x1B[01;30m(1m) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(10m) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(1h) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(12h) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(24h) \x1B[01;36m%03.1f kH/s"
 	         : "* speed (1m) %03.1f, (10m) %03.1f, (1h) %03.1f, (12h) %03.1f, (24h) %03.1f kH/s",
 	         m_stats.hashrate(60), m_stats.hashrate(600), m_stats.hashrate(3600), m_stats.hashrate(3600 * 12),
 	         m_stats.hashrate(3600 * 24));
+	*/
 }
 
 
@@ -151,7 +153,7 @@ void Proxy::printState()
 	m_splitter->printState();
 	LOG_NOTICE("---------------------------------");
 
-	LOG_INFO("%" PRIu64 " (%" PRIu64 ")", Counters::miners(), Counters::connections);
+	LOG_INFO(Counters::miners() << "(" << Counters::connections << ")");
 }
 #endif
 
@@ -160,7 +162,7 @@ void Proxy::bind(const Addr & addr)
 {
 	auto server = new Server(addr);
 
-	if (server->bind())
+	if(server->bind())
 	{
 		m_servers.push_back(server);
 	}
@@ -179,16 +181,19 @@ void Proxy::gc()
 
 void Proxy::print()
 {
-	LOG_INFO(Options::i()->colors() ? "\x1B[01;36m%03.1f kH/s\x1B[0m, shares: \x1B[01;37m%" PRIu64 "\x1B[0m/%s%"
-	         PRIu64 "\x1B[0m +%" PRIu64 ", upstreams: \x1B[01;37m%u\x1B[0m, miners: \x1B[01;37m%" PRIu64
-	         "\x1B[0m (max \x1B[01;37m%" PRIu64 "\x1B[0m) +%u/-%u"
-	         : "%03.1f kH/s, shares: %" PRIu64 "/%s%" PRIu64 " +%" PRIu64 ", upstreams: %u, miners: %" PRIu64 " (max %"
-	         PRIu64 " +%u/-%u",
-	         m_stats.hashrate(60), m_stats.data().accepted,
-	         Options::i()->colors() ? (m_stats.data().rejected ? "\x1B[31m" : "\x1B[01;37m") : "", m_stats.data().rejected,
-	         Counters::accepted, m_splitter->activeUpstreams(), Counters::miners(), Counters::maxMiners(),
-	         Counters::added(), Counters::removed());
-
+	/*
+	LOG_INFO(Options::i()->colors() ? "\x1B[01; 36m % 03.1f kH / s\x1B[0m, shares: \x1B[01;
+	        37m % " PRIu64 "\x1B[0m / % s % "
+	                             PRIu64 "\x1B[0m + % " PRIu64 ", upstreams: \x1B[01; 37m % u\x1B[0m, miners: \x1B[01; 37m % " PRIu64
+	                                     "\x1B[0m(max \x1B[01; 37m % " PRIu64 "\x1B[0m) + % u / - % u"
+	                                             : " % 03.1f kH / s, shares: % " PRIu64 " / % s % " PRIu64 " + % " PRIu64 ", upstreams: % u,
+	                                             miners: % " PRIu64 "(max % "
+	                                                     PRIu64 " + % u / - % u",
+	                                                     m_stats.hashrate(60), m_stats.data().accepted,
+	                                                     Options::i()->colors() ? (m_stats.data().rejected ? "\x1B[31m" : "\x1B[01; 37m") : "", m_stats.data().rejected,
+	                                                             Counters::accepted, m_splitter->activeUpstreams(), Counters::miners(), Counters::maxMiners(),
+	                                                             Counters::added(), Counters::removed());
+	                                                             */
 	Counters::reset();
 }
 
@@ -199,12 +204,12 @@ void Proxy::tick()
 
 	m_ticks++;
 
-	if ((m_ticks % kGCInterval) == 0)
+	if((m_ticks % kGCInterval) == 0)
 	{
 		gc();
 	}
 
-	if ((m_ticks % kPrintInterval) == 0)
+	if((m_ticks % kPrintInterval) == 0)
 	{
 		print();
 	}

@@ -48,14 +48,16 @@ static void print_versions()
 #   endif
 
 
-	if (Options::i()->colors())
+	if(Options::i()->colors())
 	{
-		Log::i()->text("\x1B[01;32m * \x1B[01;37mVERSIONS:     \x1B[01;36mxmrig-proxy/%s\x1B[01;37m libuv/%s%s",
+		/*
+		LOG_INFO("\x1B[01;32m * \x1B[01;37mVERSIONS:     \x1B[01;36mxmrig-proxy/%s\x1B[01;37m libuv/%s%s",
 		               APP_VERSION, uv_version_string(), buf);
+		*/
 	}
 	else
 	{
-		Log::i()->text(" * VERSIONS:     xmrig-proxy/%s libuv/%s%s", APP_VERSION, uv_version_string(), buf);
+		LOG_INFO(" * VERSIONS:     xmrig-proxy/" << APP_VERSION << " libuv/" << uv_version_string() << buf);
 	}
 }
 
@@ -64,20 +66,23 @@ static void print_pools()
 {
 	const std::vector<Url*> & pools = Options::i()->pools();
 
-	for (size_t i = 0; i < pools.size(); ++i)
+	for(size_t i = 0; i < pools.size(); ++i)
 	{
-		Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mPOOL #%d:\x1B[0m      \x1B[36m%s:%d" :
+		/*
+		LOG_INFO(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mPOOL #%d:\x1B[0m      \x1B[36m%s:%d" :
 		               " * POOL #%d:      %s:%d",
 		               i + 1,
 		               pools[i]->host(),
 		               pools[i]->port());
+		*/
 	}
 
 #   ifdef APP_DEBUG
-	for (size_t i = 0; i < pools.size(); ++i)
+	for(size_t i = 0; i < pools.size(); ++i)
 	{
-		Log::i()->text("%s:%d, user: %s, pass: %s, ka: %d, nicehash: %d", pools[i]->host(), pools[i]->port(),
-		               pools[i]->user(), pools[i]->password(), pools[i]->isKeepAlive(), pools[i]->isNicehash());
+		LOG_INFO("" << pools[i]->host() << ":" << pools[i]->port() << ", user: " << pools[i]->user() <<
+		         ", pass: " << pools[i]->password() << ", ka: " << pools[i]->isKeepAlive() << ", nicehash: " <<
+		         pools[i]->isNicehash());
 	}
 #   endif
 }
@@ -87,13 +92,15 @@ static void print_bind()
 {
 	const std::vector<Addr> & addrs = Options::i()->addrs();
 
-	for (size_t i = 0; i < addrs.size(); ++i)
+	for(size_t i = 0; i < addrs.size(); ++i)
 	{
+		/*
 		Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mBIND #%d:\x1B[0m      \x1B[36m%s:%d" :
 		               " * BIND #%d:      %s:%d",
 		               i + 1,
 		               addrs[i].host(),
 		               addrs[i].port());
+					   */
 	}
 }
 
@@ -101,20 +108,21 @@ static void print_bind()
 #ifndef XMRIG_NO_API
 static void print_api()
 {
-	if (Options::i()->apiPort() == 0)
+	if(Options::i()->apiPort() == 0)
 	{
 		return;
 	}
-
+	/*
 	Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mAPI PORT:     \x1B[01;36m%d" :
 	               " * API PORT:     %d", Options::i()->apiPort());
+	*/
 }
 #endif
 
 
 static void print_commands()
 {
-	if (Options::i()->colors())
+	if(Options::i()->colors())
 	{
 		Log::i()->text("\x1B[01;32m * \x1B[01;37mCOMMANDS:     \x1B[01;35mh\x1B[01;37mashrate, \x1B[01;35mc\x1B[01;37monnections, \x1B[01;35mv\x1B[01;37merbose, \x1B[01;35mw\x1B[01;37morkers");
 	}

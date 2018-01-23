@@ -44,9 +44,10 @@ bool Server::bind()
 	uv_tcp_bind(&m_server, reinterpret_cast<const sockaddr*>(&m_addr), 0);
 
 	const int r = uv_listen(reinterpret_cast<uv_stream_t*>(&m_server), 511, Server::onConnection);
-	if (r)
+	if(r)
 	{
-		LOG_ERR("[%s:%u] listen error: \"%s\"", m_bindAddr.host(), m_bindAddr.port(), uv_strerror(r));
+		LOG_ERR("[" << m_bindAddr.host() << ":" << m_bindAddr.port() << "] listen error: \"" << uv_strerror(
+		            r) << "\"");
 		return false;
 	}
 
@@ -58,21 +59,21 @@ void Server::onConnection(uv_stream_t* server, int status)
 {
 	auto instance = static_cast<Server*>(server->data);
 
-	if (status < 0)
+	if(status < 0)
 	{
-		LOG_ERR("[%s:%u] new connection error: \"%s\"", instance->m_bindAddr.host(), instance->m_bindAddr.port(),
-		        uv_strerror(status));
+		LOG_ERR("[" << instance->m_bindAddr.host() << ":" << instance->m_bindAddr.port() <<
+		        "] new connection error: \"" << uv_strerror(status) << "\"");
 		return;
 	}
 
 	Miner* miner = new Miner(instance->m_bindAddr);
-	if (!miner)
+	if(!miner)
 	{
 		LOG_ERR("NEW FAILED");
 		return;
 	}
 
-	if (!miner->accept(server))
+	if(!miner->accept(server))
 	{
 		delete miner;
 		return;
