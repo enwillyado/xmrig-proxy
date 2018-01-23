@@ -31,8 +31,16 @@
 class Url
 {
 public:
-	constexpr static const char* kDefaultPassword = "x";
-	constexpr static const char* kDefaultUser     = "x";
+	static const std::string & DefaultPassword()
+	{
+		static const std::string kDefaultPassword = "x";
+		return kDefaultPassword;
+	}
+	static const std::string & DefaultUser()
+	{
+		static const std::string kDefaultUser = "x";
+		return kDefaultUser;
+	}
 	constexpr static uint16_t kDefaultPort        = 3333;
 	constexpr static uint16_t kDefaultProxyPort   = 8080;
 
@@ -55,17 +63,17 @@ public:
 	{
 		return m_keystream.size() > 0;
 	}
-	inline const char* host() const
+	inline const std::string & host() const
 	{
-		return isProxyed() ? proxyHost().c_str() : finalHost().c_str();
+		return isProxyed() ? proxyHost() : finalHost();
 	}
-	inline const char* password() const
+	inline const std::string & password() const
 	{
-		return m_password.empty() ? kDefaultPassword : m_password.c_str();
+		return m_password.empty() ? DefaultPassword() : m_password;
 	}
-	inline const char* user() const
+	inline const std::string & user() const
 	{
-		return m_user.empty() ? kDefaultUser : m_user.c_str();
+		return m_user.empty() ? DefaultUser() : m_user;
 	}
 	inline uint16_t port() const
 	{

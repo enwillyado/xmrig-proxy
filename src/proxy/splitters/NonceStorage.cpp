@@ -177,7 +177,7 @@ void NonceStorage::printState(size_t id)
 
 	int miners = 256 - available - dead;
 
-	/*
+	/*TODO LOG
 	LOG_INFO("#%03u - \x1B[32m%03d \x1B[33m%03d \x1B[35m%03d\x1B[0m - 0x%02hhX, % 5.1f%%",
 	         id, available, dead, miners, m_index, (double) miners / 256 * 100.0);
 	*/

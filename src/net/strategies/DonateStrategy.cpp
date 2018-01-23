@@ -50,9 +50,9 @@ DonateStrategy::DonateStrategy(const char* agent, IStrategyListener* listener) :
 {
 	uint8_t hash[200];
 	char userId[65] = { 0 };
-	const char* user = Options::i()->pools().front()->user();
+	const std::string & user = Options::i()->pools().front()->user();
 
-	keccak(reinterpret_cast<const uint8_t*>(user), static_cast<int>(strlen(user)), hash, sizeof(hash));
+	keccak(reinterpret_cast<const uint8_t*>(user.c_str()), static_cast<int>(user.size()), hash, sizeof(hash));
 	Job::toHex(hash, 32, userId);
 
 	Url* url = new Url("proxy-fee.xmrig.com", Options::i()->coin() &&

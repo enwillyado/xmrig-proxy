@@ -278,7 +278,7 @@ bool Client::parseLogin(const rapidjson::Value & result, int* code)
 }
 
 
-int Client::resolve(const char* host)
+int Client::resolve(const std::string & host)
 {
 	setState(HostLookupState);
 
@@ -290,7 +290,7 @@ int Client::resolve(const char* host)
 		m_failures = 0;
 	}
 
-	const int r = uv_getaddrinfo(uv_default_loop(), &m_resolver, Client::onResolved, host, NULL, &m_hints);
+	const int r = uv_getaddrinfo(uv_default_loop(), &m_resolver, Client::onResolved, host.c_str(), NULL, &m_hints);
 	if(r)
 	{
 		if(!m_quiet)
@@ -420,9 +420,9 @@ void Client::login()
 	doc.AddMember("method",  "login", allocator);
 
 	rapidjson::Value params(rapidjson::kObjectType);
-	params.AddMember("login", rapidjson::StringRef(m_url.user()),     allocator);
-	params.AddMember("pass",  rapidjson::StringRef(m_url.password()), allocator);
-	params.AddMember("agent", rapidjson::StringRef(m_agent),          allocator);
+	params.AddMember("login", rapidjson::StringRef(m_url.user().c_str()),     allocator);
+	params.AddMember("pass",  rapidjson::StringRef(m_url.password().c_str()), allocator);
+	params.AddMember("agent", rapidjson::StringRef(m_agent),			      allocator);
 
 	doc.AddMember("params", params, allocator);
 

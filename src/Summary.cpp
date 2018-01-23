@@ -50,7 +50,7 @@ static void print_versions()
 
 	if(Options::i()->colors())
 	{
-		/*
+		/*TODO LOG
 		LOG_INFO("\x1B[01;32m * \x1B[01;37mVERSIONS:     \x1B[01;36mxmrig-proxy/%s\x1B[01;37m libuv/%s%s",
 		               APP_VERSION, uv_version_string(), buf);
 		*/
@@ -68,7 +68,7 @@ static void print_pools()
 
 	for(size_t i = 0; i < pools.size(); ++i)
 	{
-		/*
+		/*TODO LOG
 		LOG_INFO(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mPOOL #%d:\x1B[0m      \x1B[36m%s:%d" :
 		               " * POOL #%d:      %s:%d",
 		               i + 1,
@@ -94,7 +94,7 @@ static void print_bind()
 
 	for(size_t i = 0; i < addrs.size(); ++i)
 	{
-		/*
+		/*TODO LOG
 		Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mBIND #%d:\x1B[0m      \x1B[36m%s:%d" :
 		               " * BIND #%d:      %s:%d",
 		               i + 1,
@@ -112,7 +112,7 @@ static void print_api()
 	{
 		return;
 	}
-	/*
+	/*TODO LOG
 	Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mAPI PORT:     \x1B[01;36m%d" :
 	               " * API PORT:     %d", Options::i()->apiPort());
 	*/

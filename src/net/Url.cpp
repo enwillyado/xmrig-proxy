@@ -28,48 +28,51 @@
 #include "net/Url.h"
 
 #ifdef _MSC_VER
-#   define strncasecmp(x,y,z) _strnicmp(x,y,z)
+#define strncasecmp(x,y,z) _strnicmp(x,y,z)
 #endif
 
-Url::Url() :
-	m_keepAlive(false),
-	m_nicehash(false),
-	m_host(),
-	m_password(),
-	m_user(),
-	m_port(kDefaultPort),
-	m_proxy_host(),
-	m_proxy_port(kDefaultProxyPort),
-	m_keystream()
+Url::Url()
+	: m_keepAlive(false),
+	  m_nicehash(false),
+	  m_host(),
+	  m_password(),
+	  m_user(),
+	  m_port(kDefaultPort),
+	  m_proxy_host(),
+	  m_proxy_port(kDefaultProxyPort),
+	  m_keystream()
 {
 }
 
-Url::Url(const std::string & url) :
-	m_keepAlive(false),
-	m_nicehash(false),
-	m_host(),
-	m_password(),
-	m_user(),
-	m_port(kDefaultPort),
-	m_proxy_host(),
-	m_proxy_port(kDefaultProxyPort),
-	m_keystream()
+Url::Url(const std::string & url)
+	: m_keepAlive(false),
+	  m_nicehash(false),
+	  m_host(),
+	  m_password(),
+	  m_user(),
+	  m_port(kDefaultPort),
+	  m_proxy_host(),
+	  m_proxy_port(kDefaultProxyPort),
+	  m_keystream()
 {
 	parse(url);
 }
 
-Url::Url(const std::string & host, uint16_t port, const std::string & user, const std::string & password,
+Url::Url(const std::string & host,
+         uint16_t port,
+         const std::string & user,
+         const std::string & password,
          bool keepAlive,
-         bool nicehash) :
-	m_keepAlive(keepAlive),
-	m_nicehash(nicehash),
-	m_host(host),
-	m_password(password),
-	m_user(user),
-	m_port(port),
-	m_proxy_host(),
-	m_proxy_port(kDefaultProxyPort),
-	m_keystream()
+         bool nicehash)
+	: m_keepAlive(keepAlive),
+	  m_nicehash(nicehash),
+	  m_host(host),
+	  m_password(password),
+	  m_user(user),
+	  m_port(port),
+	  m_proxy_host(),
+	  m_proxy_port(kDefaultProxyPort),
+	  m_keystream()
 {
 }
 
@@ -88,8 +91,18 @@ bool Url::isNicehash() const
  * Valid urls:
  * example.com
  * example.com:3333
+ * example.com:3333#keystream
+ * example.com:3333@proxy
+ * example.com:3333@proxy:8080
+ * example.com:3333#keystream@proxy
+ * example.com:3333#keystream@proxy:8080
  * stratum+tcp://example.com
  * stratum+tcp://example.com:3333
+ * stratum+tcp://example.com:3333#keystream
+ * stratum+tcp://example.com:3333@proxy
+ * stratum+tcp://example.com:3333@proxy:8080
+ * stratum+tcp://example.com:3333#keystream@proxy
+ * stratum+tcp://example.com:3333#keystream@proxy:8080
  *
  * @param url
  */
@@ -100,13 +113,13 @@ bool Url::parse(const std::string & url)
 	const size_t p = url.find("://");
 	if(p != std::string::npos)
 	{
-		static const std::string STRATUM = "stratum+tcp://";
-		if(strncasecmp(url.c_str(), STRATUM.c_str(), STRATUM.size()))
+		static const std::string STRATUM_PREFIX = "stratum+tcp://";
+		if(strncasecmp(url.c_str(), STRATUM_PREFIX.c_str(), STRATUM_PREFIX.size()))
 		{
 			return false;
 		}
 
-		base = STRATUM.size();
+		base = STRATUM_PREFIX.size();
 	}
 
 	const std::string path = url.substr(base);

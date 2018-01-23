@@ -60,7 +60,7 @@ void Workers::printWorkers()
 	char workerName[24];
 	size_t size = 0;
 
-	/*
+	/*TODO LOG
 	Log::i()->text(Options::i()->colors() ? "\x1B[01;37m%-23s | %-15s | %-5s | %-8s | %-3s | %10s |" : "%-23s | %-15s | %-5s | %-8s | %-3s | %10s |",
 	               "WORKER NAME", "LAST IP", "COUNT", "ACCEPTED", "REJ", "10 MIN");
 				   */
@@ -81,7 +81,7 @@ void Workers::printWorkers()
 			strncpy(workerName, name, sizeof(workerName) - 1);
 		}
 
-		/*
+		/*TODO LOG
 		Log::i()->text("%-23s | %-15s | %5" PRIu64 " | %8" PRIu64 " | %3" PRIu64 " | %5.1f kH/s |",
 		               workerName, worker.ip(), worker.connections(), worker.accepted(), worker.rejected(), worker.hashrate(600));
 		*/

@@ -124,7 +124,7 @@ void Proxy::printConnections()
 
 void Proxy::printHashrate()
 {
-	/*
+	/*TODO LOG
 	LOG_INFO(Options::i()->colors() ?
 	         "\x1B[01;32m* \x1B[01;37mspeed\x1B[0m \x1B[01;30m(1m) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(10m) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(1h) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(12h) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(24h) \x1B[01;36m%03.1f kH/s"
 	         : "* speed (1m) %03.1f, (10m) %03.1f, (1h) %03.1f, (12h) %03.1f, (24h) %03.1f kH/s",
@@ -181,7 +181,7 @@ void Proxy::gc()
 
 void Proxy::print()
 {
-	/*
+	/*TODO LOG
 	LOG_INFO(Options::i()->colors() ? "\x1B[01; 36m % 03.1f kH / s\x1B[0m, shares: \x1B[01;
 	        37m % " PRIu64 "\x1B[0m / % s % "
 	                             PRIu64 "\x1B[0m + % " PRIu64 ", upstreams: \x1B[01; 37m % u\x1B[0m, miners: \x1B[01; 37m % " PRIu64
