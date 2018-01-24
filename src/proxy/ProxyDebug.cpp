@@ -99,8 +99,8 @@ void ProxyDebug::onEvent(IEvent* event)
 	{
 		auto e = static_cast<AcceptEvent*>(event);
 		LOG_INFO("[debug] accepted <Miner id=" << (e->miner() ? e->miner()->id() : -1) <<
-		         ", ip=" << (e->miner() ? e->miner()->ip() : "?.?.?.?") << ">, <Result diff=%u, actualDiff=" << e->result.diff
-		         << ", elapsed=" << e->result.elapsed);
+		         ", ip=" << (e->miner() ? e->miner()->ip() : "?.?.?.?") << ">, <Result diff=" << e->result.diff <<
+		         ", actualDiff=" << e->result.actualDiff << ", elapsed=" << e->result.elapsed);
 	}
 	break;
 

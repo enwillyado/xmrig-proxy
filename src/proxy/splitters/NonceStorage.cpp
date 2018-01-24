@@ -23,6 +23,7 @@
 
 #include <inttypes.h>
 
+#include "Options.h"
 
 #include "log/Log.h"
 #include "proxy/Counters.h"
@@ -177,10 +178,18 @@ void NonceStorage::printState(size_t id)
 
 	int miners = 256 - available - dead;
 
-	/*TODO LOG
-	LOG_INFO("#%03u - \x1B[32m%03d \x1B[33m%03d \x1B[35m%03d\x1B[0m - 0x%02hhX, % 5.1f%%",
-	         id, available, dead, miners, m_index, (double) miners / 256 * 100.0);
-	*/
+	if(Options::i()->colors())
+	{
+		/*TODO LOG
+		LOG_INFO("#%03u - \x1B[32m%03d \x1B[33m%03d \x1B[35m%03d\x1B[0m - 0x%02hhX, % 5.1f%%",
+		         id, available, dead, miners, m_index, (double) miners / 256 * 100.0);
+		*/
+	}
+	else
+	{
+		LOG_INFO("#" << id << " - " << available << " " << dead << " " << miners << " - 0x" <<
+		         (int)m_index << ", " << ((double) miners / 256 * 100.0) << "%");
+	}
 }
 #endif
 

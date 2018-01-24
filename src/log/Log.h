@@ -80,6 +80,9 @@ private:
 	std::vector<ILogBackend*> m_backends;
 };
 
+
+#define PRINT_MSG(x)		 Log::i()->text(Log::TO_STRING(std::stringstream() << x))
+
 #define LOG_ERR(x)			 Log::i()->message(ILogBackend::ERR,     Log::TO_STRING(std::stringstream() << x))
 #define LOG_WARN(x)			 Log::i()->message(ILogBackend::WARNING, Log::TO_STRING(std::stringstream() << x))
 #define LOG_NOTICE(x)		 Log::i()->message(ILogBackend::NOTICE,  Log::TO_STRING(std::stringstream() << x))
