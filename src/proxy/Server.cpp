@@ -34,7 +34,7 @@ Server::Server(const Addr & addr) :
 	uv_tcp_init(uv_default_loop(), &m_server);
 	m_server.data = this;
 
-	uv_ip4_addr(m_bindAddr.host(), m_bindAddr.port(), &m_addr);
+	uv_ip4_addr(m_bindAddr.host().c_str(), m_bindAddr.port(), &m_addr);
 	uv_tcp_nodelay(&m_server, 1);
 }
 

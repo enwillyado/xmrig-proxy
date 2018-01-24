@@ -138,7 +138,7 @@ void Proxy::printHashrate()
 	{
 		LOG_INFO("* speed (1m) " << m_stats.hashrate(60) << ", (10m) " << m_stats.hashrate(
 		             600) << ", (1h) " << m_stats.hashrate(3600) << ", (12h) " << m_stats.hashrate(
-		             3600 * 12) << ", (24h) " <<  m_stats.hashrate(3600 * 24) << " kH/s");
+		             3600 * 12) << ", (24h) " << m_stats.hashrate(3600 * 24) << " kH/s");
 	}
 }
 

@@ -66,7 +66,7 @@ public:
 			return;
 		}
 
-		m_host = addr.substr(0, port - 1);
+		m_host = addr.substr(0, port);
 		m_port = (uint16_t) strtol(addr.substr(port + 1).c_str(), nullptr, 10);
 
 		const size_t keystream = addr.find_first_of('#', port);
@@ -80,9 +80,9 @@ public:
 	{
 		return m_host.size() && m_port > 0;
 	}
-	inline const char* host() const
+	inline const std::string & host() const
 	{
-		return m_host.c_str();
+		return m_host;
 	}
 	inline uint16_t port() const
 	{
