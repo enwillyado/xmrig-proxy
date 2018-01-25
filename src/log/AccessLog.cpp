@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <fstream>
 
 #include "log/AccessLog.h"
 #include "Options.h"
@@ -39,15 +40,14 @@
 
 
 AccessLog::AccessLog() :
-    m_file(-1)
+	m_file_name()
 {
-    if (!Options::i()->accessLog()) {
-        return;
-    }
+	if(!Options::i()->accessLog())
+	{
+		return;
+	}
 
-    uv_fs_t req;
-    m_file = uv_fs_open(uv_default_loop(), &req, Options::i()->accessLog(), O_CREAT | O_APPEND | O_WRONLY, 0644, nullptr);
-    uv_fs_req_cleanup(&req);
+	m_file_name = Options::i()->accessLog();
 }
 
 
@@ -56,84 +56,78 @@ AccessLog::~AccessLog()
 }
 
 
-void AccessLog::onEvent(IEvent *event)
+void AccessLog::onEvent(IEvent* event)
 {
-    if (m_file < 0) {
-        return;
-    }
+	if(m_file_name == "")
+	{
+		return;
+	}
 
-    switch (event->type())
-    {
-    case IEvent::LoginType: {
-            auto e = static_cast<LoginEvent*>(event);
-            write("#%" PRId64 " login: %s, \"%s\", ua: \"%s\", count: %" PRIu64, e->miner()->id(), e->miner()->ip(), e->request.login(), e->request.agent(), Counters::miners());
-        }
-        break;
+	switch(event->type())
+	{
+	case IEvent::LoginType:
+	{
+		auto e = static_cast<LoginEvent*>(event);
+		write("#%03." PRId64 " login: %s, \"%s\", ua: \"%s\", count: %" PRIu64, e->miner()->id(), e->miner()->ip(),
+		      e->request.login(), e->request.agent(), Counters::miners());
+	}
+	break;
 
-    case IEvent::CloseType: {
-            auto e = static_cast<CloseEvent*>(event);
-            if (e->miner()->mapperId() == -1) {
-                break;
-            }
+	case IEvent::CloseType:
+	{
+		auto e = static_cast<CloseEvent*>(event);
+		if(e->miner()->mapperId() == -1)
+		{
+			break;
+		}
 
-            const double time = (double)(uv_now(uv_default_loop()) - e->miner()->timestamp()) / 1000;
+		const double time = (double)(uv_now(uv_default_loop()) - e->miner()->timestamp()) / 1000;
 
-            write("#%" PRId64 " close: %s, time: %03.1fs, rx/tx: %" PRIu64 "/%" PRIu64 ", count: %" PRIu64,
-                  e->miner()->id(), e->miner()->ip(), time, e->miner()->rx(), e->miner()->tx(), Counters::miners());
-        }
-        break;
+		write("#%03." PRId64 " close: %s, time: %03.1fs, rx/tx: %" PRIu64 "/%" PRIu64 ", count: %" PRIu64,
+		      e->miner()->id(), e->miner()->ip(), time, e->miner()->rx(), e->miner()->tx(), Counters::miners());
+	}
+	break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
-void AccessLog::onRejectedEvent(IEvent *event)
+void AccessLog::onRejectedEvent(IEvent* event)
 {
 }
 
-
-void AccessLog::onWrite(uv_fs_t *req)
+void AccessLog::write(const char* fmt, ...)
 {
-    delete [] static_cast<char *>(req->data);
+	va_list args;
+	va_start(args, fmt);
 
-    uv_fs_req_cleanup(req);
-    delete req;
-}
-
-
-void AccessLog::write(const char *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-
-    time_t now = time(nullptr);
-    tm stime;
+	time_t now = time(nullptr);
+	tm stime;
 
 #   ifdef _WIN32
-    localtime_s(&stime, &now);
+	localtime_s(&stime, &now);
 #   else
-    localtime_r(&now, &stime);
+	localtime_r(&now, &stime);
 #   endif
 
-    char *buf = new char[1024];
-    int size = snprintf(buf, 23, "[%d-%02d-%02d %02d:%02d:%02d] ",
-                        stime.tm_year + 1900,
-                        stime.tm_mon + 1,
-                        stime.tm_mday,
-                        stime.tm_hour,
-                        stime.tm_min,
-                        stime.tm_sec);
+	char buf[1024];
+	int size = snprintf(buf, 23, "[%d-%02d-%02d %02d:%02d:%02d] ",
+	                    stime.tm_year + 1900,
+	                    stime.tm_mon + 1,
+	                    stime.tm_mday,
+	                    stime.tm_hour,
+	                    stime.tm_min,
+	                    stime.tm_sec);
 
-    size = vsnprintf(buf + size, 1024 - size - 1, fmt, args) + size;
-    buf[size] = '\n';
+	size = vsnprintf(buf + size, sizeof(buf) - size - 1, fmt, args) + size;
+	buf[size] = '\n';
 
-    uv_buf_t ubuf = uv_buf_init(buf, (unsigned int) size + 1);
-    uv_fs_t *req = new uv_fs_t;
-    req->data = ubuf.base;
+	std::ofstream outfile;
 
-    uv_fs_write(uv_default_loop(), req, m_file, &ubuf, 1, 0, AccessLog::onWrite);
+	outfile.open(m_file_name, std::ios_base::app);
+	outfile << std::string(buf, (unsigned int) size + 1);
 
-    va_end(args);
+	va_end(args);
 }

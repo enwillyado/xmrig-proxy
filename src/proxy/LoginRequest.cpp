@@ -27,33 +27,37 @@
 #include "proxy/LoginRequest.h"
 
 
-LoginRequest::LoginRequest(int64_t id, const char *login, const char *pass, const char *agent) :
-    m_agent(agent),
-    m_login(login),
-    m_pass(pass),
-    m_id(id)
+LoginRequest::LoginRequest(int64_t id, const char* login, const char* pass, const char* agent) :
+	m_agent(agent),
+	m_login(login),
+	m_pass(pass),
+	m_id(id)
 {
-    m_clientType = detectClient();
+	m_clientType = detectClient();
 }
 
 
 LoginRequest::ClientTypes LoginRequest::detectClient() const
 {
-    if (!m_agent || strlen(m_agent) < 32) {
-        return OtherClient;
-    }
+	if(!m_agent || strlen(m_agent) < 32)
+	{
+		return OtherClient;
+	}
 
-    if (memcmp(m_agent, "XMRig/2.0.", 10) == 0) {
-        return XMRig20Client;
-    }
+	if(memcmp(m_agent, "XMRig/2.0.", 10) == 0)
+	{
+		return XMRig20Client;
+	}
 
-    if (memcmp(m_agent, "XMRig/", 6) == 0) {
-        return XMRigClient;
-    }
+	if(memcmp(m_agent, "XMRig/", 6) == 0)
+	{
+		return XMRigClient;
+	}
 
-    if (memcmp(m_agent, "xmrig-proxy/", 13) == 0) {
-        return XMRigProxyClient;
-    }
+	if(memcmp(m_agent, "xmrig-proxy/", 13) == 0)
+	{
+		return XMRigProxyClient;
+	}
 
-    return OtherClient;
+	return OtherClient;
 }

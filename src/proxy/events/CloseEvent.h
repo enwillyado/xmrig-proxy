@@ -31,14 +31,14 @@
 class CloseEvent : public MinerEvent
 {
 public:
-    static inline bool start(Miner *miner)
-    {
-        return exec(new (m_buf) CloseEvent(miner));
-    }
+	static inline bool start(Miner* miner)
+	{
+		return exec(new(m_buf) CloseEvent(miner));
+	}
 
 
 protected:
-    inline CloseEvent(Miner *miner) : MinerEvent(CloseType, miner) {}
+	inline CloseEvent(Miner* miner) : MinerEvent(CloseType, miner) {}
 };
 
 #endif /* __CLOSEEVENT_H__ */

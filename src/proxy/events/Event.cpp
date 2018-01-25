@@ -29,7 +29,7 @@
 char Event::m_buf[4096];
 
 
-bool Event::exec(IEvent *event)
+bool Event::exec(IEvent* event)
 {
-    return Events::exec(event);
+	return Events::exec(event);
 }

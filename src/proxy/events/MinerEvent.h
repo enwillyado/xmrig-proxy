@@ -34,18 +34,21 @@ class Miner;
 class MinerEvent : public Event
 {
 public:
-    inline Miner *miner() const { return m_miner; }
+	inline Miner* miner() const
+	{
+		return m_miner;
+	}
 
 
 protected:
-    inline MinerEvent(Type type, Miner *miner) :
-        Event(type),
-        m_miner(miner)
-    {}
+	inline MinerEvent(Type type, Miner* miner) :
+		Event(type),
+		m_miner(miner)
+	{}
 
 
 private:
-    Miner *m_miner;
+	Miner* m_miner;
 };
 
 #endif /* __MINEREVENT_H__ */

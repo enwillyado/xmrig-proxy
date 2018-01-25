@@ -24,6 +24,7 @@
 
 #include <inttypes.h>
 
+#include <iomanip>
 
 #include "api/Api.h"
 #include "log/Log.h"
@@ -38,7 +39,7 @@
 
 
 Workers::Workers() :
-    m_enabled(Options::i()->workers())
+	m_enabled(Options::i()->workers())
 {
 }
 
@@ -50,171 +51,205 @@ Workers::~Workers()
 
 void Workers::printWorkers()
 {
-    if (!m_enabled) {
-        LOG_ERR("Per worker statistics disabled");
+	if(!m_enabled)
+	{
+		LOG_ERR("Per worker statistics disabled");
 
-        return;
-    }
+		return;
+	}
 
-    char workerName[24];
-    size_t size = 0;
+	static std::string localhostName = "127.0.0.1";
+	char workerName[51];
+	size_t size = 0;
 
-    Log::i()->text(Options::i()->colors() ? "\x1B[01;37m%-23s | %-15s | %-5s | %-8s | %-3s | %10s |" : "%-23s | %-15s | %-5s | %-8s | %-3s | %10s |",
-                   "WORKER NAME", "LAST IP", "COUNT", "ACCEPTED", "REJ", "10 MIN");
+	if(Options::i()->colors())
+	{
+		PRINT_MSG("\x1B[01;37mWORKER NAME | L | COUNT | ACCEPTED | REJ |  k HASHES | 1min kHs | 10min kHs | 1h kHs |");
+	}
+	else
+	{
+		PRINT_MSG(std::left << std::setw(50) << "WORKER NAME" << std::setw(0) << " | " << "L" <<
+		          " | COUNT | ACCEPTED | REJ |  k HASHES | 1min kHs | 10min kHs | 1h kHs |");
+	}
 
-    for (const Worker &worker : m_workers) {
-        const char *name = worker.name();
-        size = strlen(name);
+	unsigned short i = 0;
+	for(const Worker & worker : m_workers)
+	{
+		const char* name = worker.name();
+		size = strlen(name);
 
-        if (size > sizeof(workerName) - 1) {
-            memcpy(workerName, name, 6);
-            memcpy(workerName + 6, "...", 3);
-            memcpy(workerName + 9, name + size - sizeof(workerName) + 10, sizeof(workerName) - 10);
-            workerName[sizeof(workerName) - 1] = '\0';
-        }
-        else {
-            strncpy(workerName, name, sizeof(workerName) - 1);
-        }
+		if(size > sizeof(workerName) - 1)
+		{
+			memcpy(workerName, name, 6);
+			memcpy(workerName + 6, "...", 3);
+			memcpy(workerName + 9, name + size - sizeof(workerName) + 10, sizeof(workerName) - 10);
+			i = 0;
+		}
+		else
+		{
+			memset(workerName, '-', sizeof(workerName) - 1);
+			strncpy(workerName, name, std::min(strlen(name), sizeof(workerName) - 1));
+			workerName[strlen(name)] = (i++ % 3 == 1) ? ' ' : '\0';
+		}
+		workerName[sizeof(workerName) - 1] = '\0';
 
-        Log::i()->text("%-23s | %-15s | %5" PRIu64 " | %8" PRIu64 " | %3" PRIu64 " | %5.1f kH/s |",
-                       workerName, worker.ip(), worker.connections(), worker.accepted(), worker.rejected(), worker.hashrate(600));
-    }
+
+		PRINT_MSG(std::left << std::setprecision(3) << std::setw(50) << workerName << std::right << std::setw(
+		              0) << " | " << ((localhostName == worker.ip()) ? "x" : worker.ip()) << " | " << std::setw(
+		              5) << worker.connections() << std::setw(0) << " | " <<
+		          std::setw(8) << worker.accepted() << std::setw(0) << " | " << std::setw(3) << worker.rejected() << " | " <<
+		          std::setw(9) << ((double)worker.hashes()) / 1000 << std::setw(0) << " | " << std::setw(8) << worker.hashrate(
+		              60) << std::setw(0) << " | " << std::setw(9) << worker.hashrate(600) << std::setw(0) << " | " << std::setw(
+		              6) << worker.hashrate(3600) << std::setw(0) << " | " << std::left);
+	}
 }
 
 
 void Workers::tick(uint64_t ticks)
 {
-    if ((ticks % 4) != 0) {
-        return;
-    }
+	if((ticks % 4) != 0)
+	{
+		return;
+	}
 
-    for (Worker &worker : m_workers) {
-        worker.tick(ticks);
-    }
+	for(Worker & worker : m_workers)
+	{
+		worker.tick(ticks);
+	}
 
-    Api::tick(m_workers);
+	Api::tick(m_workers);
 }
 
 
-void Workers::onEvent(IEvent *event)
+void Workers::onEvent(IEvent* event)
 {
-    if (!m_enabled) {
-        return;
-    }
+	if(!m_enabled)
+	{
+		return;
+	}
 
-    switch (event->type())
-    {
-    case IEvent::LoginType:
-        login(static_cast<LoginEvent*>(event));
-        break;
+	switch(event->type())
+	{
+	case IEvent::LoginType:
+		login(static_cast<LoginEvent*>(event));
+		break;
 
-    case IEvent::CloseType:
-        remove(static_cast<CloseEvent*>(event));
-        break;
+	case IEvent::CloseType:
+		remove(static_cast<CloseEvent*>(event));
+		break;
 
-    case IEvent::AcceptType:
-        accept(static_cast<AcceptEvent*>(event));
-        break;
+	case IEvent::AcceptType:
+		accept(static_cast<AcceptEvent*>(event));
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
-void Workers::onRejectedEvent(IEvent *event)
+void Workers::onRejectedEvent(IEvent* event)
 {
-    if (!m_enabled) {
-        return;
-    }
+	if(!m_enabled)
+	{
+		return;
+	}
 
-    switch (event->type())
-    {
-    case IEvent::SubmitType:
-        reject(static_cast<SubmitEvent*>(event));
-        break;
+	switch(event->type())
+	{
+	case IEvent::SubmitType:
+		reject(static_cast<SubmitEvent*>(event));
+		break;
 
-    case IEvent::AcceptType:
-        accept(static_cast<AcceptEvent*>(event));
-        break;
+	case IEvent::AcceptType:
+		accept(static_cast<AcceptEvent*>(event));
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
-bool Workers::indexByMiner(const Miner *miner, size_t *index) const
+bool Workers::indexByMiner(const Miner* miner, size_t* index) const
 {
-    if (!miner || miner->mapperId() == -1 || m_miners.count(miner->id()) == 0) {
-        return false;
-    }
+	if(!miner || miner->mapperId() == -1 || m_miners.count(miner->id()) == 0)
+	{
+		return false;
+	}
 
-    const size_t i = m_miners.at(miner->id());
-    if (i >= m_workers.size()) {
-        return false;
-    }
+	const size_t i = m_miners.at(miner->id());
+	if(i >= m_workers.size())
+	{
+		return false;
+	}
 
-    *index = i;
-    return true;
+	*index = i;
+	return true;
 }
 
 
-void Workers::accept(const AcceptEvent *event)
+void Workers::accept(const AcceptEvent* event)
 {
-    size_t index = 0;
-    if (!indexByMiner(event->miner(), &index)) {
-        return;
-    }
+	size_t index = 0;
+	if(!indexByMiner(event->miner(), &index))
+	{
+		return;
+	}
 
-    Worker &worker = m_workers[index];
-    if (!event->isRejected()) {
-        worker.add(event->result);
-    }
-    else {
-        worker.reject(false);
-    }
+	Worker & worker = m_workers[index];
+	if(!event->isRejected())
+	{
+		worker.add(event->result);
+	}
+	else
+	{
+		worker.reject(false);
+	}
 }
 
 
-void Workers::login(const LoginEvent *event)
+void Workers::login(const LoginEvent* event)
 {
-    const std::string name(event->request.login());
+	const std::string name(event->request.login());
 
-    if (m_map.count(name) == 0) {
-        const size_t id = m_workers.size();
-        m_workers.push_back(Worker(id, name, event->miner()->ip()));
+	if(m_map.count(name) == 0)
+	{
+		const size_t id = m_workers.size();
+		m_workers.push_back(Worker(id, name, event->miner()->ip()));
 
-        m_map[name] = id;
-        m_miners[event->miner()->id()] = id;
+		m_map[name] = id;
+		m_miners[event->miner()->id()] = id;
 
-        return;
-    }
+		return;
+	}
 
-    Worker &worker = m_workers[m_map.at(name)];
+	Worker & worker = m_workers[m_map.at(name)];
 
-    worker.add(event->miner()->ip());
-    m_miners[event->miner()->id()] = worker.id();
+	worker.add(event->miner()->ip());
+	m_miners[event->miner()->id()] = worker.id();
 }
 
 
-void Workers::reject(const SubmitEvent *event)
+void Workers::reject(const SubmitEvent* event)
 {
-    size_t index = 0;
-    if (!indexByMiner(event->miner(), &index)) {
-        return;
-    }
+	size_t index = 0;
+	if(!indexByMiner(event->miner(), &index))
+	{
+		return;
+	}
 
-    m_workers[index].reject(true);
+	m_workers[index].reject(true);
 }
 
 
-void Workers::remove(const CloseEvent *event)
+void Workers::remove(const CloseEvent* event)
 {
-    size_t index = 0;
-    if (!indexByMiner(event->miner(), &index)) {
-        return;
-    }
+	size_t index = 0;
+	if(!indexByMiner(event->miner(), &index))
+	{
+		return;
+	}
 
-    m_workers[index].remove();
+	m_workers[index].remove();
 }

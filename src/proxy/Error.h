@@ -28,17 +28,18 @@
 class Error
 {
 public:
-    enum Code {
-        NoError,
-        BadGateway,
-        InvalidJobId,
-        InvalidMethod,
-        InvalidNonce,
-        LowDifficulty,
-        Unauthenticated
-    };
+	enum Code
+	{
+		NoError,
+		BadGateway,
+		InvalidJobId,
+		InvalidMethod,
+		InvalidNonce,
+		LowDifficulty,
+		Unauthenticated
+	};
 
-    static const char *toString(Code code);
+	static const char* toString(Code code);
 };
 
 #endif /* __ERROR_H__ */

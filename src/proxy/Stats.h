@@ -40,24 +40,30 @@ class NonceSplitter;
 class Stats : public IEventListener
 {
 public:
-    Stats();
-    ~Stats();
+	Stats();
+	~Stats();
 
-    void tick(uint64_t ticks, const NonceSplitter &splitter);
+	void tick(uint64_t ticks, const NonceSplitter & splitter);
 
-    inline const StatsData &data() const      { return m_data; }
-    inline double hashrate(int seconds) const { return m_hashrate.calc(seconds); }
+	inline const StatsData & data() const
+	{
+		return m_data;
+	}
+	inline double hashrate(int seconds) const
+	{
+		return m_hashrate.calc(seconds);
+	}
 
 protected:
-    void onEvent(IEvent *event) override;
-    void onRejectedEvent(IEvent *event) override;
+	void onEvent(IEvent* event) override;
+	void onRejectedEvent(IEvent* event) override;
 
 private:
-    void accept(const AcceptEvent *event);
-    void reject(const AcceptEvent *event);
+	void accept(const AcceptEvent* event);
+	void reject(const AcceptEvent* event);
 
-    StatsData m_data;
-    TickingCounter<uint32_t> m_hashrate;
+	StatsData m_data;
+	TickingCounter<uint32_t> m_hashrate;
 };
 
 

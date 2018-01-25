@@ -34,70 +34,73 @@
 class StatsData
 {
 public:
-    inline StatsData() :
-        accepted(0),
-        connections(0),
-        donateHashes(0),
-        expired(0),
-        hashes(0),
-        invalid(0),
-        maxMiners(0),
-        miners(0),
-        rejected(0),
-        startTime(0),
-        upstreams(0)
-    {
-    }
+	inline StatsData() :
+		accepted(0),
+		connections(0),
+		donateHashes(0),
+		expired(0),
+		hashes(0),
+		invalid(0),
+		maxMiners(0),
+		miners(0),
+		rejected(0),
+		startTime(0),
+		upstreams(0)
+	{
+	}
 
 
-    inline uint32_t avgTime() const
-    {
-        if (latency.empty()) {
-            return 0;
-        }
+	inline uint32_t avgTime() const
+	{
+		if(latency.empty())
+		{
+			return 0;
+		}
 
-        return static_cast<uint32_t>(uptime() / latency.size());
-    }
-
-
-    inline uint32_t avgLatency() const
-    {
-        const size_t calls = latency.size();
-        if (calls == 0) {
-            return 0;
-        }
-
-        auto v = latency;
-        std::nth_element(v.begin(), v.begin() + calls / 2, v.end());
-
-        return v[calls / 2];
-    }
+		return static_cast<uint32_t>(uptime() / latency.size());
+	}
 
 
-    inline int uptime() const
-    {
-        if (startTime == 0) {
-            return 0;
-        }
+	inline uint32_t avgLatency() const
+	{
+		const size_t calls = latency.size();
+		if(calls == 0)
+		{
+			return 0;
+		}
 
-        return (uv_now(uv_default_loop()) - startTime) / 1000;
-    }
+		auto v = latency;
+		std::nth_element(v.begin(), v.begin() + calls / 2, v.end());
+
+		return v[calls / 2];
+	}
 
 
-    double hashrate[5] { 0.0 };
-    std::array<uint64_t, 10> topDiff { { } };
-    std::vector<uint16_t> latency;
-    uint64_t accepted;
-    uint64_t connections;
-    uint64_t donateHashes;
-    uint64_t expired;
-    uint64_t hashes;
-    uint64_t invalid;
-    uint64_t maxMiners;
-    uint64_t miners;
-    uint64_t rejected;
-    uint64_t startTime;
-    uint64_t upstreams;
+	inline int uptime() const
+	{
+		if(startTime == 0)
+		{
+			return 0;
+		}
+
+		return (uv_now(uv_default_loop()) - startTime) / 1000;
+	}
+
+
+	double hashrate[5] { 0.0 };
+	std::array<uint64_t, 10> topDiff { { } };
+	std::vector<uint16_t> latency;
+	uint64_t accepted;
+	uint64_t connections;
+	uint64_t donateHashes;
+	uint64_t expired;
+	uint64_t hashes;
+	uint64_t invalid;
+	uint64_t maxMiners;
+	uint64_t miners;
+	uint64_t rejected;
+	uint64_t startTime;
+	uint64_t upstreams;
 };
 
 

@@ -34,9 +34,12 @@
 
 Miners::Miners()
 {
-    m_timer.data = this;
-    uv_timer_init(uv_default_loop(), &m_timer);
-    uv_timer_start(&m_timer, [](uv_timer_t *handle) { static_cast<Miners*>(handle->data)->tick(); }, kTickInterval, kTickInterval);
+	m_timer.data = this;
+	uv_timer_init(uv_default_loop(), &m_timer);
+	uv_timer_start(&m_timer, [](uv_timer_t* handle)
+	{
+		static_cast<Miners*>(handle->data)->tick();
+	}, kTickInterval, kTickInterval);
 }
 
 
@@ -45,55 +48,60 @@ Miners::~Miners()
 }
 
 
-void Miners::onEvent(IEvent *event)
+void Miners::onEvent(IEvent* event)
 {
-    switch (event->type())
-    {
-    case IEvent::ConnectionType:
-        add(static_cast<ConnectionEvent*>(event)->miner());
-        break;
+	switch(event->type())
+	{
+	case IEvent::ConnectionType:
+		add(static_cast<ConnectionEvent*>(event)->miner());
+		break;
 
-    case IEvent::CloseType:
-        remove(static_cast<CloseEvent*>(event)->miner());
-        break;
+	case IEvent::CloseType:
+		remove(static_cast<CloseEvent*>(event)->miner());
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
-void Miners::add(Miner *miner)
+void Miners::add(Miner* miner)
 {
-    m_miners[miner->id()] = miner;
+	m_miners[miner->id()] = miner;
 }
 
 
-void Miners::remove(Miner *miner)
+void Miners::remove(Miner* miner)
 {
-    auto it = m_miners.find(miner->id());
-    if (it != m_miners.end()) {
-        m_miners.erase(it);
-    }
+	auto it = m_miners.find(miner->id());
+	if(it != m_miners.end())
+	{
+		m_miners.erase(it);
+	}
 }
 
 
 void Miners::tick()
 {
-    const uint64_t now = uv_now(uv_default_loop());
-    std::vector<Miner*> expired;
+	const uint64_t now = uv_now(uv_default_loop());
+	std::vector<Miner*> expired;
 
-    for (auto const &kv : m_miners) {
-        if (now > kv.second->expire()) {
-            expired.push_back(kv.second);
-        }
-    }
+	for(auto const & kv : m_miners)
+	{
+		if(now > kv.second->expire())
+		{
+			expired.push_back(kv.second);
+		}
+	}
 
-    if (expired.empty()) {
-        return;
-    }
+	if(expired.empty())
+	{
+		return;
+	}
 
-    for (auto miner : expired) {
-        miner->close();
-    }
+	for(auto miner : expired)
+	{
+		miner->close();
+	}
 }

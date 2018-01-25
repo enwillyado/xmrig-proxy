@@ -34,15 +34,15 @@ class LoginEvent;
 class CustomDiff : public IEventListener
 {
 public:
-    CustomDiff();
-    ~CustomDiff();
+	CustomDiff();
+	~CustomDiff();
 
 protected:
-    void onEvent(IEvent *event) override;
-    inline void onRejectedEvent(IEvent *event) override {}
+	void onEvent(IEvent* event) override;
+	inline void onRejectedEvent(IEvent* event) override {}
 
 private:
-    void login(LoginEvent *event);
+	void login(LoginEvent* event);
 };
 
 

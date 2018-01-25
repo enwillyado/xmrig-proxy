@@ -44,27 +44,27 @@ class SubmitEvent;
 class Workers : public IEventListener
 {
 public:
-    Workers();
-    ~Workers();
+	Workers();
+	~Workers();
 
-    void printWorkers();
-    void tick(uint64_t ticks);
+	void printWorkers();
+	void tick(uint64_t ticks);
 
 protected:
-    void onEvent(IEvent *event) override;
-    void onRejectedEvent(IEvent *event) override;
+	void onEvent(IEvent* event) override;
+	void onRejectedEvent(IEvent* event) override;
 
 private:
-    bool indexByMiner(const Miner *miner, size_t *index) const;
-    void accept(const AcceptEvent *event);
-    void login(const LoginEvent *event);
-    void reject(const SubmitEvent *event);
-    void remove(const CloseEvent *event);
+	bool indexByMiner(const Miner* miner, size_t* index) const;
+	void accept(const AcceptEvent* event);
+	void login(const LoginEvent* event);
+	void reject(const SubmitEvent* event);
+	void remove(const CloseEvent* event);
 
-    bool m_enabled;
-    std::map<int64_t, size_t> m_miners;
-    std::map<std::string, size_t> m_map;
-    std::vector<Worker> m_workers;
+	bool m_enabled;
+	std::map<int64_t, size_t> m_miners;
+	std::map<std::string, size_t> m_map;
+	std::vector<Worker> m_workers;
 };
 
 

@@ -25,40 +25,40 @@
 #include "proxy/Error.h"
 
 
-static const char *kBadGateway      = "Bad gateway";
-static const char *kInvalidJobId    = "Invalid job id";
-static const char *kInvalidMethod   = "Invalid method";
-static const char *kInvalidNonce    = "Invalid nonce; is miner not compatible with NiceHash?";
-static const char *kLowDifficulty   = "Low difficulty share";
-static const char *kUnauthenticated = "Unauthenticated";
-static const char *kUnknownError    = "Unknown error";
+static const char* kBadGateway      = "Bad gateway";
+static const char* kInvalidJobId    = "Invalid job id";
+static const char* kInvalidMethod   = "Invalid method";
+static const char* kInvalidNonce    = "Invalid nonce; is miner not compatible with NiceHash?";
+static const char* kLowDifficulty   = "Low difficulty share";
+static const char* kUnauthenticated = "Unauthenticated";
+static const char* kUnknownError    = "Unknown error";
 
 
-const char *Error::toString(Code code)
+const char* Error::toString(Code code)
 {
-    switch (code)
-    {
-    case BadGateway:
-        return kBadGateway;
+	switch(code)
+	{
+	case BadGateway:
+		return kBadGateway;
 
-    case InvalidJobId:
-        return kInvalidJobId;
+	case InvalidJobId:
+		return kInvalidJobId;
 
-    case InvalidMethod:
-        return kInvalidMethod;
+	case InvalidMethod:
+		return kInvalidMethod;
 
-    case InvalidNonce:
-        return kInvalidNonce;
+	case InvalidNonce:
+		return kInvalidNonce;
 
-    case LowDifficulty:
-        return kLowDifficulty;
+	case LowDifficulty:
+		return kLowDifficulty;
 
-    case Unauthenticated:
-        return kUnauthenticated;
+	case Unauthenticated:
+		return kUnauthenticated;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 
-    return kUnknownError;
+	return kUnknownError;
 }

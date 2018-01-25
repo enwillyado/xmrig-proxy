@@ -48,161 +48,199 @@
 #include "proxy/workers/Workers.h"
 
 
-Proxy::Proxy(const Options *options) :
-    m_ticks(0)
+Proxy::Proxy(const Options* options) :
+	m_ticks(0)
 {
-    srand(time(0) ^ (uintptr_t) this);
+	srand(time(0) ^ (uintptr_t) this);
 
-    m_miners    = new Miners();
-    m_splitter  = new NonceSplitter();
-    m_shareLog  = new ShareLog(m_stats);
-    m_accessLog = new AccessLog();
-    m_workers   = new Workers();
+	m_miners    = new Miners();
+	m_splitter  = new NonceSplitter();
+	m_shareLog  = new ShareLog(m_stats);
+	m_accessLog = new AccessLog();
+	m_workers   = new Workers();
 
-    m_timer.data = this;
-    uv_timer_init(uv_default_loop(), &m_timer);
+	m_timer.data = this;
+	uv_timer_init(uv_default_loop(), &m_timer);
 
-    Events::subscribe(IEvent::ConnectionType, m_miners);
-    Events::subscribe(IEvent::ConnectionType, &m_stats);
+	Events::subscribe(IEvent::ConnectionType, m_miners);
+	Events::subscribe(IEvent::ConnectionType, &m_stats);
 
-    Events::subscribe(IEvent::CloseType, m_miners);
-    Events::subscribe(IEvent::CloseType, m_splitter);
-    Events::subscribe(IEvent::CloseType, &m_stats);
-    Events::subscribe(IEvent::CloseType, m_accessLog);
-    Events::subscribe(IEvent::CloseType, m_workers);
+	Events::subscribe(IEvent::CloseType, m_miners);
+	Events::subscribe(IEvent::CloseType, m_splitter);
+	Events::subscribe(IEvent::CloseType, &m_stats);
+	Events::subscribe(IEvent::CloseType, m_accessLog);
+	Events::subscribe(IEvent::CloseType, m_workers);
 
-    Events::subscribe(IEvent::LoginType, &m_customDiff);
-    Events::subscribe(IEvent::LoginType, m_splitter);
-    Events::subscribe(IEvent::LoginType, &m_stats);
-    Events::subscribe(IEvent::LoginType, m_accessLog);
-    Events::subscribe(IEvent::LoginType, m_workers);
+	Events::subscribe(IEvent::LoginType, &m_customDiff);
+	Events::subscribe(IEvent::LoginType, m_splitter);
+	Events::subscribe(IEvent::LoginType, &m_stats);
+	Events::subscribe(IEvent::LoginType, m_accessLog);
+	Events::subscribe(IEvent::LoginType, m_workers);
 
-    Events::subscribe(IEvent::SubmitType, m_splitter);
-    Events::subscribe(IEvent::SubmitType, &m_stats);
-    Events::subscribe(IEvent::SubmitType, m_workers);
+	Events::subscribe(IEvent::SubmitType, m_splitter);
+	Events::subscribe(IEvent::SubmitType, &m_stats);
+	Events::subscribe(IEvent::SubmitType, m_workers);
 
-    Events::subscribe(IEvent::AcceptType, &m_stats);
-    Events::subscribe(IEvent::AcceptType, m_shareLog);
-    Events::subscribe(IEvent::AcceptType, m_workers);
+	Events::subscribe(IEvent::AcceptType, &m_stats);
+	Events::subscribe(IEvent::AcceptType, m_shareLog);
+	Events::subscribe(IEvent::AcceptType, m_workers);
 
-    m_debug = new ProxyDebug(options->isDebug());
+	m_debug = new ProxyDebug(options->isDebug());
 }
 
 
 Proxy::~Proxy()
 {
-    Events::stop();
+	Events::stop();
 
-    delete m_miners;
-    delete m_splitter;
-    delete m_shareLog;
-    delete m_accessLog;
-    delete m_debug;
-    delete m_workers;
+	delete m_miners;
+	delete m_splitter;
+	delete m_shareLog;
+	delete m_accessLog;
+	delete m_debug;
+	delete m_workers;
 }
 
 
 void Proxy::connect()
 {
-    m_splitter->connect();
+	m_splitter->connect();
 
-    const std::vector<Addr*> &addrs = Options::i()->addrs();
-    for (const Addr *addr : addrs) {
-        bind(addr);
-    }
+	const std::vector<Addr> & addrs = Options::i()->addrs();
+	for(const Addr addr : addrs)
+	{
+		bind(addr);
+	}
 
-    uv_timer_start(&m_timer, Proxy::onTick, 1000, 1000);
+	uv_timer_start(&m_timer, Proxy::onTick, 1000, 1000);
 }
 
 
 void Proxy::printConnections()
 {
-    m_splitter->printConnections();
+	m_splitter->printConnections();
 }
 
 
 void Proxy::printHashrate()
 {
-    LOG_INFO(Options::i()->colors() ? "\x1B[01;32m* \x1B[01;37mspeed\x1B[0m \x1B[01;30m(1m) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(10m) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(1h) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(12h) \x1B[01;36m%03.1f\x1B[0m, \x1B[01;30m(24h) \x1B[01;36m%03.1f kH/s"
-                                    : "* speed (1m) %03.1f, (10m) %03.1f, (1h) %03.1f, (12h) %03.1f, (24h) %03.1f kH/s",
-             m_stats.hashrate(60), m_stats.hashrate(600), m_stats.hashrate(3600), m_stats.hashrate(3600 * 12), m_stats.hashrate(3600 * 24));
+	if(Options::i()->colors())
+	{
+		/*TODO LOG
+		LOG_INFO(Options::i()->colors() ? "\x1B[01;32m* \x1B[01;37mspeed\x1B[0m \x1B[01;30m(1m) \x1B[01;36m%06.3f\x1B[0m, \x1B[01;30m(10m) \x1B[01;36m%06.3f\x1B[0m, \x1B[01;30m(1h) \x1B[01;36m%06.3f\x1B[0m, \x1B[01;30m(12h) \x1B[01;36m%06.3f\x1B[0m, \x1B[01;30m(24h) \x1B[01;36m%06.3f [kH/s] (%2d.%07.3f hashes - %" PRIu64")"
+									: "* speed (1m) %06.3f, (10m) %06.3f, (1h) %06.3f, (12h) %06.3f, (24h) %06.3f [kH/s] (%2d.%07.3f hashes - %" PRIu64")",
+			 m_stats.hashrate(60), m_stats.hashrate(600), m_stats.hashrate(3600), m_stats.hashrate(3600 * 12), m_stats.hashrate(3600 * 24), (m_stats.data().hashes/(1000*1000)), (double)(m_stats.data().hashes%(1000*1000))/1000, m_stats.data().donateHashes);
+		*/
+	}
+	else
+	{
+		LOG_INFO("* speed (1m) " << m_stats.hashrate(60) << ", (10m) " << m_stats.hashrate(
+		             600) << ", (1h) " << m_stats.hashrate(3600) << ", (12h) " << m_stats.hashrate(
+		             3600 * 12) << ", (24h) " << m_stats.hashrate(3600 * 24) << " kH/s" <<
+		         " | " << (m_stats.data().hashes / (1000 * 1000)) << "." << (double)(m_stats.data().hashes %
+		                 (1000 * 1000)) / 1000 << " - " << m_stats.data().donateHashes);
+	}
 }
 
 
 void Proxy::printWorkers()
 {
-    m_workers->printWorkers();
+	m_workers->printWorkers();
 }
 
 
 void Proxy::toggleDebug()
 {
-    m_debug->toggle();
+	m_debug->toggle();
 }
 
 
 #ifdef APP_DEVEL
 void Proxy::printState()
 {
-    LOG_NOTICE("---------------------------------");
-    m_splitter->printState();
-    LOG_NOTICE("---------------------------------");
+	LOG_NOTICE("---------------------------------");
+	m_splitter->printState();
+	LOG_NOTICE("---------------------------------");
 
-    LOG_INFO("%" PRIu64 " (%" PRIu64 ")", Counters::miners(), Counters::connections);
+	LOG_INFO(Counters::miners() << "(" << Counters::connections << ")");
 }
 #endif
 
 
-void Proxy::bind(const Addr *addr)
+void Proxy::bind(const Addr & addr)
 {
-    auto server = new Server(addr);
+	auto server = new Server(addr);
 
-    if (server->bind()) {
-        m_servers.push_back(server);
-    }
-    else {
-        delete server;
-    }
+	if(server->bind())
+	{
+		m_servers.push_back(server);
+	}
+	else
+	{
+		delete server;
+	}
 }
 
 
 void Proxy::gc()
 {
-    m_splitter->gc();
+	m_splitter->gc();
 }
 
 
 void Proxy::print()
 {
-    LOG_INFO(Options::i()->colors() ? "\x1B[01;36m%03.1f kH/s\x1B[0m, shares: \x1B[01;37m%" PRIu64 "\x1B[0m/%s%" PRIu64 "\x1B[0m +%" PRIu64 ", upstreams: \x1B[01;37m%u\x1B[0m, miners: \x1B[01;37m%" PRIu64 "\x1B[0m (max \x1B[01;37m%" PRIu64 "\x1B[0m) +%u/-%u"
-                                    : "%03.1f kH/s, shares: %" PRIu64 "/%s%" PRIu64 " +%" PRIu64 ", upstreams: %u, miners: %" PRIu64 " (max %" PRIu64 " +%u/-%u",
-             m_stats.hashrate(60), m_stats.data().accepted, Options::i()->colors() ? (m_stats.data().rejected ? "\x1B[31m" : "\x1B[01;37m") : "", m_stats.data().rejected,
-             Counters::accepted, m_splitter->activeUpstreams(), Counters::miners(), Counters::maxMiners(), Counters::added(), Counters::removed());
+	if(Options::i()->colors())
+	{
+		/*TODO LOG
+		LOG_INFO(Options::i()->colors() ? "\x1B[01; 36m % 03.1f kH / s\x1B[0m, shares: \x1B[01;
+				37m % " PRIu64 "\x1B[0m / % s % "
+									 PRIu64 "\x1B[0m + % " PRIu64 ", upstreams: \x1B[01; 37m % u\x1B[0m, miners: \x1B[01; 37m % " PRIu64
+											 "\x1B[0m(max \x1B[01; 37m % " PRIu64 "\x1B[0m) + % u / - % u"
+													 : " % 03.1f kH / s, shares: % " PRIu64 " / % s % " PRIu64 " + % " PRIu64 ", upstreams: % u,
+													 miners: % " PRIu64 "(max % "
+															 PRIu64 " + % u / - % u",
+															 m_stats.hashrate(60), m_stats.data().accepted,
+															 Options::i()->colors() ? (m_stats.data().rejected ? "\x1B[31m" : "\x1B[01; 37m") : "", m_stats.data().rejected,
+																	 Counters::accepted, m_splitter->activeUpstreams(), Counters::miners(), Counters::maxMiners(),
+																	 Counters::added(), Counters::removed());
+																	 */
+	}
+	else
+	{
+		LOG_INFO(" " << m_stats.hashrate(60) << " kH / s, shares: " << m_stats.data().accepted << " / " <<
+		         m_stats.data().rejected << " + " << Counters::accepted << ", upstreams: " << m_splitter->activeUpstreams() <<
+		         ",miners: " << Counters::miners() << " (max " << Counters::maxMiners() << " + " << Counters::added() <<
+		         " / - " << Counters::removed() << ") " << (m_stats.data().hashes / (1000 * 1000)) << "." << (double)(
+		             m_stats.data().hashes % (1000 * 1000)) / 1000 << " - " << m_stats.data().donateHashes);
+	}
 
-    Counters::reset();
+	Counters::reset();
 }
 
 
 void Proxy::tick()
 {
-    m_stats.tick(m_ticks, *m_splitter);
+	m_stats.tick(m_ticks, *m_splitter);
 
-    m_ticks++;
+	m_ticks++;
 
-    if ((m_ticks % kGCInterval) == 0) {
-        gc();
-    }
+	if((m_ticks % kGCInterval) == 0)
+	{
+		gc();
+	}
 
-    if ((m_ticks % kPrintInterval) == 0) {
-        print();
-    }
+	if((m_ticks % kPrintInterval) == 0)
+	{
+		print();
+	}
 
-    m_splitter->tick(m_ticks);
-    m_workers->tick(m_ticks);
+	m_splitter->tick(m_ticks);
+	m_workers->tick(m_ticks);
 }
 
 
-void Proxy::onTick(uv_timer_t *handle)
+void Proxy::onTick(uv_timer_t* handle)
 {
-    static_cast<Proxy*>(handle->data)->tick();
+	static_cast<Proxy*>(handle->data)->tick();
 }

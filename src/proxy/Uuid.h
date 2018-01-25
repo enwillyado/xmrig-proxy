@@ -31,7 +31,7 @@
 class Uuid
 {
 public:
-    static void create(char *out, size_t size);
+	static void create(char* out, size_t size);
 };
 
 #endif /* __PROXY_UUID_H__ */

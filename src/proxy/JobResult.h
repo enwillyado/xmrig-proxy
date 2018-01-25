@@ -35,28 +35,28 @@
 class JobResult
 {
 public:
-    inline JobResult() :
-        nonce(nullptr),
-        result(nullptr),
-        id(0),
-        diff(0)
-    {
-    }
+	inline JobResult() :
+		nonce(nullptr),
+		result(nullptr),
+		id(0),
+		diff(0)
+	{
+	}
 
-    JobResult(int64_t id, const char *jobId, const char *nonce, const char *result);
+	JobResult(int64_t id, const char* jobId, const char* nonce, const char* result);
 
-    bool isCompatible(uint8_t fixedByte) const;
-    bool isValid() const;
-    uint64_t actualDiff() const;
+	bool isCompatible(uint8_t fixedByte) const;
+	bool isValid() const;
+	uint64_t actualDiff() const;
 
-    const char *nonce;
-    const char *result;
-    const int64_t id;
-    JobId jobId;
-    uint32_t diff;
+	const char* nonce;
+	const char* result;
+	const int64_t id;
+	JobId jobId;
+	uint32_t diff;
 
 private:
-    mutable uint64_t m_actualDiff;
+	mutable uint64_t m_actualDiff;
 };
 
 #endif /* __JOBRESULT_H__ */

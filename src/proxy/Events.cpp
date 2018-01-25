@@ -27,38 +27,40 @@
 
 
 bool Events::m_ready = true;
-std::map<IEvent::Type, std::vector<IEventListener*> > Events::m_listeners;
+std::map<IEvent::Type, std::vector<IEventListener*>> Events::m_listeners;
 
 
-bool Events::exec(IEvent *event)
+bool Events::exec(IEvent* event)
 {
-    if (!m_ready) {
-        LOG_ERR("failed start event %d", (int) event->type());
-        return false;
-    }
+	if(!m_ready)
+	{
+		LOG_ERR("failed start event " << (int) event->type());
+		return false;
+	}
 
-    m_ready = false;
+	m_ready = false;
 
-    std::vector<IEventListener*> &listeners = m_listeners[event->type()];
-    for (IEventListener *listener : listeners) {
-        event->isRejected() ? listener->onRejectedEvent(event) : listener->onEvent(event);
-    }
+	std::vector<IEventListener*> & listeners = m_listeners[event->type()];
+	for(IEventListener* listener : listeners)
+	{
+		event->isRejected() ? listener->onRejectedEvent(event) : listener->onEvent(event);
+	}
 
-    const bool rejected = event->isRejected();
-    event->~IEvent();
+	const bool rejected = event->isRejected();
+	event->~IEvent();
 
-    m_ready = true;
-    return !rejected;
+	m_ready = true;
+	return !rejected;
 }
 
 
 void Events::stop()
 {
-    m_listeners.clear();
+	m_listeners.clear();
 }
 
 
-void Events::subscribe(IEvent::Type type, IEventListener *listener)
+void Events::subscribe(IEvent::Type type, IEventListener* listener)
 {
-    m_listeners[type].push_back(listener);
+	m_listeners[type].push_back(listener);
 }

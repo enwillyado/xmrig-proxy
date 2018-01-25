@@ -29,46 +29,46 @@
 
 
 Worker::Worker() :
-    m_id(0),
-    m_hashrate(4),
-    m_accepted(0),
-    m_connections(0),
-    m_hashes(0),
-    m_invalid(0),
-    m_lastHash(0),
-    m_rejected(0)
+	m_id(0),
+	m_hashrate(4),
+	m_accepted(0),
+	m_connections(0),
+	m_hashes(0),
+	m_invalid(0),
+	m_lastHash(0),
+	m_rejected(0)
 {
 }
 
 
-Worker::Worker(size_t id, const std::string &name, const std::string &ip) :
-    m_id(id),
-    m_ip(ip),
-    m_name(name),
-    m_hashrate(4),
-    m_accepted(0),
-    m_connections(1),
-    m_hashes(0),
-    m_invalid(0),
-    m_lastHash(0),
-    m_rejected(0)
+Worker::Worker(size_t id, const std::string & name, const std::string & ip) :
+	m_id(id),
+	m_ip(ip),
+	m_name(name),
+	m_hashrate(4),
+	m_accepted(0),
+	m_connections(1),
+	m_hashes(0),
+	m_invalid(0),
+	m_lastHash(0),
+	m_rejected(0)
 {
 }
 
 
-void Worker::add(const SubmitResult &result)
+void Worker::add(const SubmitResult & result)
 {
-    m_accepted++;
-    m_hashes += result.diff;
+	m_accepted++;
+	m_hashes += result.diff;
 
-    m_hashrate.add(result.diff);
+	m_hashrate.add(result.diff);
 
-    using namespace std::chrono;
-    m_lastHash = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+	using namespace std::chrono;
+	m_lastHash = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 
 void Worker::tick(uint64_t ticks)
 {
-    m_hashrate.tick();
+	m_hashrate.tick();
 }

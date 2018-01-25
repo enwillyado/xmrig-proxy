@@ -36,13 +36,13 @@
 class Events
 {
 public:
-    static bool exec(IEvent *event);
-    static void stop();
-    static void subscribe(IEvent::Type type, IEventListener *listener);
+	static bool exec(IEvent* event);
+	static void stop();
+	static void subscribe(IEvent::Type type, IEventListener* listener);
 
 private:
-    static bool m_ready;
-    static std::map<IEvent::Type, std::vector<IEventListener*> > m_listeners;
+	static bool m_ready;
+	static std::map<IEvent::Type, std::vector<IEventListener*>> m_listeners;
 };
 
 #endif /* __EVENTS_H__ */

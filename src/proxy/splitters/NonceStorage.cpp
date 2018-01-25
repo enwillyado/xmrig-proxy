@@ -23,6 +23,7 @@
 
 #include <inttypes.h>
 
+#include "Options.h"
 
 #include "log/Log.h"
 #include "proxy/Counters.h"
@@ -32,9 +33,9 @@
 
 
 NonceStorage::NonceStorage() :
-    m_active(false),
-    m_used(256, 0),
-    m_index(rand() % 256)
+	m_active(false),
+	m_used(256, 0),
+	m_index(rand() % 256)
 {
 }
 
@@ -44,142 +45,172 @@ NonceStorage::~NonceStorage()
 }
 
 
-bool NonceStorage::add(Miner *miner, const LoginRequest &request)
+bool NonceStorage::add(Miner* miner, const LoginRequest & request)
 {
-    const int index = nextIndex(request.clientType() == LoginRequest::XMRig20Client ? 1 : 0);
-    if (index == -1) {
-        return false;
-    }
+	const int index = nextIndex(request.clientType() == LoginRequest::XMRig20Client ? 1 : 0);
+	if(index == -1)
+	{
+		return false;
+	}
 
-    miner->setFixedByte(index);
+	miner->setFixedByte(index);
 
-    m_index = index;
-    m_used[index] = miner->id();
-    m_miners[miner->id()] = miner;
+	m_index = index;
+	m_used[index] = miner->id();
+	m_miners[miner->id()] = miner;
 
-    if (isActive()) {
-        miner->setJob(m_job);
-    }
+	if(isActive())
+	{
+		miner->setJob(m_job);
+	}
 
-    return true;
+	return true;
 }
 
 
 bool NonceStorage::isUsed() const
 {
-    for (size_t i = 0; i < 256; ++i) {
-     if (m_used[i] > 0) {
-         return true;
-     }
-    }
+	for(size_t i = 0; i < 256; ++i)
+	{
+		if(m_used[i] > 0)
+		{
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 
-bool NonceStorage::isValidJobId(const JobId &id)
+bool NonceStorage::isValidJobId(const JobId & id)
 {
-    if (m_job.id() == id) {
-        return true;
-    }
+	if(m_job.id() == id)
+	{
+		return true;
+	}
 
-    if (m_prevJob.isValid() && m_prevJob.id() == id) {
-        Counters::expired++;
-        return true;
-    }
+	if(m_prevJob.isValid() && m_prevJob.id() == id)
+	{
+		Counters::expired++;
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 
-Miner *NonceStorage::miner(int64_t id)
+Miner* NonceStorage::miner(int64_t id)
 {
-    if (m_miners.count(id) == 0) {
-        return nullptr;
-    }
+	if(m_miners.count(id) == 0)
+	{
+		return nullptr;
+	}
 
-    return m_miners.at(id);
+	return m_miners.at(id);
 }
 
 
-void NonceStorage::remove(const Miner *miner)
+void NonceStorage::remove(const Miner* miner)
 {
-    m_used[miner->fixedByte()] = -miner->id();
+	m_used[miner->fixedByte()] = -miner->id();
 
-    auto it = m_miners.find(miner->id());
-    if (it != m_miners.end()) {
-        m_miners.erase(it);
-    }
+	auto it = m_miners.find(miner->id());
+	if(it != m_miners.end())
+	{
+		m_miners.erase(it);
+	}
 }
 
 
 void NonceStorage::reset()
 {
-    std::fill(m_used.begin(), m_used.end(), 0);
+	std::fill(m_used.begin(), m_used.end(), 0);
 }
 
 
-void NonceStorage::setJob(const Job &job)
+void NonceStorage::setJob(const Job & job)
 {
-    for (size_t i = 0; i < 256; ++i) {
-        if (m_used[i] < 0) {
-            m_used[i] = 0;
-        }
-    }
+	for(size_t i = 0; i < 256; ++i)
+	{
+		if(m_used[i] < 0)
+		{
+			m_used[i] = 0;
+		}
+	}
 
-    m_prevJob = m_job;
-    m_job     = job;
+	m_prevJob = m_job;
+	m_job     = job;
 
-    for (size_t i = 0; i < 256; ++i) {
-        const int64_t index = m_used[i];
-        if (index == 0) {
-            continue;
-        }
+	for(size_t i = 0; i < 256; ++i)
+	{
+		const int64_t index = m_used[i];
+		if(index == 0)
+		{
+			continue;
+		}
 
-        Miner *miner = this->miner(index);
-        if (miner) {
-            miner->setJob(m_job);
-        }
-    }
+		Miner* miner = this->miner(index);
+		if(miner)
+		{
+			miner->setJob(m_job);
+		}
+	}
 }
 
 
 #ifdef APP_DEVEL
 void NonceStorage::printState(size_t id)
-{    int available = 0;
-     int dead      = 0;
+{
+	int available = 0;
+	int dead      = 0;
 
-     for (const int64_t v : m_used) {
-         if (v == 0) {
-             available++;
-         }
-         else if (v < 0) {
-             dead++;
-         }
-     }
+	for(const int64_t v : m_used)
+	{
+		if(v == 0)
+		{
+			available++;
+		}
+		else if(v < 0)
+		{
+			dead++;
+		}
+	}
 
-     int miners = 256 - available - dead;
+	int miners = 256 - available - dead;
 
-     LOG_INFO("#%03u - \x1B[32m%03d \x1B[33m%03d \x1B[35m%03d\x1B[0m - 0x%02hhX, % 5.1f%%",
-              id, available, dead, miners, m_index, (double) miners / 256 * 100.0);
-
+	if(Options::i()->colors())
+	{
+		/*TODO LOG
+		LOG_INFO("#%03u - \x1B[32m%03d \x1B[33m%03d \x1B[35m%03d\x1B[0m - 0x%02hhX, % 5.1f%%",
+		         id, available, dead, miners, m_index, (double) miners / 256 * 100.0);
+		*/
+	}
+	else
+	{
+		LOG_INFO("#" << id << " - " << available << " " << dead << " " << miners << " - 0x" <<
+		         (int)m_index << ", " << ((double) miners / 256 * 100.0) << "%");
+	}
 }
 #endif
 
 
 int NonceStorage::nextIndex(int start) const
 {
-    for (size_t i = m_index; i < m_used.size(); ++i) {
-        if (m_used[i] == 0) {
-            return (int) i;
-        }
-    }
+	for(size_t i = m_index; i < m_used.size(); ++i)
+	{
+		if(m_used[i] == 0)
+		{
+			return (int) i;
+		}
+	}
 
-    for (size_t i = start; i < m_index; ++i) {
-        if (m_used[i] == 0) {
-            return (int) i;
-        }
-    }
+	for(size_t i = start; i < m_index; ++i)
+	{
+		if(m_used[i] == 0)
+		{
+			return (int) i;
+		}
+	}
 
-    return -1;
+	return -1;
 }

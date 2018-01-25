@@ -40,16 +40,16 @@ class StatsData;
 class Api
 {
 public:
-    static bool start();
-    static void release();
+	static bool start();
+	static void release();
 
-    static char *get(const char *url, int *status);
-    static void tick(const StatsData &data);
-    static void tick(const std::vector<Worker> &workers);
+	static char* get(const char* url, int* status);
+	static void tick(const StatsData & data);
+	static void tick(const std::vector<Worker> & workers);
 
 private:
-    static ApiState *m_state;
-    static uv_mutex_t m_mutex;
+	static ApiState* m_state;
+	static uv_mutex_t m_mutex;
 };
 
 #endif /* __API_H__ */

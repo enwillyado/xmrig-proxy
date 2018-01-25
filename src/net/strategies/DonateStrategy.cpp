@@ -34,121 +34,129 @@ extern "C"
 }
 
 
-static inline int random(int min, int max){
-   return min + rand() / (RAND_MAX / (max - min + 1) + 1);
+static inline int random(int min, int max)
+{
+	return min + rand() / (RAND_MAX / (max - min + 1) + 1);
 }
 
 
-DonateStrategy::DonateStrategy(const char *agent, IStrategyListener *listener) :
-    m_active(false),
-    m_suspended(false),
-    m_listener(listener),
-    m_donateTicks(0),
-    m_target(0),
-    m_ticks(0)
+DonateStrategy::DonateStrategy(const char* agent, IStrategyListener* listener) :
+	m_active(false),
+	m_suspended(false),
+	m_listener(listener),
+	m_donateTicks(0),
+	m_target(0),
+	m_ticks(0)
 {
-    uint8_t hash[200];
-    char userId[65] = { 0 };
-    const char *user = Options::i()->pools().front()->user();
+	uint8_t hash[200];
+	char userId[65] = { 0 };
+	const std::string & user = Options::i()->pools().front()->user();
 
-    keccak(reinterpret_cast<const uint8_t *>(user), static_cast<int>(strlen(user)), hash, sizeof(hash));
-    Job::toHex(hash, 32, userId);
+	keccak(reinterpret_cast<const uint8_t*>(user.c_str()), static_cast<int>(user.size()), hash, sizeof(hash));
+	Job::toHex(hash, 32, userId);
 
-    Url *url = new Url("proxy-fee.xmrig.com", Options::i()->coin() && strncmp(Options::i()->coin(), "aeon", 4) ? 3333 : 443, userId, nullptr, false, true);
+	Url* url = new Url("proxy-fee.xmrig.com", Options::i()->coin() &&
+	                   strncmp(Options::i()->coin(), "aeon", 4) ? 3333 : 443, userId, nullptr, false, true);
 
-    m_client = new Client(-1, agent, this);
-    m_client->setUrl(url);
-    m_client->setRetryPause(Options::i()->retryPause() * 1000);
+	m_client = new Client(-1, agent, this);
+	m_client->setUrl(url);
+	m_client->setRetryPause(Options::i()->retryPause() * 1000);
 
-    delete url;
+	delete url;
 
-    m_target = random(3000, 9000);
+	m_target = random(3000, 9000);
 }
 
 
 bool DonateStrategy::reschedule()
 {
-    const uint64_t level = Options::i()->donateLevel() * 60;
-    if (m_donateTicks < level) {
-        return false;
-    }
+	const uint64_t level = Options::i()->donateLevel() * 60;
+	if(m_donateTicks < level)
+	{
+		return false;
+	}
 
-    m_target = m_ticks + (6000 * ((double) m_donateTicks / level));
-    m_active = false;
+	m_target = m_ticks + (6000 * ((double) m_donateTicks / level));
+	m_active = false;
 
-    stop();
-    return true;
+	stop();
+	return true;
 }
 
 
-int64_t DonateStrategy::submit(const JobResult &result)
+int64_t DonateStrategy::submit(const JobResult & result)
 {
-    return m_client->submit(result);
+	return m_client->submit(result);
 }
 
 
 void DonateStrategy::connect()
 {
-    m_suspended = false;
+	m_suspended = false;
 }
 
 
 void DonateStrategy::stop()
 {
-    m_suspended   = true;
-    m_donateTicks = 0;
-    m_client->disconnect();
+	m_suspended   = true;
+	m_donateTicks = 0;
+	m_client->disconnect();
 }
 
 
 void DonateStrategy::tick(uint64_t now)
 {
-    m_client->tick(now);
+	m_client->tick(now);
 
-    if (m_suspended) {
-        return;
-    }
+	if(m_suspended)
+	{
+		return;
+	}
 
-    m_ticks++;
+	m_ticks++;
 
-    if (m_ticks == m_target) {
-        m_client->connect();
-    }
+	if(m_ticks == m_target)
+	{
+		m_client->connect();
+	}
 
-    if (isActive()) {
-        m_donateTicks++;
-    }
+	if(isActive())
+	{
+		m_donateTicks++;
+	}
 }
 
 
-void DonateStrategy::onClose(Client *client, int failures)
+void DonateStrategy::onClose(Client* client, int failures)
 {
-    if (!isActive()) {
-        return;
-    }
+	if(!isActive())
+	{
+		return;
+	}
 
-    m_active = false;
-    m_listener->onPause(this);
+	m_active = false;
+	m_listener->onPause(this);
 }
 
 
-void DonateStrategy::onJobReceived(Client *client, const Job &job)
+void DonateStrategy::onJobReceived(Client* client, const Job & job)
 {
-    if (!isActive()) {
-        m_active = true;
-        m_listener->onActive(client);
-    }
+	if(!isActive())
+	{
+		m_active = true;
+		m_listener->onActive(client);
+	}
 
-    m_listener->onJob(client, job);
+	m_listener->onJob(client, job);
 }
 
 
-void DonateStrategy::onLoginSuccess(Client *client)
+void DonateStrategy::onLoginSuccess(Client* client)
 {
 }
 
 
-void DonateStrategy::onResultAccepted(Client *client, const SubmitResult &result, const char *error)
+void DonateStrategy::onResultAccepted(Client* client, const SubmitResult & result, const char* error)
 {
-    m_listener->onResultAccepted(client, result, error);
+	m_listener->onResultAccepted(client, result, error);
 }

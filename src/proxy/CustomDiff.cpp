@@ -44,38 +44,41 @@ CustomDiff::~CustomDiff()
 }
 
 
-void CustomDiff::onEvent(IEvent *event)
+void CustomDiff::onEvent(IEvent* event)
 {
-    switch (event->type())
-    {
-    case IEvent::LoginType:
-        login(static_cast<LoginEvent*>(event));
-        break;
+	switch(event->type())
+	{
+	case IEvent::LoginType:
+		login(static_cast<LoginEvent*>(event));
+		break;
 
-    default:
-        break;
-    }
+	default:
+		break;
+	}
 }
 
 
 
-void CustomDiff::login(LoginEvent *event)
+void CustomDiff::login(LoginEvent* event)
 {
-    event->miner()->setCustomDiff(Options::i()->diff());
+	event->miner()->setCustomDiff(Options::i()->diff());
 
-    if (!event->request.login()) {
-        return;
-    }
+	if(!event->request.login())
+	{
+		return;
+	}
 
-    const char *str = strrchr(event->request.login(), '+');
-    if (!str) {
-        return;
-    }
+	const char* str = strrchr(event->request.login(), '+');
+	if(!str)
+	{
+		return;
+	}
 
-    const unsigned long diff = strtoul(str + 1, nullptr, 10);
-    if (diff < 100 || diff >= INT_MAX) {
-        return;
-    }
+	const unsigned long diff = strtoul(str + 1, nullptr, 10);
+	if(diff < 100 || diff >= INT_MAX)
+	{
+		return;
+	}
 
-    event->miner()->setCustomDiff(diff);
+	event->miner()->setCustomDiff(diff);
 }

@@ -35,18 +35,18 @@ class Stats;
 class ShareLog : public IEventListener
 {
 public:
-    ShareLog(const Stats &stats);
-    ~ShareLog();
+	ShareLog(const Stats & stats);
+	~ShareLog();
 
 protected:
-    void onEvent(IEvent *event) override;
-    void onRejectedEvent(IEvent *event) override;
+	void onEvent(IEvent* event) override;
+	void onRejectedEvent(IEvent* event) override;
 
 private:
-    void accept(const AcceptEvent *event);
-    void reject(const AcceptEvent *event);
+	void accept(const AcceptEvent* event);
+	void reject(const AcceptEvent* event);
 
-    const Stats &m_stats;
+	const Stats & m_stats;
 };
 
 
