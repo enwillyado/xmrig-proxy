@@ -63,7 +63,7 @@ matrix:
 script:
   - if [ $TRAVIS_OS_NAME = osx ]; then
       brew install libuv;
-      cmake .;
+      cmake . -DWITH_HTTPD=OFF;
     else
       cmake -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER} -D CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} .;
     fi;
