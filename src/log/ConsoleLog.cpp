@@ -55,14 +55,14 @@ void ConsoleLog::message(Level level, const std::string & text)
 	localtime_r(&now, &stime);
 #   endif
 
-	static char fmt[256];
-	snprintf(fmt, sizeof(fmt) - 1, "[%d-%02d-%02d %02d:%02d:%02d]",
-	         stime.tm_year + 1900,
-	         stime.tm_mon + 1,
-	         stime.tm_mday,
-	         stime.tm_hour,
-	         stime.tm_min,
-	         stime.tm_sec);
+	char buf[25];
+	int size = snprintf(buf, sizeof(buf), "[%d-%02d-%02d %02d:%02d:%02d] ",
+	                    stime.tm_year + 1900,
+	                    stime.tm_mon + 1,
+	                    stime.tm_mday,
+	                    stime.tm_hour,
+	                    stime.tm_min,
+	                    stime.tm_sec);
 
 	//
 	//
@@ -93,7 +93,7 @@ void ConsoleLog::message(Level level, const std::string & text)
 		}
 	}
 
-	print(colorIni + text + colorEnd);
+	print(std::string(buf, size) + colorIni + text + colorEnd);
 }
 
 void ConsoleLog::text(const std::string & txt)

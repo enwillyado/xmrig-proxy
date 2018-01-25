@@ -24,15 +24,9 @@
 #ifndef __ACCESSLOG_H__
 #define __ACCESSLOG_H__
 
-
-#include <uv.h>
-
+#include <string>
 
 #include "interfaces/IEventListener.h"
-
-
-class Stats;
-
 
 class AccessLog : public IEventListener
 {
@@ -45,11 +39,9 @@ protected:
 	void onRejectedEvent(IEvent* event) override;
 
 private:
-	static void onWrite(uv_fs_t* req);
-
 	void write(const char* fmt, ...);
 
-	int m_file;
+	std::string m_file_name;
 };
 
 

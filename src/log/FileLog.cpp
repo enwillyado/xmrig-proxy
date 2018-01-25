@@ -29,6 +29,7 @@
 #include <time.h>
 
 #include <fstream>
+#include <iostream>
 
 #include "log/FileLog.h"
 
@@ -39,7 +40,7 @@ FileLog::FileLog(const std::string & fileName)
 
 void FileLog::message(Level level, const std::string & txt)
 {
-	if(m_file_name == "" || !isWritable())
+	if(!isWritable())
 	{
 		return;
 	}
@@ -55,18 +56,18 @@ void FileLog::message(Level level, const std::string & txt)
 	localtime_r(&now, &stime);
 #   endif
 
-	static char fmt[256];
-	snprintf(fmt, sizeof(fmt) - 1, "[%d-%02d-%02d %02d:%02d:%02d]",
-	         stime.tm_year + 1900,
-	         stime.tm_mon + 1,
-	         stime.tm_mday,
-	         stime.tm_hour,
-	         stime.tm_min,
-	         stime.tm_sec);
+	char buf[25];
+	int size = snprintf(buf, sizeof(buf), "[%d-%02d-%02d %02d:%02d:%02d] ",
+	                    stime.tm_year + 1900,
+	                    stime.tm_mon + 1,
+	                    stime.tm_mday,
+	                    stime.tm_hour,
+	                    stime.tm_min,
+	                    stime.tm_sec);
 
 	//
 	//
-	write(txt);
+	write(std::string(buf, size) + txt);
 }
 
 void FileLog::text(const std::string & txt)
@@ -81,12 +82,13 @@ void FileLog::text(const std::string & txt)
 
 bool FileLog::isWritable() const
 {
-	return std::ofstream(m_file_name).good();
+	return (m_file_name != "") && std::ofstream(m_file_name, std::ios_base::app).good();
 }
 
 void FileLog::write(const std::string & txt)
 {
 	std::ofstream outfile;
+
 	outfile.open(m_file_name, std::ios_base::app);
-	outfile << "Data";
+	outfile << txt << std::endl;
 }

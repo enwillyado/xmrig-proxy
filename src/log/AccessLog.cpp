@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <time.h>
 
+#include <fstream>
 
 #include "log/AccessLog.h"
 #include "Options.h"
@@ -39,17 +40,14 @@
 
 
 AccessLog::AccessLog() :
-	m_file(-1)
+	m_file_name()
 {
 	if(!Options::i()->accessLog())
 	{
 		return;
 	}
 
-	uv_fs_t req;
-	m_file = uv_fs_open(uv_default_loop(), &req, Options::i()->accessLog(), O_CREAT | O_APPEND | O_WRONLY, 0644,
-	                    nullptr);
-	uv_fs_req_cleanup(&req);
+	m_file_name = Options::i()->accessLog();
 }
 
 
@@ -60,7 +58,7 @@ AccessLog::~AccessLog()
 
 void AccessLog::onEvent(IEvent* event)
 {
-	if(m_file < 0)
+	if(m_file_name == "")
 	{
 		return;
 	}
@@ -70,7 +68,7 @@ void AccessLog::onEvent(IEvent* event)
 	case IEvent::LoginType:
 	{
 		auto e = static_cast<LoginEvent*>(event);
-		write("#%" PRId64 " login: %s, \"%s\", ua: \"%s\", count: %" PRIu64, e->miner()->id(), e->miner()->ip(),
+		write("#%03." PRId64 " login: %s, \"%s\", ua: \"%s\", count: %" PRIu64, e->miner()->id(), e->miner()->ip(),
 		      e->request.login(), e->request.agent(), Counters::miners());
 	}
 	break;
@@ -85,7 +83,7 @@ void AccessLog::onEvent(IEvent* event)
 
 		const double time = (double)(uv_now(uv_default_loop()) - e->miner()->timestamp()) / 1000;
 
-		write("#%" PRId64 " close: %s, time: %03.1fs, rx/tx: %" PRIu64 "/%" PRIu64 ", count: %" PRIu64,
+		write("#%03." PRId64 " close: %s, time: %03.1fs, rx/tx: %" PRIu64 "/%" PRIu64 ", count: %" PRIu64,
 		      e->miner()->id(), e->miner()->ip(), time, e->miner()->rx(), e->miner()->tx(), Counters::miners());
 	}
 	break;
@@ -99,16 +97,6 @@ void AccessLog::onEvent(IEvent* event)
 void AccessLog::onRejectedEvent(IEvent* event)
 {
 }
-
-
-void AccessLog::onWrite(uv_fs_t* req)
-{
-	delete [] static_cast<char*>(req->data);
-
-	uv_fs_req_cleanup(req);
-	delete req;
-}
-
 
 void AccessLog::write(const char* fmt, ...)
 {
@@ -124,7 +112,7 @@ void AccessLog::write(const char* fmt, ...)
 	localtime_r(&now, &stime);
 #   endif
 
-	char* buf = new char[1024];
+	char buf[1024];
 	int size = snprintf(buf, 23, "[%d-%02d-%02d %02d:%02d:%02d] ",
 	                    stime.tm_year + 1900,
 	                    stime.tm_mon + 1,
@@ -133,14 +121,13 @@ void AccessLog::write(const char* fmt, ...)
 	                    stime.tm_min,
 	                    stime.tm_sec);
 
-	size = vsnprintf(buf + size, 1024 - size - 1, fmt, args) + size;
+	size = vsnprintf(buf + size, sizeof(buf) - size - 1, fmt, args) + size;
 	buf[size] = '\n';
 
-	uv_buf_t ubuf = uv_buf_init(buf, (unsigned int) size + 1);
-	uv_fs_t* req = new uv_fs_t;
-	req->data = ubuf.base;
+	std::ofstream outfile;
 
-	uv_fs_write(uv_default_loop(), req, m_file, &ubuf, 1, 0, AccessLog::onWrite);
+	outfile.open(m_file_name, std::ios_base::app);
+	outfile << std::string(buf, (unsigned int) size + 1);
 
 	va_end(args);
 }

@@ -24,6 +24,7 @@
 
 #include <inttypes.h>
 
+#include <iomanip>
 
 #include "api/Api.h"
 #include "log/Log.h"
@@ -57,18 +58,21 @@ void Workers::printWorkers()
 		return;
 	}
 
-	char workerName[24];
+	static std::string localhostName = "127.0.0.1";
+	char workerName[51];
 	size_t size = 0;
 
 	if(Options::i()->colors())
 	{
-		PRINT_MSG("\x1B[01;37mWORKER NAME | LAST IP | COUNT | ACCEPTED | REJ | 10 MIN |");
+		PRINT_MSG("\x1B[01;37mWORKER NAME | L | COUNT | ACCEPTED | REJ |  k HASHES | 1min kHs | 10min kHs | 1h kHs |");
 	}
 	else
 	{
-		PRINT_MSG("WORKER NAME | LAST IP | COUNT | ACCEPTED | REJ | 10 MIN |");
+		PRINT_MSG(std::left << std::setw(50) << "WORKER NAME" << std::setw(0) << " | " << "L" <<
+		          " | COUNT | ACCEPTED | REJ |  k HASHES | 1min kHs | 10min kHs | 1h kHs |");
 	}
 
+	unsigned short i = 0;
 	for(const Worker & worker : m_workers)
 	{
 		const char* name = worker.name();
@@ -79,15 +83,24 @@ void Workers::printWorkers()
 			memcpy(workerName, name, 6);
 			memcpy(workerName + 6, "...", 3);
 			memcpy(workerName + 9, name + size - sizeof(workerName) + 10, sizeof(workerName) - 10);
-			workerName[sizeof(workerName) - 1] = '\0';
+			i = 0;
 		}
 		else
 		{
-			strncpy(workerName, name, sizeof(workerName) - 1);
+			memset(workerName, '-', sizeof(workerName) - 1);
+			strncpy(workerName, name, std::min(strlen(name), sizeof(workerName) - 1));
+			workerName[strlen(name)] = (i++ % 3 == 1) ? ' ' : '\0';
 		}
+		workerName[sizeof(workerName) - 1] = '\0';
 
-		PRINT_MSG("" << workerName << " | " << worker.ip() << " | " << worker.connections() << " | " <<
-		          worker.accepted() << " | " << worker.rejected() << " | " << worker.hashrate(600) << " kH / s | ");
+
+		PRINT_MSG(std::left << std::setprecision(3) << std::setw(50) << workerName << std::right << std::setw(
+		              0) << " | " << ((localhostName == worker.ip()) ? "x" : worker.ip()) << " | " << std::setw(
+		              5) << worker.connections() << std::setw(0) << " | " <<
+		          std::setw(8) << worker.accepted() << std::setw(0) << " | " << std::setw(3) << worker.rejected() << " | " <<
+		          std::setw(9) << ((double)worker.hashes()) / 1000 << std::setw(0) << " | " << std::setw(8) << worker.hashrate(
+		              60) << std::setw(0) << " | " << std::setw(9) << worker.hashrate(600) << std::setw(0) << " | " << std::setw(
+		              6) << worker.hashrate(3600) << std::setw(0) << " | " << std::left);
 	}
 }
 
