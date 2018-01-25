@@ -28,13 +28,13 @@
 #include "Options.h"
 
 
-FailoverStrategy::FailoverStrategy(const std::vector<Url*> & urls, const char* agent,
+FailoverStrategy::FailoverStrategy(const std::vector<Url> & urls, const std::string & agent,
                                    IStrategyListener* listener) :
 	m_active(-1),
 	m_index(0),
 	m_listener(listener)
 {
-	for(const Url* url : urls)
+	for(const Url & url : urls)
 	{
 		add(url, agent);
 	}
@@ -146,13 +146,13 @@ void FailoverStrategy::onLoginSuccess(Client* client)
 }
 
 
-void FailoverStrategy::onResultAccepted(Client* client, const SubmitResult & result, const char* error)
+void FailoverStrategy::onResultAccepted(Client* client, const SubmitResult & result, const std::string & error)
 {
 	m_listener->onResultAccepted(client, result, error);
 }
 
 
-void FailoverStrategy::add(const Url* url, const char* agent)
+void FailoverStrategy::add(const Url & url, const std::string & agent)
 {
 	Client* client = new Client((int) m_pools.size(), agent, this);
 	client->setUrl(url);

@@ -103,10 +103,11 @@ bool Miner::accept(uv_stream_t* server)
 }
 
 
-void Miner::replyWithError(int64_t id, const char* message)
+void Miner::replyWithError(int64_t id, const std::string & message)
 {
 	send(snprintf(m_sendBuf, sizeof(m_sendBuf),
-	              "{\"id\":%" PRId64 ",\"jsonrpc\":\"2.0\",\"error\":{\"code\":-1,\"message\":\"%s\"}}\n", id, message));
+	              "{\"id\":%" PRId64 ",\"jsonrpc\":\"2.0\",\"error\":{\"code\":-1,\"message\":\"%s\"}}\n",
+	              id, message.c_str()));
 }
 
 
@@ -123,7 +124,7 @@ void Miner::setJob(Job & job)
 	if(m_customDiff && m_customDiff < m_diff)
 	{
 		const uint64_t t = 0xFFFFFFFFFFFFFFFFULL / m_customDiff;
-		Job::toHex(reinterpret_cast<const unsigned char*>(&t) + 4, 4, target);
+		Job::toHex(std::string((char*)(reinterpret_cast<const unsigned char*>(&t) + 4), 4), target);
 		target[8] = '\0';
 		customDiff = true;
 	}
@@ -135,13 +136,14 @@ void Miner::setJob(Job & job)
 		size = snprintf(m_sendBuf, sizeof(m_sendBuf),
 		                "{\"id\":%" PRId64
 		                ",\"jsonrpc\":\"2.0\",\"result\":{\"id\":\"%s\",\"job\":{\"blob\":\"%s\",\"job_id\":\"%s%02hhx0\",\"target\":\"%s\"},\"status\":\"OK\"}}\n",
-		                m_loginId, m_rpcId, job.rawBlob(), job.id().data(), m_fixedByte, customDiff ? target : job.rawTarget());
+		                m_loginId, m_rpcId, job.rawBlob(), job.id().data().c_str(), m_fixedByte,
+		                customDiff ? target : job.rawTarget());
 	}
 	else
 	{
 		size = snprintf(m_sendBuf, sizeof(m_sendBuf),
 		                "{\"jsonrpc\":\"2.0\",\"method\":\"job\",\"params\":{\"blob\":\"%s\",\"job_id\":\"%s%02hhx0\",\"target\":\"%s\"}}\n",
-		                job.rawBlob(), job.id().data(), m_fixedByte, customDiff ? target : job.rawTarget());
+		                job.rawBlob(), job.id().data().c_str(), m_fixedByte, customDiff ? target : job.rawTarget());
 	}
 
 	send(size);
@@ -295,7 +297,7 @@ void Miner::send(int size, const bool encrypted)
 
 		char* send_encr_hex = static_cast<char*>(malloc(size * 2 + 1));
 		memset(send_encr_hex, 0, size * 2 + 1);
-		Job::toHex((const unsigned char*)m_sendBuf, size, send_encr_hex);
+		Job::toHex(std::string(m_sendBuf, size), send_encr_hex);
 		send_encr_hex[size * 2] = 0;
 		LOG_DEBUG("[" << m_ip << "] send encr. (" << size << " bytes): \"0x" << send_encr_hex << "\"");
 		free(send_encr_hex);
@@ -387,7 +389,7 @@ void Miner::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 	if(miner->m_encrypted)
 	{
 		char* read_encr_hex = static_cast<char*>(malloc(nread * 2 + 1));
-		Job::toHex((const unsigned char*)start, nread, read_encr_hex);
+		Job::toHex(std::string(start, nread), read_encr_hex);
 		read_encr_hex[nread * 2] = '\0';
 		LOG_DEBUG("[" << miner->m_ip << "] read encr. (" << nread << " bytes): \"0x" << read_encr_hex << "\"");
 		free(read_encr_hex);

@@ -52,7 +52,7 @@ public:
 	Miner(const Addr & addr);
 	~Miner();
 	bool accept(uv_stream_t* server);
-	void replyWithError(int64_t id, const char* message);
+	void replyWithError(int64_t id, const std::string & message);
 	void setJob(Job & job);
 	void success(int64_t id, const char* status);
 
@@ -124,7 +124,7 @@ private:
 	bool parseRequest(int64_t id, const char* method, const rapidjson::Value & params);
 	void heartbeat();
 	void parse(char* line, size_t len);
-	void send(const char* data, int size);
+	void send(const std::string & data, int size);
 	void send(int size, const bool encrypted = true);
 	void setState(State state);
 	void shutdown(bool had_error);

@@ -37,7 +37,7 @@ class Url;
 class DonateStrategy : public IStrategy, public IClientListener
 {
 public:
-	DonateStrategy(const char* agent, IStrategyListener* listener);
+	DonateStrategy(const std::string & agent, IStrategyListener* listener);
 	bool reschedule();
 
 	inline bool isActive() const override
@@ -55,7 +55,7 @@ protected:
 	void onClose(Client* client, int failures) override;
 	void onJobReceived(Client* client, const Job & job) override;
 	void onLoginSuccess(Client* client) override;
-	void onResultAccepted(Client* client, const SubmitResult & result, const char* error) override;
+	void onResultAccepted(Client* client, const SubmitResult & result, const std::string & error) override;
 
 private:
 	bool m_active;

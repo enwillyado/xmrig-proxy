@@ -55,14 +55,14 @@ public:
 	constexpr static int kResponseTimeout  = 20 * 1000;
 	constexpr static int kKeepAliveTimeout = 60 * 1000;
 
-	Client(int id, const char* agent, IClientListener* listener);
+	Client(int id, const std::string & agent, IClientListener* listener);
 	~Client();
 
 	int64_t submit(const JobResult & result);
 	void connect();
-	void connect(const Url* url);
+	void connect(const Url & url);
 	void disconnect();
-	void setUrl(const Url* url);
+	void setUrl(const Url & url);
 	void tick(uint64_t now);
 
 	inline bool isReady() const
@@ -73,9 +73,13 @@ public:
 	{
 		return m_url.host();
 	}
-	inline const char* ip() const
+	inline const std::string & ip() const
 	{
 		return m_ip;
+	}
+	inline void setIP(const std::string & iIp)
+	{
+		m_ip = iIp;
 	}
 	inline const Job & job() const
 	{
@@ -103,7 +107,7 @@ public:
 	}
 
 private:
-	bool isCriticalError(const char* message);
+	bool isCriticalError(const std::string & message);
 	bool parseJob(const rapidjson::Value & params, int* code);
 	bool parseLogin(const rapidjson::Value & result, int* code);
 	int resolve(const std::string & host);
@@ -134,12 +138,12 @@ private:
 	addrinfo m_hints;
 	bool m_quiet;
 	char m_buf[2048];
-	char m_ip[17];
+	std::string m_ip;
 	char m_rpcId[64];
 	char m_sendBuf[768];
 	char m_keystream[sizeof(m_sendBuf)];
 	bool m_encrypted;
-	const char* m_agent;
+	const std::string & m_agent;
 	IClientListener* m_listener;
 	int m_id;
 	int m_retryPause;

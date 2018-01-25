@@ -59,17 +59,19 @@ static inline double normalize(double d)
 }
 
 
-ApiState::ApiState()
+ApiState::ApiState():
+	m_workerId()
 {
-	memset(m_workerId, 0, sizeof(m_workerId));
-
-	if(Options::i()->apiWorkerId())
+	if(0 < Options::i()->apiWorkerId().size())
 	{
-		strncpy(m_workerId, Options::i()->apiWorkerId(), sizeof(m_workerId) - 1);
+		m_workerId = Options::i()->apiWorkerId();
 	}
 	else
 	{
-		gethostname(m_workerId, sizeof(m_workerId) - 1);
+		char workerId[256];
+		gethostname(workerId, sizeof(workerId) - 1);
+		workerId[sizeof(workerId) - 1] = '\0';
+		m_workerId = workerId;
 	}
 
 	genId();
@@ -81,12 +83,12 @@ ApiState::~ApiState()
 }
 
 
-char* ApiState::get(const char* url, int* status) const
+std::string ApiState::get(const std::string & url, int* status) const
 {
 	rapidjson::Document doc;
 	doc.SetObject();
 
-	if(strncmp(url, "/workers.json", 13) == 0)
+	if(url == "/workers.json")
 	{
 		getHashrate(doc);
 		getWorkers(doc);
@@ -94,7 +96,7 @@ char* ApiState::get(const char* url, int* status) const
 		return finalize(doc);
 	}
 
-	if(strncmp(url, "/resources.json", 15) == 0)
+	if(url == "/resources.json")
 	{
 		getResources(doc);
 
@@ -123,21 +125,19 @@ void ApiState::tick(const std::vector<Worker> & workers)
 }
 
 
-char* ApiState::finalize(rapidjson::Document & doc) const
+std::string ApiState::finalize(rapidjson::Document & doc) const
 {
 	rapidjson::StringBuffer buffer(0, 4096);
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
 	writer.SetMaxDecimalPlaces(10);
 	doc.Accept(writer);
 
-	return strdup(buffer.GetString());
+	return buffer.GetString();
 }
 
 
 void ApiState::genId()
 {
-	memset(m_id, 0, sizeof(m_id));
-
 	uv_interface_address_t* interfaces;
 	int count = 0;
 
@@ -159,7 +159,9 @@ void ApiState::genId()
 			memcpy(input + addrSize, APP_KIND, strlen(APP_KIND));
 
 			keccak(input, static_cast<int>(inSize), hash, sizeof(hash));
-			Job::toHex(hash, 8, m_id);
+			char id[16];
+			Job::toHex(std::string((char*)hash, 8), id);
+			m_id = id;
 
 			delete [] input;
 			break;
@@ -189,8 +191,8 @@ void ApiState::getHashrate(rapidjson::Document & doc) const
 
 void ApiState::getIdentify(rapidjson::Document & doc) const
 {
-	doc.AddMember("id",        rapidjson::StringRef(m_id),       doc.GetAllocator());
-	doc.AddMember("worker_id", rapidjson::StringRef(m_workerId), doc.GetAllocator());
+	doc.AddMember("id",        rapidjson::StringRef(m_id.c_str()),       doc.GetAllocator());
+	doc.AddMember("worker_id", rapidjson::StringRef(m_workerId.c_str()), doc.GetAllocator());
 }
 
 
@@ -200,7 +202,7 @@ void ApiState::getMiner(rapidjson::Document & doc) const
 
 	doc.AddMember("version",      APP_VERSION, allocator);
 	doc.AddMember("kind",         APP_KIND, allocator);
-	doc.AddMember("ua",           rapidjson::StringRef(Platform::userAgent()), allocator);
+	doc.AddMember("ua",           rapidjson::StringRef(Platform::userAgent().c_str()), allocator);
 	doc.AddMember("uptime",       m_stats.uptime(), allocator);
 	doc.AddMember("donate_level", Options::i()->donateLevel(), allocator);
 

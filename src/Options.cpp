@@ -188,19 +188,19 @@ Options::Options(int argc, char** argv) :
 	m_syslog(false),
 	m_verbose(false),
 	m_workers(true),
-	m_accessLog(nullptr),
-	m_apiToken(nullptr),
-	m_apiWorkerId(nullptr),
-	m_coin(nullptr),
-	m_logFile(nullptr),
-	m_userAgent(nullptr),
+	m_accessLog(),
+	m_apiToken(),
+	m_apiWorkerId(),
+	m_coin(),
+	m_logFile(),
+	m_userAgent(),
 	m_apiPort(0),
 	m_donateLevel(kDonateLevel),
 	m_retries(5),
 	m_retryPause(5),
 	m_diff(0)
 {
-	m_pools.push_back(new Url());
+	m_pools.push_back(Url());
 
 	int key;
 
@@ -224,12 +224,12 @@ Options::Options(int argc, char** argv) :
 		return;
 	}
 
-	if(!m_pools[0]->isValid())
+	if(!m_pools[0].isValid())
 	{
 		parseConfig(Platform::defaultConfigName());
 	}
 
-	if(!m_pools[0]->isValid())
+	if(!m_pools[0].isValid())
 	{
 		fprintf(stderr, "No pool URL supplied. Exiting.\n");
 		return;
@@ -246,30 +246,18 @@ Options::Options(int argc, char** argv) :
 
 Options::~Options()
 {
-	for(Url* url : m_pools)
-	{
-		delete url;
-	}
-
 	m_addrs.clear();
 	m_pools.clear();
-
-	free(m_accessLog);
-	free(m_apiToken);
-	free(m_apiWorkerId);
-	free(m_coin);
-	free(m_logFile);
-	free(m_userAgent);
 }
 
 
-bool Options::getJSON(const char* fileName, rapidjson::Document & doc)
+bool Options::getJSON(const std::string & fileName, rapidjson::Document & doc)
 {
 	uv_fs_t req;
-	const int fd = uv_fs_open(uv_default_loop(), &req, fileName, O_RDONLY, 0644, nullptr);
+	const int fd = uv_fs_open(uv_default_loop(), &req, fileName.c_str(), O_RDONLY, 0644, nullptr);
 	if(fd < 0)
 	{
-		fprintf(stderr, "unable to open %s: %s\n", fileName, uv_strerror(fd));
+		fprintf(stderr, "unable to open %s: %s\n", fileName.c_str(), uv_strerror(fd));
 		return false;
 	}
 
@@ -286,7 +274,8 @@ bool Options::getJSON(const char* fileName, rapidjson::Document & doc)
 
 	if(doc.HasParseError())
 	{
-		printf("%s:%d: %s\n", fileName, (int) doc.GetErrorOffset(), rapidjson::GetParseError_En(doc.GetParseError()));
+		printf("%s:%d: %s\n", fileName.c_str(), (int) doc.GetErrorOffset(),
+		       rapidjson::GetParseError_En(doc.GetParseError()));
 		return false;
 	}
 
@@ -294,7 +283,7 @@ bool Options::getJSON(const char* fileName, rapidjson::Document & doc)
 }
 
 
-bool Options::parseArg(int key, const char* arg)
+bool Options::parseArg(int key, const std::string & arg)
 {
 	switch(key)
 	{
@@ -309,7 +298,7 @@ bool Options::parseArg(int key, const char* arg)
 	break;
 
 	case 'O': /* --userpass */
-		if(!m_pools.back()->setUserpass(arg))
+		if(!m_pools.back().setUserpass(arg))
 		{
 			return false;
 		}
@@ -317,24 +306,20 @@ bool Options::parseArg(int key, const char* arg)
 		break;
 
 	case 'o': /* --url */
-		if(m_pools.size() > 1 || m_pools[0]->isValid())
+		if(m_pools.size() > 1 || m_pools[0].isValid())
 		{
-			Url* url = new Url(arg);
-			if(url->isValid())
+			Url url(arg);
+			if(url.isValid())
 			{
 				m_pools.push_back(url);
-			}
-			else
-			{
-				delete url;
 			}
 		}
 		else
 		{
-			m_pools[0]->parse(arg);
+			m_pools[0].parse(arg);
 		}
 
-		if(!m_pools.back()->isValid())
+		if(!m_pools.back().isValid())
 		{
 			return false;
 		}
@@ -342,38 +327,34 @@ bool Options::parseArg(int key, const char* arg)
 		break;
 
 	case 'u': /* --user */
-		m_pools.back()->setUser(arg);
+		m_pools.back().setUser(arg);
 		break;
 
 	case 'p': /* --pass */
-		m_pools.back()->setPassword(arg);
+		m_pools.back().setPassword(arg);
 		break;
 
 	case 'l': /* --log-file */
-		free(m_logFile);
-		m_logFile = strdup(arg);
+		m_logFile = arg;
 		break;
 
 	case 'A': /* --access-log-file **/
-		free(m_accessLog);
-		m_accessLog = strdup(arg);
+		m_accessLog = arg;
 		break;
 
 	case 4001: /* --access-token */
-		free(m_apiToken);
-		m_apiToken = strdup(arg);
+		m_apiToken = arg;
 		break;
 
 	case 4002: /* --worker-id */
-		free(m_apiWorkerId);
-		m_apiWorkerId = strdup(arg);
+		m_apiWorkerId = arg;
 		break;
 
 	case 'r':  /* --retries */
 	case 'R':  /* --retry-pause */
 	case 1102: /* --custom-diff */
 	case 4000: /* --api-port */
-		return parseArg(key, strtol(arg, nullptr, 10));
+		return parseArg(key, strtol(arg.c_str(), nullptr, 10));
 
 	case 'B':  /* --background */
 	case 'k':  /* --keepalive */
@@ -387,19 +368,18 @@ bool Options::parseArg(int key, const char* arg)
 		return parseBoolean(key, false);
 
 	case 1003: /* --donate-level */
-		if(strncmp(arg, "minemonero.pro", 14) == 0)
+		if(strncmp(arg.c_str(), "minemonero.pro", 14) == 0)
 		{
 			m_donateLevel = 0;
 		}
 		else
 		{
-			parseArg(key, strtol(arg, nullptr, 10));
+			parseArg(key, strtol(arg.c_str(), nullptr, 10));
 		}
 		break;
 
 	case 1104: /* --coin */
-		free(m_coin);
-		m_coin = strdup(arg);
+		m_coin = arg;
 		break;
 
 	case 'V': /* --version */
@@ -415,8 +395,7 @@ bool Options::parseArg(int key, const char* arg)
 		break;
 
 	case 1008: /* --user-agent */
-		free(m_userAgent);
-		m_userAgent = strdup(arg);
+		m_userAgent = arg;
 		break;
 
 	default:
@@ -492,7 +471,7 @@ bool Options::parseBoolean(int key, bool enable)
 		break;
 
 	case 'k': /* --keepalive */
-		m_pools.back()->setKeepAlive(enable);
+		m_pools.back().setKeepAlive(enable);
 		break;
 
 	case 'S': /* --syslog */
@@ -527,20 +506,13 @@ bool Options::parseBoolean(int key, bool enable)
 }
 
 
-Url* Options::parseUrl(const char* arg) const
+Url Options::parseUrl(const std::string & arg) const
 {
-	auto url = new Url(arg);
-	if(!url->isValid())
-	{
-		delete url;
-		return nullptr;
-	}
-
-	return url;
+	return Url(arg);
 }
 
 
-void Options::parseConfig(const char* fileName)
+void Options::parseConfig(const std::string & fileName)
 {
 	rapidjson::Document doc;
 	if(!getJSON(fileName, doc))

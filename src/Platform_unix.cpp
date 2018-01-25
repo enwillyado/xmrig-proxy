@@ -38,11 +38,11 @@
 #endif
 
 
-static inline char* createUserAgent()
+static inline std::string createUserAgent()
 {
 	const size_t max = 160;
 
-	char* buf = new char[max];
+	char buf[max];
 	int length = snprintf(buf, max, "%s/%s (Linux ", APP_NAME, APP_VERSION);
 
 #   if defined(__x86_64__)
@@ -64,23 +64,18 @@ static inline char* createUserAgent()
 }
 
 
-void Platform::init(const char* userAgent)
+void Platform::init(const std::string & userAgent)
 {
-	m_userAgent = userAgent ? strdup(userAgent) : createUserAgent();
+	m_userAgent = (0 < userAgent.size()) ? userAgent : createUserAgent();
 }
-
 
 void Platform::release()
 {
-	delete [] m_userAgent;
 }
-
 
 void Platform::setProcessPriority(int priority)
 {
 }
-
-
 
 void Platform::setThreadPriority(int priority)
 {

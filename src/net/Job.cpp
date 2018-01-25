@@ -63,6 +63,7 @@ Job::Job(int poolId, bool nicehash) :
 	m_nicehash(nicehash),
 	m_poolId(poolId),
 	m_threadId(-1),
+	m_id(),
 	m_size(0),
 	m_diff(0),
 	m_target(0)
@@ -177,9 +178,9 @@ bool Job::fromHex(const char* in, unsigned int len, unsigned char* out)
 }
 
 
-void Job::toHex(const unsigned char* in, unsigned int len, char* out)
+void Job::toHex(const std::string & in, char* out)
 {
-	for(unsigned int i = 0; i < len; i++)
+	for(size_t i = 0; i < in.size(); ++i)
 	{
 		out[i * 2] = hf_bin2hex((in[i] & 0xF0) >> 4);
 		out[i * 2 + 1] = hf_bin2hex(in[i] & 0x0F);

@@ -21,23 +21,19 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <microhttpd.h>
 #include <string.h>
-
 
 #include "api/Api.h"
 #include "api/Httpd.h"
 #include "log/Log.h"
 
-
-Httpd::Httpd(int port, const char* accessToken) :
+Httpd::Httpd(int port, const std::string & accessToken) :
 	m_accessToken(accessToken),
 	m_port(port),
 	m_daemon(nullptr)
 {
 }
-
 
 bool Httpd::start()
 {
@@ -67,25 +63,25 @@ bool Httpd::start()
 }
 
 
-int Httpd::auth(const char* header)
+int Httpd::auth(const std::string & header)
 {
-	if(!m_accessToken)
+	if(m_accessToken.empty())
 	{
 		return MHD_HTTP_OK;
 	}
 
-	if(m_accessToken && !header)
+	if(0 < m_accessToken.size() && header.empty())
 	{
 		return MHD_HTTP_UNAUTHORIZED;
 	}
 
-	const size_t size = strlen(header);
-	if(size < 8 || strlen(m_accessToken) != size - 7 || memcmp("Bearer ", header, 7) != 0)
+	const size_t size = header.size();
+	if(size < 8 || m_accessToken.size() != size - 7 || "Bearer " == header.substr(0, 7))
 	{
 		return MHD_HTTP_FORBIDDEN;
 	}
 
-	return strncmp(m_accessToken, header + 7, strlen(m_accessToken)) == 0 ? MHD_HTTP_OK : MHD_HTTP_FORBIDDEN;
+	return (m_accessToken == header.substr(7)) ? MHD_HTTP_OK : MHD_HTTP_FORBIDDEN;
 }
 
 
@@ -107,15 +103,16 @@ int Httpd::done(MHD_Connection* connection, int status, MHD_Response* rsp)
 }
 
 
-int Httpd::handler(void* cls, struct MHD_Connection* connection, const char* url, const char* method,
-                   const char* version, const char* upload_data, size_t* upload_data_size, void** con_cls)
+int Httpd::handlerStd(void* cls, struct MHD_Connection* connection, const std::string & url,
+                      const std::string & method, const std::string & version, const std::string & upload_data,
+                      size_t* upload_data_size, void** con_cls)
 {
-	if(strcmp(method, "OPTIONS") == 0)
+	if(method == "OPTIONS")
 	{
 		return done(connection, MHD_HTTP_OK, nullptr);
 	}
 
-	if(strcmp(method, "GET") != 0)
+	if(method != "GET")
 	{
 		return MHD_NO;
 	}
@@ -127,12 +124,19 @@ int Httpd::handler(void* cls, struct MHD_Connection* connection, const char* url
 		return done(connection, status, nullptr);
 	}
 
-	char* buf = Api::get(url, &status);
-	if(buf == nullptr)
+	std::string buf = Api::get(url, &status);
+	if(buf.empty())
 	{
 		return MHD_NO;
 	}
 
-	MHD_Response* rsp = MHD_create_response_from_buffer(strlen(buf), (void*) buf, MHD_RESPMEM_MUST_FREE);
+	MHD_Response* rsp = MHD_create_response_from_buffer(buf.size(), (void*) buf.c_str(), MHD_RESPMEM_MUST_FREE);
 	return done(connection, status, rsp);
+}
+
+int Httpd::handler(void* cls, MHD_Connection* connection, const char* url, const char* method,
+                   const char* version, const char* upload_data, size_t* upload_data_size,
+                   void** con_cls)
+{
+	return handlerStd(cls, connection, url, method, version, upload_data, upload_data_size, con_cls);
 }
