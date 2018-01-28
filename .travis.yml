@@ -67,4 +67,4 @@ script:
     else
       cmake -D CMAKE_C_COMPILER=${CMAKE_C_COMPILER} -D CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DWITH_HTTPD=OFF .;
     fi;
-  - make
+  - make -k
