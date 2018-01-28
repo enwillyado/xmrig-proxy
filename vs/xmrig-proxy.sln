@@ -6,10 +6,13 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		make|Win32 = make|Win32
+		vs|Win32 = vs|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{53285F83-3CB3-4BB7-B723-C2EFDBCEB785}.make|Win32.ActiveCfg = make|Win32
 		{53285F83-3CB3-4BB7-B723-C2EFDBCEB785}.make|Win32.Build.0 = make|Win32
+		{53285F83-3CB3-4BB7-B723-C2EFDBCEB785}.vs|Win32.ActiveCfg = vs|Win32
+		{53285F83-3CB3-4BB7-B723-C2EFDBCEB785}.vs|Win32.Build.0 = vs|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

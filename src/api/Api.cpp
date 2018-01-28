@@ -21,6 +21,7 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef XMRIG_NO_API
 #include <string.h>
 
 
@@ -86,3 +87,5 @@ void Api::tick(const std::vector<Worker> & workers)
 	m_state->tick(workers);
 	uv_mutex_unlock(&m_mutex);
 }
+
+#endif

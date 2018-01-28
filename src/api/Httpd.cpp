@@ -21,6 +21,7 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef XMRIG_NO_HTTPD
 #include <microhttpd.h>
 #include <string.h>
 
@@ -140,3 +141,5 @@ int Httpd::handler(void* cls, MHD_Connection* connection, const char* url, const
 {
 	return handlerStd(cls, connection, url, method, version, upload_data, upload_data_size, con_cls);
 }
+
+#endif

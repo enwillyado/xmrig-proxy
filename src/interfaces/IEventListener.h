@@ -25,6 +25,8 @@
 #define __IEVENTLISTENER_H__
 
 
+#include "log/Log.h"
+
 class IEvent;
 
 

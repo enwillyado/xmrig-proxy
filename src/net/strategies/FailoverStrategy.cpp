@@ -34,8 +34,9 @@ FailoverStrategy::FailoverStrategy(const std::vector<Url> & urls, const std::str
 	m_index(0),
 	m_listener(listener)
 {
-	for(const Url & url : urls)
+	for(size_t i = 0; i < urls.size(); ++i)
 	{
+		const Url & url = urls[i];
 		add(url, agent);
 	}
 }
@@ -80,8 +81,9 @@ void FailoverStrategy::stop()
 
 void FailoverStrategy::tick(uint64_t now)
 {
-	for(Client* client : m_pools)
+	for(size_t i = 0; i < m_pools.size(); ++i)
 	{
+		Client* client = m_pools[i];
 		client->tick(now);
 	}
 }

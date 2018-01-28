@@ -36,12 +36,13 @@ Miners::Miners()
 {
 	m_timer.data = this;
 	uv_timer_init(uv_default_loop(), &m_timer);
-	uv_timer_start(&m_timer, [](uv_timer_t* handle)
-	{
-		static_cast<Miners*>(handle->data)->tick();
-	}, kTickInterval, kTickInterval);
+	uv_timer_start(&m_timer, &Miners::onStart, kTickInterval, kTickInterval);
 }
 
+void Miners::onStart(uv_timer_t* handle)
+{
+	static_cast<Miners*>(handle->data)->tick();
+}
 
 Miners::~Miners()
 {
@@ -87,8 +88,9 @@ void Miners::tick()
 	const uint64_t now = uv_now(uv_default_loop());
 	std::vector<Miner*> expired;
 
-	for(auto const & kv : m_miners)
+	for(MinersMap::const_iterator itr = m_miners.begin(); itr != m_miners.end(); ++itr)
 	{
+		auto const & kv = *itr;
 		if(now > kv.second->expire())
 		{
 			expired.push_back(kv.second);
@@ -100,8 +102,9 @@ void Miners::tick()
 		return;
 	}
 
-	for(auto miner : expired)
+	for(size_t i = 0; i < expired.size(); ++i)
 	{
+		auto miner = expired[i];
 		miner->close();
 	}
 }

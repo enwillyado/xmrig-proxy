@@ -5,6 +5,18 @@
       <Configuration>make</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="make|x64">
+      <Configuration>make</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="vs|Win32">
+      <Configuration>vs</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="vs|x64">
+      <Configuration>vs</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{53285F83-3CB3-4BB7-B723-C2EFDBCEB785}</ProjectGuid>
@@ -16,6 +28,13 @@
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <OutDir>$(SolutionDir)\..\build\</OutDir>
+    <IntDir>$(SolutionDir)\..\build\CMakeFiles\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='make|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
     <OutDir>$(SolutionDir)\..\build</OutDir>
     <IntDir>$(SolutionDir)\..\build\obj</IntDir>
   </PropertyGroup>
@@ -24,19 +43,41 @@
     <OutDir>$(SolutionDir)\..\build</OutDir>
     <IntDir>$(SolutionDir)\..\build\obj</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <OutDir>$(SolutionDir)\..\build</OutDir>
+    <IntDir>$(SolutionDir)\..\build\obj</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='vs|Win32'">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='make|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='make|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='make|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <CustomBuildBeforeTargets>InitializeBuildStatus</CustomBuildBeforeTargets>
+    <NMakeReBuildCommandLine>cd $(OutDir) &amp;&amp; make clean &amp;&amp; make -j$(NUMBER_OF_PROCESSORS)</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>cd $(OutDir) &amp;&amp; make clean</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine>cd $(OutDir) &amp;&amp; make -j$(NUMBER_OF_PROCESSORS)</NMakeBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='make|x64'">
     <LinkIncremental>true</LinkIncremental>
     <CustomBuildBeforeTargets>InitializeBuildStatus</CustomBuildBeforeTargets>
     <NMakeReBuildCommandLine>cd $(OutDir) &amp;&amp; make clean &amp;&amp; make</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>cd $(OutDir) &amp;&amp; make clean</NMakeCleanCommandLine>
     <NMakeBuildCommandLine>cd $(OutDir) &amp;&amp; make -j$(NUMBER_OF_PROCESSORS)</NMakeBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs|Win32'">
+    <IntDir>$(SolutionDir)\obj\</IntDir>
+    <OutDir>$(SolutionDir)\..\build\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='make|Win32'">
     <ClCompile>
@@ -55,6 +96,53 @@
       <Outputs>xmrig-proxy;%(Outputs)</Outputs>
       <Message>MAKE</Message>
     </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='make|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <CustomBuildStep>
+      <Command>cd $(SolutionDir)..\build\ &amp;&amp; make &amp;&amp; exit</Command>
+      <Outputs>xmrig-proxy;%(Outputs)</Outputs>
+      <Message>MAKE</Message>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\src\;$(SolutionDir)\..\src\3rdparty;$(SolutionDir)\..\src\3rdparty\rapidjson\msinttypes;$(SolutionDir)\..\..\libuv-1.x\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <CompileAsManaged>false</CompileAsManaged>
+      <PreprocessorDefinitions>XMRIG_PROXY_PROJECT;XMRIG_NO_HTTPD;XMRIG_NO_GOOGLE_BREAKPAD;XMRIG_NO_API;__STDC_FORMAT_MACROS;APP_DEBUG</PreprocessorDefinitions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\..\libuv-1.x\Release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libuv.lib;advapi32.lib;iphlpapi.lib;psapi.lib;shell32.lib;user32.lib;userenv.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBCMTD;LIBCMT</IgnoreSpecificDefaultLibraries>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapExports>true</MapExports>
+      <AssemblyDebug>true</AssemblyDebug>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\src\;$(SolutionDir)\..\src\3rdparty;$(SolutionDir)\..\..\libuv-1.x\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\api\Api.cpp" />
@@ -108,6 +196,7 @@
     <ClCompile Include="..\src\xmrig.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\res\resource.h" />
     <ClInclude Include="..\src\3rdparty\align.h" />
     <ClInclude Include="..\src\3rdparty\getopt\getopt.h" />
     <ClInclude Include="..\src\3rdparty\rapidjson\allocators.h" />

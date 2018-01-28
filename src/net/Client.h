@@ -52,8 +52,11 @@ public:
 		ClosingState
 	};
 
-	constexpr static int kResponseTimeout  = 20 * 1000;
-	constexpr static int kKeepAliveTimeout = 60 * 1000;
+	enum
+	{
+		kResponseTimeout  = 20 * 1000,
+		kKeepAliveTimeout = 60 * 1000,
+	};
 
 	Client(int id, const std::string & agent, IClientListener* listener);
 	~Client();
@@ -135,13 +138,16 @@ private:
 		return static_cast<Client*>(data);
 	}
 
+	typedef char Buf[2048];
+	typedef char SendBuf[768];
+
 	addrinfo m_hints;
 	bool m_quiet;
-	char m_buf[2048];
+	char m_buf[sizeof(Buf)];
 	std::string m_ip;
 	char m_rpcId[64];
-	char m_sendBuf[768];
-	char m_keystream[sizeof(m_sendBuf)];
+	char m_sendBuf[sizeof(SendBuf)];
+	char m_keystream[sizeof(SendBuf)];
 	bool m_encrypted;
 	const std::string & m_agent;
 	IClientListener* m_listener;
@@ -160,9 +166,9 @@ private:
 	uv_stream_t* m_stream;
 	uv_tcp_t* m_socket;
 
-#   ifndef XMRIG_PROXY_PROJECT
+#ifndef XMRIG_PROXY_PROJECT
 	uv_timer_t m_keepAliveTimer;
-#   endif
+#endif
 };
 
 

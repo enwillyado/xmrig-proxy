@@ -106,11 +106,11 @@ void AccessLog::write(const char* fmt, ...)
 	time_t now = time(nullptr);
 	tm stime;
 
-#   ifdef _WIN32
+#ifdef _WIN32
 	localtime_s(&stime, &now);
-#   else
+#else
 	localtime_r(&now, &stime);
-#   endif
+#endif
 
 	char buf[1024];
 	int size = snprintf(buf, 23, "[%d-%02d-%02d %02d:%02d:%02d] ",

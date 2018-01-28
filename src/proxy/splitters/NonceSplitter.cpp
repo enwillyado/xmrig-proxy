@@ -55,8 +55,9 @@ uint32_t NonceSplitter::activeUpstreams() const
 {
 	uint32_t active = 0;
 
-	for(const NonceMapper* mapper : m_upstreams)
+	for(size_t i = 0; i < m_upstreams.size(); ++i)
 	{
+		const NonceMapper* mapper = m_upstreams[i];
 		if(mapper->isActive())
 		{
 			active++;
@@ -78,8 +79,9 @@ void NonceSplitter::connect()
 
 void NonceSplitter::gc()
 {
-	for(NonceMapper* mapper : m_upstreams)
+	for(size_t i = 0; i < m_upstreams.size(); ++i)
 	{
+		NonceMapper* mapper = m_upstreams[i];
 		mapper->gc();
 	}
 }
@@ -90,8 +92,9 @@ void NonceSplitter::printConnections()
 	int active    = 0;
 	int suspended = 0;
 
-	for(const NonceMapper* mapper : m_upstreams)
+	for(size_t i = 0; i < m_upstreams.size(); ++i)
 	{
+		const NonceMapper* mapper = m_upstreams[i];
 		if(mapper->isActive())
 		{
 			active++;
@@ -143,8 +146,9 @@ void NonceSplitter::tick(uint64_t ticks)
 {
 	const uint64_t now = uv_now(uv_default_loop());
 
-	for(NonceMapper* mapper : m_upstreams)
+	for(size_t i = 0; i < m_upstreams.size(); ++i)
 	{
+		NonceMapper* mapper = m_upstreams[i];
 		mapper->tick(ticks, now);
 	}
 }
@@ -153,8 +157,9 @@ void NonceSplitter::tick(uint64_t ticks)
 #ifdef APP_DEVEL
 void NonceSplitter::printState()
 {
-	for(NonceMapper* mapper : m_upstreams)
+	for(size_t i = 0; i < m_upstreams.size(); ++i)
 	{
+		const NonceMapper* mapper = m_upstreams[i];
 		mapper->printState();
 	}
 }
@@ -186,8 +191,9 @@ void NonceSplitter::onEvent(IEvent* event)
 void NonceSplitter::login(LoginEvent* event)
 {
 	// try reuse active upstreams.
-	for(NonceMapper* mapper : m_upstreams)
+	for(size_t i = 0; i < m_upstreams.size(); ++i)
 	{
+		NonceMapper* mapper = m_upstreams[i];
 		if(!mapper->isSuspended() && mapper->add(event->miner(), event->request))
 		{
 			return;
@@ -195,8 +201,9 @@ void NonceSplitter::login(LoginEvent* event)
 	}
 
 	// try reuse suspended upstreams.
-	for(NonceMapper* mapper : m_upstreams)
+	for(size_t i = 0; i < m_upstreams.size(); ++i)
 	{
+		NonceMapper* mapper = m_upstreams[i];
 		if(mapper->isSuspended() && mapper->add(event->miner(), event->request))
 		{
 			return;

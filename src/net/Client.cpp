@@ -37,16 +37,17 @@
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
 
+#include "proxy/Miner.h"
 
 #ifdef XMRIG_PROXY_PROJECT
-#   include "proxy/JobResult.h"
+#include "proxy/JobResult.h"
 #else
-#   include "net/JobResult.h"
+#include "net/JobResult.h"
 #endif
 
 
 #ifdef _MSC_VER
-#   define strncasecmp(x,y,z) _strnicmp(x,y,z)
+#define strncasecmp(x,y,z) _strnicmp(x,y,z)
 #endif
 
 
@@ -55,7 +56,6 @@ int64_t Client::m_sequence = 1;
 
 Client::Client(int id, const std::string & agent, IClientListener* listener) :
 	m_quiet(false),
-	m_keystream(),
 	m_encrypted(false),
 	m_agent(agent),
 	m_listener(listener),
@@ -80,10 +80,10 @@ Client::Client(int id, const std::string & agent, IClientListener* listener) :
 	m_recvBuf.base = m_buf;
 	m_recvBuf.len  = sizeof(m_buf);
 
-#   ifndef XMRIG_PROXY_PROJECT
+#ifndef XMRIG_PROXY_PROJECT
 	m_keepAliveTimer.data = this;
 	uv_timer_init(uv_default_loop(), &m_keepAliveTimer);
-#   endif
+#endif
 }
 
 
@@ -113,9 +113,9 @@ void Client::connect(const Url & url)
 
 void Client::disconnect()
 {
-#   ifndef XMRIG_PROXY_PROJECT
+#ifndef XMRIG_PROXY_PROJECT
 	uv_timer_stop(&m_keepAliveTimer);
-#   endif
+#endif
 
 	m_expire   = 0;
 	m_failures = -1;
@@ -168,10 +168,10 @@ void Client::tick(uint64_t now)
 
 int64_t Client::submit(const JobResult & result)
 {
-#   ifdef XMRIG_PROXY_PROJECT
+#ifdef XMRIG_PROXY_PROJECT
 	const std::string nonce = result.nonce;
 	const std::string data  = result.result;
-#   else
+#else
 	char nonce_buffer[9];
 	char data_buffer[65];
 
@@ -183,7 +183,7 @@ int64_t Client::submit(const JobResult & result)
 
 	const std::string nonce = nonce_buffer;
 	const std::string data  = data_buffer;
-#   endif
+#endif
 
 	const size_t size = snprintf(m_sendBuf, sizeof(m_sendBuf),
 	                             "{\"id\":%" PRIu64
@@ -379,9 +379,9 @@ void Client::connect(struct sockaddr* addr)
 	uv_tcp_init(uv_default_loop(), m_socket);
 	uv_tcp_nodelay(m_socket, 1);
 
-#   ifndef WIN32
+#ifndef WIN32
 	uv_tcp_keepalive(m_socket, 1, 60);
-#   endif
+#endif
 
 	uv_tcp_connect(req, m_socket, reinterpret_cast<const sockaddr*>(addr), Client::onConnect);
 }
@@ -391,8 +391,8 @@ void Client::prelogin()
 	if(m_url.isProxyed())
 	{
 		setState(ProxingState);
-		const std::string buffer = std::string("CONNECT ") + m_url.finalHost() + ":" + std::to_string(
-		                               m_url.finalPort()) + " HTTP/1.1\n";
+		const std::string buffer = std::string("CONNECT ") + m_url.finalHost() + ":" +
+		                           std::to_string((unsigned long long)(m_url.finalPort())) + " HTTP/1.1\n";
 
 		const size_t size = buffer.size();
 		memcpy(m_sendBuf, buffer.c_str(), size);
@@ -591,12 +591,12 @@ void Client::reconnect()
 {
 	setState(ConnectingState);
 
-#   ifndef XMRIG_PROXY_PROJECT
+#ifndef XMRIG_PROXY_PROJECT
 	if(m_url.isKeepAlive())
 	{
 		uv_timer_stop(&m_keepAliveTimer);
 	}
-#   endif
+#endif
 
 	if(m_failures == -1)
 	{
@@ -627,7 +627,7 @@ void Client::startTimeout()
 {
 	m_expire = 0;
 
-#   ifndef XMRIG_PROXY_PROJECT
+#ifndef XMRIG_PROXY_PROJECT
 	if(!m_url.isKeepAlive())
 	{
 		return;
@@ -637,7 +637,7 @@ void Client::startTimeout()
 	{
 		getClient(handle->data)->ping();
 	}, kKeepAliveTimeout, 0);
-#   endif
+#endif
 }
 
 
@@ -704,7 +704,7 @@ void Client::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 		return client->close();
 	}
 
-	if((size_t) nread > (sizeof(m_buf) - 8 - client->m_recvBufPos))
+	if((size_t) nread > (sizeof(Buf) - 8 - client->m_recvBufPos))
 	{
 		return client->close();
 	}

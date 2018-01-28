@@ -35,16 +35,18 @@ Log* Log::m_self = nullptr;
 
 void Log::message(ILogBackend::Level level, const std::string & text)
 {
-	for(ILogBackend* backend : m_backends)
+	for(size_t i = 0; i < m_backends.size(); ++i)
 	{
+		auto backend = m_backends[i];
 		backend->message(level, text);
 	}
 }
 
 void Log::text(const std::string & text)
 {
-	for(ILogBackend* backend : m_backends)
+	for(size_t i = 0; i < m_backends.size(); ++i)
 	{
+		auto backend = m_backends[i];
 		backend->text(text);
 	}
 
@@ -52,8 +54,9 @@ void Log::text(const std::string & text)
 
 Log::~Log()
 {
-	for(auto backend : m_backends)
+	for(size_t i = 0; i < m_backends.size(); ++i)
 	{
+		auto backend = m_backends[i];
 		delete backend;
 	}
 }

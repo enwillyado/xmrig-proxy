@@ -20,6 +20,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef _WIN32
 
 
 #include <sched.h>
@@ -34,7 +35,7 @@
 #include "version.h"
 
 #ifdef XMRIG_NVIDIA_PROJECT
-#   include "nvidia/cryptonight.h"
+#include "nvidia/cryptonight.h"
 #endif
 
 
@@ -45,20 +46,20 @@ static inline std::string createUserAgent()
 	char buf[max];
 	int length = snprintf(buf, max, "%s/%s (Linux ", APP_NAME, APP_VERSION);
 
-#   if defined(__x86_64__)
+#if defined(__x86_64__)
 	length += snprintf(buf + length, max - length, "x86_64) libuv/%s", uv_version_string());
-#   else
+#else
 	length += snprintf(buf + length, max - length, "i686) libuv/%s", uv_version_string());
-#   endif
+#endif
 
-#   ifdef XMRIG_NVIDIA_PROJECT
+#ifdef XMRIG_NVIDIA_PROJECT
 	const int cudaVersion = cuda_get_runtime_version();
 	length += snprintf(buf + length, max - length, " CUDA/%d.%d", cudaVersion / 1000, cudaVersion % 100);
-#   endif
+#endif
 
-#   ifdef __GNUC__
+#ifdef __GNUC__
 	length += snprintf(buf + length, max - length, " gcc/%d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-#   endif
+#endif
 
 	return buf;
 }
@@ -126,3 +127,4 @@ void Platform::setThreadPriority(int priority)
 	}
 #endif
 }
+#endif

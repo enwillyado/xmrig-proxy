@@ -50,7 +50,7 @@ void Stats::tick(uint64_t ticks, const NonceSplitter & splitter)
 	{
 		m_hashrate.tick();
 
-#       ifndef XMRIG_NO_API
+#ifndef XMRIG_NO_API
 		m_data.hashrate[0] = hashrate(60);
 		m_data.hashrate[1] = hashrate(600);
 		m_data.hashrate[2] = hashrate(3600);
@@ -62,7 +62,7 @@ void Stats::tick(uint64_t ticks, const NonceSplitter & splitter)
 		m_data.maxMiners = Counters::maxMiners();
 		m_data.expired   = Counters::expired;
 		Api::tick(m_data);
-#       endif
+#endif
 	}
 }
 

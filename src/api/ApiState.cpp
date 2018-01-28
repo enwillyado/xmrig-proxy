@@ -21,14 +21,15 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef XMRIG_NO_API
 #include <cmath>
 #include <string.h>
 #include <uv.h>
 
 #if _WIN32
-#   include "winsock2.h"
+#include "winsock2.h"
 #else
-#   include "unistd.h"
+#include "unistd.h"
 #endif
 
 
@@ -302,3 +303,5 @@ void ApiState::getWorkers(rapidjson::Document & doc) const
 
 	doc.AddMember("workers", workers, allocator);
 }
+
+#endif

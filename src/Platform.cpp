@@ -35,8 +35,13 @@ std::string Platform::m_userAgent         = "";
 
 const std::string & Platform::defaultConfigName()
 {
-	size_t size = 520;
-	char defaultConfigName[size] ;
+	enum
+	{
+		C_SIZE = 520,
+	};
+
+	size_t size = C_SIZE ;
+	char defaultConfigName[C_SIZE];
 	if(uv_exepath(defaultConfigName, &size) < 0)
 	{
 		return m_defaultConfigName;
@@ -46,11 +51,11 @@ const std::string & Platform::defaultConfigName()
 
 	if(size < 500)
 	{
-#       ifdef WIN32
+#ifdef WIN32
 		size_t p = m_defaultConfigName.find_last_of('\\');
-#       else
+#else
 		size_t p = m_defaultConfigName.find_last_of('/');
-#       endif
+#endif
 
 		if(p != std::string::npos)
 		{

@@ -55,18 +55,21 @@ public:
 	void printHashrate();
 	void printWorkers();
 	void toggleDebug();
+	void print();
 
-#   ifdef APP_DEVEL
+#ifdef APP_DEVEL
 	void printState();
-#   endif
+#endif
 
 private:
-	constexpr static int kPrintInterval = 60;
-	constexpr static int kGCInterval    = 60;
+	enum
+	{
+		kPrintInterval = 60,
+		kGCInterval    = 60,
+	};
 
 	void bind(const Addr & addr);
 	void gc();
-	void print();
 	void tick();
 
 	static void onTick(uv_timer_t* handle);

@@ -37,15 +37,15 @@ static void print_versions()
 {
 	char buf[16];
 
-#   if defined(__clang__)
+#if defined(__clang__)
 	snprintf(buf, 16, " clang/%d.%d.%d", __clang_major__, __clang_minor__, __clang_patchlevel__);
-#   elif defined(__GNUC__)
+#elif defined(__GNUC__)
 	snprintf(buf, 16, " gcc/%d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-#   elif defined(_MSC_VER)
+#elif defined(_MSC_VER)
 	snprintf(buf, 16, " MSVC/%d", MSVC_VERSION);
-#   else
+#else
 	buf[0] = '\0';
-#   endif
+#endif
 
 
 	if(Options::i()->colors())
@@ -84,14 +84,14 @@ static void print_pools()
 		}
 	}
 
-#   ifdef APP_DEBUG
+#ifdef APP_DEBUG
 	for(size_t i = 0; i < pools.size(); ++i)
 	{
 		LOG_INFO("" << pools[i].host() << ":" << pools[i].port() << ", user: " << pools[i].user() <<
 		         ", pass: " << pools[i].password() << ", ka: " << pools[i].isKeepAlive() << ", nicehash: " <<
 		         pools[i].isNicehash());
 	}
-#   endif
+#endif
 }
 
 
@@ -161,9 +161,9 @@ void Summary::print()
 	print_pools();
 	print_bind();
 
-#   ifndef XMRIG_NO_API
+#ifndef XMRIG_NO_API
 	print_api();
-#   endif
+#endif
 
 	print_commands();
 }

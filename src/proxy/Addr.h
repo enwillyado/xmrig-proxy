@@ -31,10 +31,19 @@
 
 #include <string>
 
+#ifdef _WIN32
+#undef max
+#undef min
+#include <xutility>
+#endif
+
 class Addr
 {
 public:
-	constexpr static uint16_t kDefaultPort = 3333;
+	enum
+	{
+		kDefaultPort = 3333,
+	};
 
 	inline Addr() :
 		m_host(""),

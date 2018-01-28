@@ -22,7 +22,7 @@
  */
 
 #ifndef XMRIG_NO_GOOGLE_BREAKPAD
-#   include "client/linux/handler/exception_handler.h"
+#include "client/linux/handler/exception_handler.h"
 
 static bool dumpCallback(const google_breakpad::MinidumpDescriptor & descriptor, void* context,
                          bool succeeded)
@@ -37,10 +37,10 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor & descriptor,
 
 int main(int argc, char** argv)
 {
-#   ifndef XMRIG_NO_GOOGLE_BREAKPAD
+#ifndef XMRIG_NO_GOOGLE_BREAKPAD
 	google_breakpad::MinidumpDescriptor descriptor("/tmp");
 	google_breakpad::ExceptionHandler eh(descriptor, NULL, dumpCallback, NULL, true, -1);
-#   endif
+#endif
 
 	App app(argc, argv);
 	return app.exec();

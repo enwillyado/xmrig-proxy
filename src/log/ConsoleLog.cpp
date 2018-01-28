@@ -49,11 +49,11 @@ void ConsoleLog::message(Level level, const std::string & text)
 	time_t now = time(nullptr);
 	tm stime;
 
-#   ifdef _WIN32
+#ifdef _WIN32
 	localtime_s(&stime, &now);
-#   else
+#else
 	localtime_r(&now, &stime);
-#   endif
+#endif
 
 	char buf[25];
 	int size = snprintf(buf, sizeof(buf), "[%d-%02d-%02d %02d:%02d:%02d] ",
@@ -69,23 +69,23 @@ void ConsoleLog::message(Level level, const std::string & text)
 	std::string colorIni, colorEnd;
 	if(m_colors)
 	{
-		colorEnd = Log::kCL_N;
+		colorEnd = Log::CL_N();
 		switch(level)
 		{
 		case ILogBackend::ERR:
-			colorIni = Log::kCL_RED;
+			colorIni = Log::CL_RED();
 			break;
 
 		case ILogBackend::WARNING:
-			colorIni = Log::kCL_YELLOW;
+			colorIni = Log::CL_YELLOW();
 			break;
 
 		case ILogBackend::NOTICE:
-			colorIni = Log::kCL_WHITE;
+			colorIni = Log::CL_WHITE();
 			break;
 
 		case ILogBackend::DEBUG:
-			colorIni = Log::kCL_GRAY;
+			colorIni = Log::CL_GRAY();
 			break;
 
 		default:
@@ -114,4 +114,5 @@ bool ConsoleLog::isWritable() const
 void ConsoleLog::print(const std::string & txt)
 {
 	std::cout << txt << std::endl;
+	std::cout.flush();
 }

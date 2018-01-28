@@ -28,14 +28,14 @@
 
 
 #ifdef _MSC_VER
-#   include "getopt/getopt.h"
+#include "getopt/getopt.h"
 #else
-#   include <getopt.h>
+#include <getopt.h>
 #endif
 
 
 #ifndef XMRIG_NO_HTTPD
-#   include <microhttpd.h>
+#include <microhttpd.h>
 #endif
 
 
@@ -50,7 +50,7 @@
 
 
 #ifndef ARRAY_SIZE
-#   define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #endif
 
 
@@ -77,10 +77,10 @@ Options:\n\
   -B, --background         run the miner in the background\n\
   -c, --config=FILE        load a JSON-format configuration file\n\
   -l, --log-file=FILE      log all output to a file\n"
-# ifdef HAVE_SYSLOG_H
+#ifdef HAVE_SYSLOG_H
                             "\
   -S, --syslog             use system log for output messages\n"
-# endif
+#endif
                             "\
   -A  --access-log-file=N  log all workers access to a file\n\
 	  --api-port=N         port for the miner API\n\
@@ -528,8 +528,9 @@ void Options::parseConfig(const std::string & fileName)
 	const rapidjson::Value & pools = doc["pools"];
 	if(pools.IsArray())
 	{
-		for(const rapidjson::Value & value : pools.GetArray())
+		for(size_t i = 0; i < pools.GetArray().Size(); ++i)
 		{
+			const rapidjson::Value & value = pools.GetArray()[i];
 			if(!value.IsObject())
 			{
 				continue;
@@ -545,8 +546,9 @@ void Options::parseConfig(const std::string & fileName)
 	const rapidjson::Value & bind = doc["bind"];
 	if(bind.IsArray())
 	{
-		for(const rapidjson::Value & value : bind.GetArray())
+		for(size_t i = 0; i < bind.GetArray().Size(); ++i)
 		{
+			const rapidjson::Value & value = bind.GetArray()[i];
 			if(!value.IsString())
 			{
 				continue;
@@ -608,33 +610,33 @@ void Options::showVersion()
 {
 	printf(APP_NAME " " APP_VERSION "\n built on " __DATE__
 
-#   if defined(__clang__)
+#if defined(__clang__)
 	       " with clang " __clang_version__);
-#   elif defined(__GNUC__)
+#elif defined(__GNUC__)
 	       " with GCC");
 	printf(" %d.%d.%d", __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__);
-#   elif defined(_MSC_VER)
+#elif defined(_MSC_VER)
 	       " with MSVC");
 	printf(" %d", MSVC_VERSION);
-#   else
+#else
 	      );
-#   endif
+#endif
 
 	printf("\n features:"
-#   if defined(__i386__) || defined(_M_IX86)
+#if defined(__i386__) || defined(_M_IX86)
 	       " i386"
-#   elif defined(__x86_64__) || defined(_M_AMD64)
+#elif defined(__x86_64__) || defined(_M_AMD64)
 	       " x86_64"
-#   endif
+#endif
 
-#   if defined(__AES__) || defined(_MSC_VER)
+#if defined(__AES__) || defined(_MSC_VER)
 	       " AES-NI"
-#   endif
+#endif
 	       "\n");
 
 	printf("\nlibuv/%s\n", uv_version_string());
 
-#   ifndef XMRIG_NO_HTTPD
+#ifndef XMRIG_NO_HTTPD
 	printf("libmicrohttpd/%s\n", MHD_get_version());
-#   endif
+#endif
 }

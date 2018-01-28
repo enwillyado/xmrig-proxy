@@ -43,16 +43,21 @@ public:
 
 protected:
 	void onEvent(IEvent* event) override;
+	static void onStart(uv_timer_t* handle);
 	inline void onRejectedEvent(IEvent* event) override {}
 
 private:
-	constexpr static int kTickInterval = 1 * 1000;
+	enum
+	{
+		kTickInterval = 1 * 1000,
+	};
 
 	void add(Miner* miner);
 	void remove(Miner* miner);
 	void tick();
 
-	std::map<int64_t, Miner*> m_miners;
+	typedef std::map<int64_t, Miner*> MinersMap;
+	MinersMap m_miners;
 	uv_timer_t m_timer;
 };
 

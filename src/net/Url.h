@@ -41,8 +41,12 @@ public:
 		static const std::string kDefaultUser = "x";
 		return kDefaultUser;
 	}
-	constexpr static uint16_t kDefaultPort        = 3333;
-	constexpr static uint16_t kDefaultProxyPort   = 8080;
+
+	enum
+	{
+		kDefaultPort        = 3333,
+		kDefaultProxyPort   = 8080,
+	};
 
 	Url();
 	Url(const std::string & url);

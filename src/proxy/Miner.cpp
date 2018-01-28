@@ -335,6 +335,22 @@ void Miner::setState(State state)
 }
 
 
+void Miner::onClose(uv_handle_t* handle)
+{
+	CloseEvent::start(getMiner(handle->data));
+	delete static_cast<Miner*>(handle->data);
+}
+
+void Miner::onShutdown(uv_shutdown_t* req, int status)
+{
+	if(uv_is_closing(reinterpret_cast<uv_handle_t*>(req->handle)) == 0)
+	{
+		uv_close(reinterpret_cast<uv_handle_t*>(req->handle), &Miner::onClose);
+	}
+
+	delete req;
+}
+
 void Miner::shutdown(bool had_error)
 {
 	if(m_state == ClosingState)
@@ -345,20 +361,7 @@ void Miner::shutdown(bool had_error)
 	setState(ClosingState);
 	uv_read_stop(reinterpret_cast<uv_stream_t*>(&m_socket));
 
-	uv_shutdown(new uv_shutdown_t, reinterpret_cast<uv_stream_t*>(&m_socket), [](uv_shutdown_t* req, int status)
-	{
-
-		if(uv_is_closing(reinterpret_cast<uv_handle_t*>(req->handle)) == 0)
-		{
-			uv_close(reinterpret_cast<uv_handle_t*>(req->handle), [](uv_handle_t* handle)
-			{
-				CloseEvent::start(getMiner(handle->data));
-				delete static_cast<Miner*>(handle->data);
-			});
-		}
-
-		delete req;
-	});
+	uv_shutdown(new uv_shutdown_t, reinterpret_cast<uv_stream_t*>(&m_socket), &Miner::onShutdown);
 }
 
 
@@ -374,7 +377,7 @@ void Miner::onAllocBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* 
 void Miner::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 {
 	auto miner = getMiner(stream->data);
-	if(nread < 0 || (size_t) nread > (sizeof(m_buf) - 8 - miner->m_recvBufPos))
+	if(nread < 0 || (size_t) nread > (sizeof(Buf) - 8 - miner->m_recvBufPos))
 	{
 		return miner->shutdown(nread != UV_EOF);;
 	}
@@ -395,7 +398,7 @@ void Miner::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 		free(read_encr_hex);
 
 		// DeEncrypt
-		for(size_t i = 0; i < std::min((size_t)nread, sizeof(m_keystream)); ++i)
+		for(size_t i = 0; i < std::min((size_t)nread, sizeof(SendBuf)); ++i)
 		{
 			start[i] ^= miner->m_keystream[i];
 		}
@@ -432,7 +435,7 @@ void Miner::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 void Miner::onTimeout(uv_timer_t* handle)
 {
 	auto miner = getMiner(handle->data);
-	miner->m_recvBuf.base[sizeof(m_buf) - 1] = '\0';
+	miner->m_recvBuf.base[sizeof(Buf) - 1] = '\0';
 
 	miner->shutdown(true);
 }

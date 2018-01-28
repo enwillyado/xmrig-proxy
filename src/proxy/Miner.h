@@ -32,6 +32,11 @@
 
 #include "rapidjson/fwd.h"
 
+#ifdef _WIN32
+#undef max
+#undef min
+#include <xutility>
+#endif
 
 class IMinerListener;
 class Job;
@@ -118,8 +123,11 @@ public:
 	}
 
 private:
-	constexpr static size_t kLoginTimeout  = 10 * 1000;
-	constexpr static size_t kSocketTimeout = 60 * 10 * 1000;
+	enum
+	{
+		kLoginTimeout  = 10 * 1000,
+		kSocketTimeout = 60 * 10 * 1000,
+	};
 
 	bool parseRequest(int64_t id, const char* method, const rapidjson::Value & params);
 	void heartbeat();
@@ -128,6 +136,8 @@ private:
 	void send(int size, const bool encrypted = true);
 	void setState(State state);
 	void shutdown(bool had_error);
+	static void onShutdown(uv_shutdown_t* req, int status);
+	static void onClose(uv_handle_t* handle);
 
 	static void onAllocBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf);
 	static void onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf);
@@ -138,11 +148,14 @@ private:
 		return static_cast<Miner*>(data);
 	}
 
-	char m_buf[2048];
+	typedef char Buf[2048];
+	typedef char SendBuf[768];
+
+	Buf m_buf;
 	char m_ip[17];
 	char m_rpcId[37];
-	char m_sendBuf[768];
-	char m_keystream[sizeof(m_sendBuf)];
+	SendBuf m_sendBuf;
+	char m_keystream[sizeof(SendBuf)];
 	bool m_encrypted;
 	int64_t m_id;
 	int64_t m_loginId;

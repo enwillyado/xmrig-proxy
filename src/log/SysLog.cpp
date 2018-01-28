@@ -21,6 +21,7 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef HAVE_SYSLOG_H
 
 #include <syslog.h>
 
@@ -45,3 +46,4 @@ void SysLog::message(Level level, const std::string & txt)
 	syslog(level == INFO ? LOG_INFO : LOG_NOTICE, "%s", txt);
 }
 
+#endif

@@ -29,7 +29,7 @@
 #include <stddef.h>
 #include <string>
 
-
+#include "stdint.h"
 #include "align.h"
 #include "net/JobId.h"
 
@@ -100,7 +100,7 @@ public:
 		m_threadId = threadId;
 	}
 
-#   ifdef XMRIG_PROXY_PROJECT
+#ifdef XMRIG_PROXY_PROJECT
 	inline char* rawBlob()
 	{
 		return m_rawBlob;
@@ -109,7 +109,7 @@ public:
 	{
 		return m_rawTarget;
 	}
-#   endif
+#endif
 
 	static bool fromHex(const char* in, unsigned int len, unsigned char* out);
 	static inline uint32_t* nonce(uint8_t* blob)
@@ -136,10 +136,10 @@ private:
 	uint64_t m_diff;
 	uint64_t m_target;
 
-#   ifdef XMRIG_PROXY_PROJECT
+#ifdef XMRIG_PROXY_PROJECT
 	VAR_ALIGN(16, char m_rawBlob[169]);
 	VAR_ALIGN(16, char m_rawTarget[17]);
-#   endif
+#endif
 };
 
 #endif /* __JOB_H__ */

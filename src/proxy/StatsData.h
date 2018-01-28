@@ -47,6 +47,24 @@ public:
 		startTime(0),
 		upstreams(0)
 	{
+		hashrate[0] = 0.0;
+		hashrate[1] = 0.0;
+		hashrate[2] = 0.0;
+		hashrate[3] = 0.0;
+		hashrate[4] = 0.0;
+		hashrate[5] = 0.0;
+
+		topDiff[0] = 0;
+		topDiff[1] = 0;
+		topDiff[2] = 0;
+		topDiff[3] = 0;
+		topDiff[4] = 0;
+		topDiff[5] = 0;
+		topDiff[6] = 0;
+		topDiff[7] = 0;
+		topDiff[8] = 0;
+		topDiff[9] = 0;
+		topDiff[10] = 0;
 	}
 
 
@@ -87,8 +105,8 @@ public:
 	}
 
 
-	double hashrate[5] { 0.0 };
-	std::array<uint64_t, 10> topDiff { { } };
+	double hashrate[5];
+	std::array<uint64_t, 10> topDiff;
 	std::vector<uint16_t> latency;
 	uint64_t accepted;
 	uint64_t connections;

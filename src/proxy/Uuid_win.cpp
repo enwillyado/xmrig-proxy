@@ -25,6 +25,7 @@
 #include <objbase.h>
 
 
+#include "log/Log.h"
 #include "proxy/Uuid.h"
 
 

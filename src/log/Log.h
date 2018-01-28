@@ -33,16 +33,36 @@ class Log
 {
 public:
 
-	constexpr static const char* kCL_N      = "\x1B[0m";
-	constexpr static const char* kCL_RED    = "\x1B[31m";
-	constexpr static const char* kCL_YELLOW = "\x1B[33m";
-	constexpr static const char* kCL_WHITE  = "\x1B[01;37m";
+	static const std::string & CL_N()
+	{
+		static const std::string kCL_N = "\x1B[0m";
+		return kCL_N;
+	}
+	static const std::string & CL_RED()
+	{
+		static const std::string kCL_RED = "\x1B[31m";
+		return kCL_RED;
+	}
+	static const std::string & CL_YELLOW()
+	{
+		static const std::string kCL_YELLOW = "\x1B[33m";
+		return kCL_YELLOW;
+	}
+	static const std::string & CL_WHITE()
+	{
+		static const std::string kCL_WHITE  = "\x1B[01;37m";
+		return kCL_WHITE;
+	}
+	static const std::string & CL_GRAY()
+	{
 
-#   ifdef WIN32
-	constexpr static const char* kCL_GRAY = "\x1B[01;30m";
-#   else
-	constexpr static const char* kCL_GRAY = "\x1B[90m";
-#   endif
+#ifdef WIN32
+		static const std::string kCL_GRAY = "\x1B[01;30m";
+#else
+		static const std::string kCL_GRAY = "\x1B[90m";
+#endif
+		return kCL_GRAY;
+	}
 
 	static inline Log* i()
 	{
@@ -89,17 +109,17 @@ private:
 #define LOG_INFO(x)			 Log::i()->message(ILogBackend::INFO,    Log::TO_STRING(std::stringstream() << x))
 
 #ifdef APP_DEBUG
-#   define LOG_DEBUG(x)		 Log::i()->message(ILogBackend::DEBUG,   Log::TO_STRING(std::stringstream() << x))
+#define LOG_DEBUG(x)		 Log::i()->message(ILogBackend::DEBUG,   Log::TO_STRING(std::stringstream() << x))
 #else
-#   define LOG_DEBUG(x)
+#define LOG_DEBUG(x)
 #endif
 
 #if defined(APP_DEBUG) || defined(APP_DEVEL)
-#   define LOG_DEBUG_ERR(x)  Log::i()->message(ILogBackend::ERR,     Log::TO_STRING(std::stringstream() << x))
-#   define LOG_DEBUG_WARN(x) Log::i()->message(ILogBackend::WARNING, Log::TO_STRING(std::stringstream() << x))
+#define LOG_DEBUG_ERR(x)  Log::i()->message(ILogBackend::ERR,     Log::TO_STRING(std::stringstream() << x))
+#define LOG_DEBUG_WARN(x) Log::i()->message(ILogBackend::WARNING, Log::TO_STRING(std::stringstream() << x))
 #else
-#   define LOG_DEBUG_ERR(x)
-#   define LOG_DEBUG_WARN(x)
+#define LOG_DEBUG_ERR(x)
+#define LOG_DEBUG_WARN(x)
 #endif
 
 #endif /* __LOG_H__ */

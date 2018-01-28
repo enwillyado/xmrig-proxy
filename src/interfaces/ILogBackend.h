@@ -24,6 +24,7 @@
 #ifndef __ILOGBACKEND_H__
 #define __ILOGBACKEND_H__
 
+#include "interfaces/interface.h"
 #include <string>
 
 class ILogBackend

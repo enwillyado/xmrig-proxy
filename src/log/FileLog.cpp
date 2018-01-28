@@ -31,6 +31,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "log/Log.h"
 #include "log/FileLog.h"
 
 FileLog::FileLog(const std::string & fileName)
@@ -50,11 +51,11 @@ void FileLog::message(Level level, const std::string & txt)
 	time_t now = time(nullptr);
 	tm stime;
 
-#   ifdef _WIN32
+#ifdef _WIN32
 	localtime_s(&stime, &now);
-#   else
+#else
 	localtime_r(&now, &stime);
-#   endif
+#endif
 
 	char buf[25];
 	int size = snprintf(buf, sizeof(buf), "[%d-%02d-%02d %02d:%02d:%02d] ",

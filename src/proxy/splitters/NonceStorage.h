@@ -63,9 +63,9 @@ public:
 		m_active = active;
 	}
 
-#   ifdef APP_DEVEL
-	void printState(size_t id);
-#   endif
+#ifdef APP_DEVEL
+	void printState(size_t id) const;
+#endif
 
 private:
 	int nextIndex(int start) const;

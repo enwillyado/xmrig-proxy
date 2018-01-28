@@ -107,8 +107,9 @@ void Proxy::connect()
 	m_splitter->connect();
 
 	const std::vector<Addr> & addrs = Options::i()->addrs();
-	for(const Addr addr : addrs)
+	for(size_t a = 0; a < addrs .size(); ++a)
 	{
+		const Addr & addr = addrs[a];
 		bind(addr);
 	}
 

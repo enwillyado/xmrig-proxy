@@ -20,7 +20,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
+#ifndef _WIN32
 
 #include <CoreFoundation/CFUUID.h>
 #include <string.h>
@@ -39,3 +39,5 @@ void Uuid::create(char* out, size_t size)
 	CFRelease(str);
 	CFRelease(id);
 }
+
+#endif

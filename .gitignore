@@ -2,3 +2,6 @@
 /CMakeLists.txt.user
 vs/xmrig-proxy.opensdf
 vs/xmrig-proxy.sdf
+vs/vs
+vs/obj
+*.ipch

@@ -73,8 +73,9 @@ void Workers::printWorkers()
 	}
 
 	unsigned short i = 0;
-	for(const Worker & worker : m_workers)
+	for(size_t w = 0; w < m_workers.size(); ++w)
 	{
+		Worker & worker = m_workers[w];
 		const char* name = worker.name();
 		size = strlen(name);
 
@@ -112,12 +113,15 @@ void Workers::tick(uint64_t ticks)
 		return;
 	}
 
-	for(Worker & worker : m_workers)
+	for(size_t w = 0; w < m_workers.size(); ++w)
 	{
+		Worker & worker = m_workers[w];
 		worker.tick(ticks);
 	}
 
+#ifndef XMRIG_NO_API
 	Api::tick(m_workers);
+#endif
 }
 
 

@@ -20,7 +20,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
+#ifndef _WIN32
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +32,7 @@
 #include "version.h"
 
 #ifdef XMRIG_NVIDIA_PROJECT
-#   include "nvidia/cryptonight.h"
+#include "nvidia/cryptonight.h"
 #endif
 
 
@@ -42,15 +42,15 @@ static inline std::string createUserAgent()
 
 	char buf[max];
 
-#   ifdef XMRIG_NVIDIA_PROJECT
+#ifdef XMRIG_NVIDIA_PROJECT
 	const int cudaVersion = cuda_get_runtime_version();
 	snprintf(buf, max, "%s/%s (Macintosh; Intel Mac OS X) libuv/%s CUDA/%d.%d clang/%d.%d.%d", APP_NAME,
 	         APP_VERSION, uv_version_string(), cudaVersion / 1000, cudaVersion % 100, __clang_major__, __clang_minor__,
 	         __clang_patchlevel__);
-#   else
+#else
 	snprintf(buf, max, "%s/%s (Macintosh; Intel Mac OS X) libuv/%s clang/%d.%d.%d", APP_NAME, APP_VERSION,
 	         uv_version_string(), __clang_major__, __clang_minor__, __clang_patchlevel__);
-#   endif
+#endif
 
 	return ret;
 }
@@ -110,3 +110,4 @@ void Platform::setThreadPriority(int priority)
 	setpriority(PRIO_PROCESS, 0, prio);
 }
 
+#endif

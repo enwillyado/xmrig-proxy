@@ -22,6 +22,7 @@
  */
 
 
+#ifndef _WIN32
 #include <stdlib.h>
 #include <signal.h>
 #include <errno.h>
@@ -66,3 +67,5 @@ void App::background()
 		LOG_ERR("chdir() failed (errno = " << errno << ")");
 	}
 }
+
+#endif

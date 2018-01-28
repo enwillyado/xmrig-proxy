@@ -21,12 +21,10 @@
  *   along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <chrono>
-
-
 #include "proxy/workers/Worker.h"
 #include "net/SubmitResult.h"
 
+#include <time.h>
 
 Worker::Worker() :
 	m_id(0),
@@ -63,8 +61,7 @@ void Worker::add(const SubmitResult & result)
 
 	m_hashrate.add(result.diff);
 
-	using namespace std::chrono;
-	m_lastHash = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+	m_lastHash = time(NULL);
 }
 
 

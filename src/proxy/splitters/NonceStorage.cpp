@@ -159,7 +159,7 @@ void NonceStorage::setJob(const Job & job)
 
 
 #ifdef APP_DEVEL
-void NonceStorage::printState(size_t id)
+void NonceStorage::printState(size_t id) const
 {
 	int available = 0;
 	int dead      = 0;

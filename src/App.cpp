@@ -41,11 +41,11 @@
 
 
 #ifdef HAVE_SYSLOG_H
-#   include "log/SysLog.h"
+#include "log/SysLog.h"
 #endif
 
 #ifndef XMRIG_NO_HTTPD
-#   include "api/Httpd.h"
+#include "api/Httpd.h"
 #endif
 
 App* App::m_self = nullptr;
@@ -78,12 +78,12 @@ App::App(int argc, char** argv) :
 		Log::add(new FileLog(m_options->logFile()));
 	}
 
-#   ifdef HAVE_SYSLOG_H
+#ifdef HAVE_SYSLOG_H
 	if(m_options->syslog())
 	{
 		Log::add(new SysLog());
 	}
-#   endif
+#endif
 
 	Platform::init(m_options->userAgent());
 
@@ -102,9 +102,9 @@ App::~App()
 	delete m_console;
 	delete m_proxy;
 
-#   ifndef XMRIG_NO_HTTPD
+#ifndef XMRIG_NO_HTTPD
 	delete m_httpd;
-#   endif
+#endif
 
 	Log::release();
 }
@@ -125,14 +125,14 @@ int App::exec()
 
 	Summary::print();
 
-#   ifndef XMRIG_NO_API
+#ifndef XMRIG_NO_API
 	Api::start();
-#   endif
+#endif
 
-#   ifndef XMRIG_NO_HTTPD
+#ifndef XMRIG_NO_HTTPD
 	m_httpd = new Httpd(m_options->apiPort(), m_options->apiToken());
 	m_httpd->start();
-#   endif
+#endif
 
 	m_proxy->connect();
 
@@ -150,12 +150,12 @@ void App::onConsoleCommand(char command)
 {
 	switch(command)
 	{
-#   ifdef APP_DEVEL
+#ifdef APP_DEVEL
 	case 's':
 	case 'S':
 		m_proxy->printState();
 		break;
-#   endif
+#endif
 
 	case 'v':
 	case 'V':
@@ -166,6 +166,11 @@ void App::onConsoleCommand(char command)
 	case 'h':
 	case 'H':
 		m_proxy->printHashrate();
+		break;
+
+	case 't':
+	case 'T':
+		m_proxy->print();
 		break;
 
 	case 'c':

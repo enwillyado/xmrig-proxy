@@ -41,8 +41,9 @@ bool Events::exec(IEvent* event)
 	m_ready = false;
 
 	std::vector<IEventListener*> & listeners = m_listeners[event->type()];
-	for(IEventListener* listener : listeners)
+	for(size_t i = 0; i < listeners.size(); ++i)
 	{
+		IEventListener* listener = listeners[i];
 		event->isRejected() ? listener->onRejectedEvent(event) : listener->onEvent(event);
 	}
 

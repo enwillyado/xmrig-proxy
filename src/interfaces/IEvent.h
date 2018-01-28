@@ -24,6 +24,7 @@
 #ifndef __IEVENT_H__
 #define __IEVENT_H__
 
+#include "interfaces/interface.h"
 
 class IEvent
 {
