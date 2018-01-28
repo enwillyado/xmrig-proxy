@@ -14,7 +14,7 @@ Based on the extremely high performance Monero (XMR) Stratum protocol [proxy](ht
 * DOGE: `DHif8RTy8E6K4b71u3fXXSk7AEyiuN2sUi`
 
 ## Contacts
-* xmrig@enwillyado.com
-* [telegram](@enwillyado)
+* xmrig-proxy@enwillyado.com
+* [telegram](https://telegram.me/enWILLYado)
 
 ¡Se habla español!
