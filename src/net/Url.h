@@ -46,8 +46,8 @@ public:
 
 	Url();
 	Url(const std::string & url);
-	Url(const std::string & host, uint16_t port, const std::string & user = nullptr,
-	    const std::string & password = nullptr,
+	Url(const std::string & host, uint16_t port, const std::string & user = "",
+	    const std::string & password = "",
 	    bool keepAlive = false, bool nicehash = false);
 	~Url();
 

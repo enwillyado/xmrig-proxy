@@ -36,21 +36,21 @@ class JobResult
 {
 public:
 	inline JobResult() :
-		nonce(nullptr),
-		result(nullptr),
+		nonce(),
+		result(),
 		id(0),
 		diff(0)
 	{
 	}
 
-	JobResult(int64_t id, const char* jobId, const char* nonce, const char* result);
+	JobResult(int64_t id, const std::string & jobId, const std::string & nonce, const std::string & result);
 
 	bool isCompatible(uint8_t fixedByte) const;
 	bool isValid() const;
 	uint64_t actualDiff() const;
 
-	const char* nonce;
-	const char* result;
+	const std::string nonce;
+	const std::string result;
 	const int64_t id;
 	JobId jobId;
 	uint32_t diff;

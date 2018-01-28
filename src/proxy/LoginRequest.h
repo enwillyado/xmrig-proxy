@@ -24,9 +24,8 @@
 #ifndef __LOGINREQUEST_H__
 #define __LOGINREQUEST_H__
 
-
 #include <stdint.h>
-
+#include <string>
 
 class LoginRequest
 {
@@ -41,23 +40,23 @@ public:
 
 	inline LoginRequest() :
 		m_clientType(OtherClient),
-		m_agent(nullptr),
-		m_login(nullptr),
-		m_pass(nullptr),
+		m_agent(),
+		m_login(),
+		m_pass(),
 		m_id(0)
 	{}
 
-	LoginRequest(int64_t id, const char* login, const char* pass, const char* agent);
+	LoginRequest(int64_t id, const std::string & login, const std::string & pass, const std::string & agent);
 
-	inline const char* agent() const
+	inline const std::string & agent() const
 	{
 		return m_agent;
 	}
-	inline const char* login() const
+	inline const std::string & login() const
 	{
 		return m_login;
 	}
-	inline const char* pass() const
+	inline const std::string & pass() const
 	{
 		return m_pass;
 	}
@@ -74,9 +73,9 @@ private:
 	ClientTypes detectClient() const;
 
 	ClientTypes m_clientType;
-	const char* m_agent;
-	const char* m_login;
-	const char* m_pass;
+	const std::string m_agent;
+	const std::string m_login;
+	const std::string m_pass;
 	const int64_t m_id;
 };
 

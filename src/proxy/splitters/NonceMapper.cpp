@@ -44,7 +44,7 @@
 #include "proxy/splitters/NonceStorage.h"
 
 
-NonceMapper::NonceMapper(size_t id, const Options* options, const char* agent) :
+NonceMapper::NonceMapper(size_t id, const Options* options, const std::string & agent) :
 	m_suspended(false),
 	m_agent(agent),
 	m_options(options),
@@ -52,7 +52,7 @@ NonceMapper::NonceMapper(size_t id, const Options* options, const char* agent) :
 	m_id(id)
 {
 	m_storage = new NonceStorage();
-	const std::vector<Url*> & pools = options->pools();
+	const std::vector<Url> & pools = options->pools();
 
 	if(pools.size() > 1)
 	{
@@ -231,7 +231,7 @@ void NonceMapper::onPause(IStrategy* strategy)
 }
 
 
-void NonceMapper::onResultAccepted(Client* client, const SubmitResult & result, const char* error)
+void NonceMapper::onResultAccepted(Client* client, const SubmitResult & result, const std::string & error)
 {
 	const SubmitCtx ctx = submitCtx(result.seq);
 
@@ -242,7 +242,7 @@ void NonceMapper::onResultAccepted(Client* client, const SubmitResult & result, 
 		return;
 	}
 
-	if(error)
+	if(0 < error.size())
 	{
 		ctx.miner->replyWithError(ctx.id, error);
 	}

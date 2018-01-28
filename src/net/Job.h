@@ -26,7 +26,8 @@
 
 
 #include <stddef.h>
-#include <stdint.h>
+#include <stddef.h>
+#include <string>
 
 
 #include "align.h"
@@ -50,7 +51,7 @@ public:
 	{
 		return m_size > 0 && m_diff > 0;
 	}
-	inline bool setId(const char* id)
+	inline bool setId(const std::string & id)
 	{
 		return m_id.setId(id);
 	}
@@ -119,7 +120,7 @@ public:
 	{
 		return 0xFFFFFFFFFFFFFFFFULL / target;
 	}
-	static void toHex(const unsigned char* in, unsigned int len, char* out);
+	static void toHex(const std::string & in, char* out);
 
 	bool operator==(const Job & other) const;
 

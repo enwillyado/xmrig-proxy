@@ -74,27 +74,27 @@ public:
 	{
 		return m_workers;
 	}
-	inline const char* accessLog() const
+	inline const std::string & accessLog() const
 	{
 		return m_accessLog;
 	}
-	inline const char* apiToken() const
+	inline const std::string & apiToken() const
 	{
 		return m_apiToken;
 	}
-	inline const char* apiWorkerId() const
+	inline const std::string & apiWorkerId() const
 	{
 		return m_apiWorkerId;
 	}
-	inline const char* coin() const
+	inline const std::string & coin() const
 	{
 		return m_userAgent;
 	}
-	inline const char* logFile() const
+	inline const std::string & logFile() const
 	{
 		return m_logFile;
 	}
-	inline const char* userAgent() const
+	inline const std::string & userAgent() const
 	{
 		return m_userAgent;
 	}
@@ -102,7 +102,7 @@ public:
 	{
 		return m_addrs;
 	}
-	inline const std::vector<Url*> & pools() const
+	inline const std::vector<Url> & pools() const
 	{
 		return m_pools;
 	}
@@ -151,12 +151,12 @@ private:
 
 	static Options* m_self;
 
-	bool getJSON(const char* fileName, rapidjson::Document & doc);
-	bool parseArg(int key, const char* arg);
+	bool getJSON(const std::string & fileName, rapidjson::Document & doc);
+	bool parseArg(int key, const std::string & arg);
 	bool parseArg(int key, uint64_t arg);
 	bool parseBoolean(int key, bool enable);
-	Url* parseUrl(const char* arg) const;
-	void parseConfig(const char* fileName);
+	Url parseUrl(const std::string & arg) const;
+	void parseConfig(const std::string & fileName);
 	void parseJSON(const struct option* option, const rapidjson::Value & object);
 	void showUsage(int status) const;
 	void showVersion(void);
@@ -168,18 +168,18 @@ private:
 	bool m_syslog;
 	bool m_verbose;
 	bool m_workers;
-	char* m_accessLog;
-	char* m_apiToken;
-	char* m_apiWorkerId;
-	char* m_coin;
-	char* m_logFile;
-	char* m_userAgent;
+	std::string m_accessLog;
+	std::string m_apiToken;
+	std::string m_apiWorkerId;
+	std::string m_coin;
+	std::string m_logFile;
+	std::string m_userAgent;
 	int m_apiPort;
 	int m_donateLevel;
 	int m_retries;
 	int m_retryPause;
 	std::vector<Addr> m_addrs;
-	std::vector<Url*> m_pools;
+	std::vector<Url> m_pools;
 	uint64_t m_diff;
 };
 

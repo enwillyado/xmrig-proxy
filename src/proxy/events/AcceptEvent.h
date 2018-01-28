@@ -36,7 +36,7 @@ class AcceptEvent : public MinerEvent
 {
 public:
 	static inline bool start(size_t mapperId, Miner* miner, const SubmitResult & result, bool donate,
-	                         const char* error = nullptr)
+	                         const std::string & error = "")
 	{
 		return exec(new(m_buf) AcceptEvent(mapperId, miner, result, donate, error));
 	}
@@ -51,9 +51,9 @@ public:
 	}
 	inline bool isRejected() const override
 	{
-		return m_error != nullptr;
+		return 0 < m_error.size();
 	}
-	inline const char* error() const
+	inline const std::string & error() const
 	{
 		return m_error;
 	}
@@ -64,7 +64,8 @@ public:
 
 
 protected:
-	inline AcceptEvent(size_t mapperId, Miner* miner, const SubmitResult & result, bool donate, const char* error)
+	inline AcceptEvent(size_t mapperId, Miner* miner, const SubmitResult & result, bool donate,
+	                   const std::string & error)
 		: MinerEvent(AcceptType, miner),
 		  result(result),
 		  m_donate(donate),
@@ -75,7 +76,7 @@ protected:
 
 private:
 	bool m_donate;
-	const char* m_error;
+	const std::string & m_error;
 	size_t m_mapperId;
 };
 

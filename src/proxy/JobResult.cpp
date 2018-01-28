@@ -29,7 +29,8 @@
 #include "proxy/JobResult.h"
 
 
-JobResult::JobResult(int64_t id, const char* jobId, const char* nonce, const char* result) :
+JobResult::JobResult(int64_t id, const std::string & jobId, const std::string & nonce,
+                     const std::string & result) :
 	nonce(nonce),
 	result(result),
 	id(id),
@@ -43,7 +44,7 @@ JobResult::JobResult(int64_t id, const char* jobId, const char* nonce, const cha
 bool JobResult::isCompatible(uint8_t fixedByte) const
 {
 	uint8_t n[4];
-	if(!Job::fromHex(nonce, 8, n))
+	if(!Job::fromHex(nonce.c_str(), 8, n))
 	{
 		return false;
 	}
@@ -54,12 +55,12 @@ bool JobResult::isCompatible(uint8_t fixedByte) const
 
 bool JobResult::isValid() const
 {
-	if(!nonce || !result)
+	if(nonce.empty() || result.empty())
 	{
 		return false;
 	}
 
-	return strlen(nonce) == 8 && jobId.isValid() && strlen(result) == 64;
+	return nonce.size() == 8 && jobId.isValid() && result.size() == 64;
 }
 
 
@@ -68,7 +69,7 @@ uint64_t JobResult::actualDiff() const
 	if(!m_actualDiff)
 	{
 		uint8_t data[32];
-		Job::fromHex(result, sizeof(data) * 2, data);
+		Job::fromHex(result.c_str(), sizeof(data) * 2, data);
 
 		m_actualDiff = Job::toDiff(reinterpret_cast<const uint64_t*>(data)[3]);
 	}

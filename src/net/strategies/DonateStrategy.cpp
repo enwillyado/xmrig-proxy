@@ -40,7 +40,7 @@ static inline int random(int min, int max)
 }
 
 
-DonateStrategy::DonateStrategy(const char* agent, IStrategyListener* listener) :
+DonateStrategy::DonateStrategy(const std::string & agent, IStrategyListener* listener) :
 	m_active(false),
 	m_suspended(false),
 	m_listener(listener),
@@ -50,19 +50,17 @@ DonateStrategy::DonateStrategy(const char* agent, IStrategyListener* listener) :
 {
 	uint8_t hash[200];
 	char userId[65] = { 0 };
-	const std::string & user = Options::i()->pools().front()->user();
+	const std::string & user = Options::i()->pools().front().user();
 
 	keccak(reinterpret_cast<const uint8_t*>(user.c_str()), static_cast<int>(user.size()), hash, sizeof(hash));
-	Job::toHex(hash, 32, userId);
+	Job::toHex(std::string((char*)hash, 32), userId);
 
-	Url* url = new Url("proxy-fee.xmrig.com", Options::i()->coin() &&
-	                   strncmp(Options::i()->coin(), "aeon", 4) ? 3333 : 443, userId, nullptr, false, true);
+	Url url("proxy-fee.xmrig.com", (Options::i()->coin() != "aeon") ? 3333 : 443,
+	        userId, "", false, true);
 
 	m_client = new Client(-1, agent, this);
 	m_client->setUrl(url);
 	m_client->setRetryPause(Options::i()->retryPause() * 1000);
-
-	delete url;
 
 	m_target = random(3000, 9000);
 }
@@ -156,7 +154,7 @@ void DonateStrategy::onLoginSuccess(Client* client)
 }
 
 
-void DonateStrategy::onResultAccepted(Client* client, const SubmitResult & result, const char* error)
+void DonateStrategy::onResultAccepted(Client* client, const SubmitResult & result, const std::string & error)
 {
 	m_listener->onResultAccepted(client, result, error);
 }

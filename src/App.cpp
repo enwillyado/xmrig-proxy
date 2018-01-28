@@ -73,7 +73,7 @@ App::App(int argc, char** argv) :
 		m_console = new Console(this);
 	}
 
-	if(m_options->logFile())
+	if(0 < m_options->logFile().size())
 	{
 		Log::add(new FileLog(m_options->logFile()));
 	}

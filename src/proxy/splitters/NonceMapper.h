@@ -49,6 +49,7 @@ class SubmitCtx
 {
 public:
 	inline SubmitCtx() : id(0), minerId(0), miner(nullptr) {}
+
 	inline SubmitCtx(int64_t id, int64_t minerId) : id(id), minerId(minerId), miner(nullptr) {}
 
 	int64_t id;
@@ -60,7 +61,7 @@ public:
 class NonceMapper : public IStrategyListener
 {
 public:
-	NonceMapper(size_t id, const Options* options, const char* agent);
+	NonceMapper(size_t id, const Options* options, const std::string & agent);
 	~NonceMapper();
 
 	bool add(Miner* miner, const LoginRequest & request);
@@ -84,7 +85,7 @@ protected:
 	void onActive(Client* client) override;
 	void onJob(Client* client, const Job & job) override;
 	void onPause(IStrategy* strategy) override;
-	void onResultAccepted(Client* client, const SubmitResult & result, const char* error) override;
+	void onResultAccepted(Client* client, const SubmitResult & result, const std::string & error) override;
 
 private:
 	SubmitCtx submitCtx(int64_t seq);
@@ -92,7 +93,7 @@ private:
 	void suspend();
 
 	bool m_suspended;
-	const char* m_agent;
+	const std::string & m_agent;
 	const Options* m_options;
 	DonateStrategy* m_donate;
 	IStrategy* m_strategy;

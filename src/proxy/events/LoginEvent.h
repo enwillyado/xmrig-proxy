@@ -32,8 +32,8 @@
 class LoginEvent : public MinerEvent
 {
 public:
-	static inline LoginEvent* create(Miner* miner, int64_t id, const char* login, const char* pass,
-	                                 const char* agent)
+	static inline LoginEvent* create(Miner* miner, int64_t id, const std::string & login, const std::string & pass,
+	                                 const std::string & agent)
 	{
 		return new(m_buf) LoginEvent(miner, id, login, pass, agent);
 	}
@@ -43,7 +43,8 @@ public:
 
 
 protected:
-	inline LoginEvent(Miner* miner, int64_t id, const char* login, const char* pass, const char* agent)
+	inline LoginEvent(Miner* miner, int64_t id, const std::string & login, const std::string & pass,
+	                  const std::string & agent)
 		: MinerEvent(LoginType, miner),
 		  request(id, login, pass, agent)
 	{}

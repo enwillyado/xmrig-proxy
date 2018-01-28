@@ -136,7 +136,7 @@ void Proxy::printHashrate()
 	{
 		LOG_INFO("* speed (1m) " << m_stats.hashrate(60) << ", (10m) " << m_stats.hashrate(
 		             600) << ", (1h) " << m_stats.hashrate(3600) << ", (12h) " << m_stats.hashrate(
-		             3600 * 12) << ", (24h) " << m_stats.hashrate(3600 * 24) << " kH/s" <<
+		             3600 * 12) << ", (24h) " << m_stats.hashrate(3600 * 24) << " [kH/s]" <<
 		         " | " << (m_stats.data().hashes / (1000 * 1000)) << "." << (double)(m_stats.data().hashes %
 		                 (1000 * 1000)) / 1000 << " - " << m_stats.data().donateHashes);
 	}
@@ -210,7 +210,7 @@ void Proxy::print()
 	{
 		LOG_INFO(" " << m_stats.hashrate(60) << " kH / s, shares: " << m_stats.data().accepted << " / " <<
 		         m_stats.data().rejected << " + " << Counters::accepted << ", upstreams: " << m_splitter->activeUpstreams() <<
-		         ",miners: " << Counters::miners() << " (max " << Counters::maxMiners() << " + " << Counters::added() <<
+		         ", miners: " << Counters::miners() << " (max " << Counters::maxMiners() << " + " << Counters::added() <<
 		         " / - " << Counters::removed() << ") " << (m_stats.data().hashes / (1000 * 1000)) << "." << (double)(
 		             m_stats.data().hashes % (1000 * 1000)) / 1000 << " - " << m_stats.data().donateHashes);
 	}

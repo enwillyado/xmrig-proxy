@@ -63,18 +63,19 @@ void CustomDiff::login(LoginEvent* event)
 {
 	event->miner()->setCustomDiff(Options::i()->diff());
 
-	if(!event->request.login())
+	if(event->request.login().empty())
 	{
 		return;
 	}
 
-	const char* str = strrchr(event->request.login(), '+');
-	if(!str)
+	const std::string & login = event->request.login();
+	const size_t str = login.find_last_of('+');
+	if(str == std::string::npos)
 	{
 		return;
 	}
 
-	const unsigned long diff = strtoul(str + 1, nullptr, 10);
+	const unsigned long diff = strtoul(login.substr(str + 1).c_str(), nullptr, 10);
 	if(diff < 100 || diff >= INT_MAX)
 	{
 		return;

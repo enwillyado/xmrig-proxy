@@ -53,7 +53,7 @@
 int64_t Client::m_sequence = 1;
 
 
-Client::Client(int id, const char* agent, IClientListener* listener) :
+Client::Client(int id, const std::string & agent, IClientListener* listener) :
 	m_quiet(false),
 	m_keystream(),
 	m_encrypted(false),
@@ -68,7 +68,6 @@ Client::Client(int id, const char* agent, IClientListener* listener) :
 	m_stream(nullptr),
 	m_socket(nullptr)
 {
-	memset(m_ip, 0, sizeof(m_ip));
 	memset(&m_hints, 0, sizeof(m_hints));
 	memset(m_keystream, 0, sizeof(m_keystream));
 
@@ -105,7 +104,7 @@ void Client::connect()
  *
  * @param url
  */
-void Client::connect(const Url* url)
+void Client::connect(const Url & url)
 {
 	setUrl(url);
 	resolve(m_url.host());
@@ -125,16 +124,16 @@ void Client::disconnect()
 }
 
 
-void Client::setUrl(const Url* url)
+void Client::setUrl(const Url & url)
 {
-	if(!url || !url->isValid())
+	if(false == url.isValid())
 	{
 		return;
 	}
 
-	if(url->hasKeystream())
+	if(url.hasKeystream())
 	{
-		url->copyKeystream(m_keystream, sizeof(m_keystream));
+		url.copyKeystream(m_keystream, sizeof(m_keystream));
 		m_encrypted = true;
 	}
 	else
@@ -170,47 +169,51 @@ void Client::tick(uint64_t now)
 int64_t Client::submit(const JobResult & result)
 {
 #   ifdef XMRIG_PROXY_PROJECT
-	const char* nonce = result.nonce;
-	const char* data  = result.result;
+	const std::string nonce = result.nonce;
+	const std::string data  = result.result;
 #   else
-	char nonce[9];
-	char data[65];
+	char nonce_buffer[9];
+	char data_buffer[65];
 
-	Job::toHex(reinterpret_cast<const unsigned char*>(&result.nonce), 4, nonce);
-	nonce[8] = '\0';
+	Job::toHex(std::string(reinterpret_cast<const unsigned char*>(&result.nonce), 4), nonce_buffer);
+	nonce_buffer[8] = '\0';
 
-	Job::toHex(result.result, 32, data);
-	data[64] = '\0';
+	Job::toHex(std::string(result.result, 32), data_buffer);
+	data_buffer[64] = '\0';
+
+	const std::string nonce = nonce_buffer;
+	const std::string data  = data_buffer;
 #   endif
 
 	const size_t size = snprintf(m_sendBuf, sizeof(m_sendBuf),
 	                             "{\"id\":%" PRIu64
 	                             ",\"jsonrpc\":\"2.0\",\"method\":\"submit\",\"params\":{\"id\":\"%s\",\"job_id\":\"%s\",\"nonce\":\"%s\",\"result\":\"%s\"}}\n",
-	                             m_sequence, m_rpcId, result.jobId.data(), nonce, data);
+	                             m_sequence, m_rpcId,
+	                             result.jobId.data().c_str(), nonce.c_str(), data.c_str());
 
 	m_results[m_sequence] = SubmitResult(m_sequence, result.diff, result.actualDiff());
 	return send(size);
 }
 
 
-bool Client::isCriticalError(const char* message)
+bool Client::isCriticalError(const std::string & message)
 {
-	if(!message)
+	if(message.empty())
 	{
 		return false;
 	}
 
-	if(strncasecmp(message, "Unauthenticated", 15) == 0)
+	if(message == "Unauthenticated")
 	{
 		return true;
 	}
 
-	if(strncasecmp(message, "your IP is banned", 17) == 0)
+	if(message == "your IP is banned")
 	{
 		return true;
 	}
 
-	if(strncasecmp(message, "IP Address currently banned", 27) == 0)
+	if(message == "IP Address currently banned")
 	{
 		return true;
 	}
@@ -324,7 +327,7 @@ int64_t Client::send(size_t size, const bool encrypted)
 
 		char* send_encr_hex = static_cast<char*>(malloc(size * 2 + 1));
 		memset(send_encr_hex, 0, size * 2 + 1);
-		Job::toHex((const unsigned char*)m_sendBuf, size, send_encr_hex);
+		Job::toHex(std::string(m_sendBuf, size), send_encr_hex);
 		send_encr_hex[size * 2] = '\0';
 		LOG_DEBUG("[" << m_url.host() << ":" << m_url.port() << "] send encr.(" << size << " bytes): 0x\""  <<
 		          send_encr_hex << "\"");
@@ -422,7 +425,7 @@ void Client::login()
 	rapidjson::Value params(rapidjson::kObjectType);
 	params.AddMember("login", rapidjson::StringRef(m_url.user().c_str()),     allocator);
 	params.AddMember("pass",  rapidjson::StringRef(m_url.password().c_str()), allocator);
-	params.AddMember("agent", rapidjson::StringRef(m_agent),			      allocator);
+	params.AddMember("agent", rapidjson::StringRef(m_agent.c_str()),	      allocator);
 
 	doc.AddMember("params", params, allocator);
 
@@ -570,7 +573,7 @@ void Client::parseResponse(int64_t id, const rapidjson::Value & result, const ra
 	if(it != m_results.end())
 	{
 		it->second.done();
-		m_listener->onResultAccepted(this, it->second, nullptr);
+		m_listener->onResultAccepted(this, it->second, "");
 		m_results.erase(it);
 	}
 }
@@ -732,7 +735,7 @@ void Client::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 	{
 		char* read_encr_hex = static_cast<char*>(malloc(nread * 2 + 1));
 		memset(read_encr_hex, 0, nread * 2 + 1);
-		Job::toHex((const unsigned char*)start, nread, read_encr_hex);
+		Job::toHex(std::string(start, nread), read_encr_hex);
 		LOG_DEBUG("[" <<  client->m_ip << "] read encr. (" << nread << "  bytes): 0x\"" << read_encr_hex << "\"");
 		free(read_encr_hex);
 
@@ -801,7 +804,9 @@ void Client::onResolved(uv_getaddrinfo_t* req, int status, struct addrinfo* res)
 
 	ptr = ipv4[rand() % ipv4.size()];
 
-	uv_ip4_name(reinterpret_cast<sockaddr_in*>(ptr->ai_addr), client->m_ip, 16);
+	char buf[16];
+	uv_ip4_name(reinterpret_cast<sockaddr_in*>(ptr->ai_addr), buf, sizeof(buf));
+	client->setIP(buf);
 
 	client->connect(ptr->ai_addr);
 	uv_freeaddrinfo(res);

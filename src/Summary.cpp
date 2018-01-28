@@ -64,7 +64,7 @@ static void print_versions()
 
 static void print_pools()
 {
-	const std::vector<Url*> & pools = Options::i()->pools();
+	const std::vector<Url> & pools = Options::i()->pools();
 
 	for(size_t i = 0; i < pools.size(); ++i)
 	{
@@ -80,16 +80,16 @@ static void print_pools()
 		}
 		else
 		{
-			PRINT_MSG(" * POOL #" << (i + 1) << ":      " << pools[i]->host() << ":" << pools[i]->port());
+			PRINT_MSG(" * POOL #" << (i + 1) << ":      " << pools[i].host() << ":" << pools[i].port());
 		}
 	}
 
 #   ifdef APP_DEBUG
 	for(size_t i = 0; i < pools.size(); ++i)
 	{
-		LOG_INFO("" << pools[i]->host() << ":" << pools[i]->port() << ", user: " << pools[i]->user() <<
-		         ", pass: " << pools[i]->password() << ", ka: " << pools[i]->isKeepAlive() << ", nicehash: " <<
-		         pools[i]->isNicehash());
+		LOG_INFO("" << pools[i].host() << ":" << pools[i].port() << ", user: " << pools[i].user() <<
+		         ", pass: " << pools[i].password() << ", ka: " << pools[i].isKeepAlive() << ", nicehash: " <<
+		         pools[i].isNicehash());
 	}
 #   endif
 }

@@ -43,7 +43,7 @@ public:
 	static bool start();
 	static void release();
 
-	static char* get(const char* url, int* status);
+	static std::string get(const std::string & url, int* status);
 	static void tick(const StatsData & data);
 	static void tick(const std::vector<Worker> & workers);
 

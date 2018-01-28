@@ -47,15 +47,15 @@ void Api::release()
 }
 
 
-char* Api::get(const char* url, int* status)
+std::string Api::get(const std::string & url, int* status)
 {
 	if(!m_state)
 	{
-		return nullptr;
+		return "";
 	}
 
 	uv_mutex_lock(&m_mutex);
-	char* buf = m_state->get(url, status);
+	std::string buf = m_state->get(url, status);
 	uv_mutex_unlock(&m_mutex);
 
 	return buf;

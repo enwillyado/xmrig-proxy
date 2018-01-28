@@ -42,7 +42,7 @@
 AccessLog::AccessLog() :
 	m_file_name()
 {
-	if(!Options::i()->accessLog())
+	if(Options::i()->accessLog().empty())
 	{
 		return;
 	}

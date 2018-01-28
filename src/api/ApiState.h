@@ -39,12 +39,12 @@ public:
 	ApiState();
 	~ApiState();
 
-	char* get(const char* url, int* status) const;
+	std::string get(const std::string & url, int* status) const;
 	void tick(const StatsData & data);
 	void tick(const std::vector<Worker> & workers);
 
 private:
-	char* finalize(rapidjson::Document & doc) const;
+	std::string finalize(rapidjson::Document & doc) const;
 	void genId();
 	void getHashrate(rapidjson::Document & doc) const;
 	void getIdentify(rapidjson::Document & doc) const;
@@ -54,8 +54,8 @@ private:
 	void getResults(rapidjson::Document & doc) const;
 	void getWorkers(rapidjson::Document & doc) const;
 
-	char m_id[17];
-	char m_workerId[128];
+	std::string m_id;
+	std::string m_workerId;
 	StatsData m_stats;
 	std::vector<Worker> m_workers;
 };
