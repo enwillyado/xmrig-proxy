@@ -26,10 +26,10 @@
 
 
 #include <stddef.h>
-#include <stddef.h>
+#include <stdint.h>
 #include <string>
 
-#include "stdint.h"
+
 #include "align.h"
 #include "net/JobId.h"
 

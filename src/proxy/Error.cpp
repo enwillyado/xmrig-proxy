@@ -25,17 +25,16 @@
 #include "proxy/Error.h"
 
 
-static const char* kBadGateway      = "Bad gateway";
-static const char* kInvalidJobId    = "Invalid job id";
-static const char* kInvalidMethod   = "Invalid method";
-static const char* kInvalidNonce    = "Invalid nonce; is miner not compatible with NiceHash?";
-static const char* kLowDifficulty   = "Low difficulty share";
-static const char* kUnauthenticated = "Unauthenticated";
-static const char* kUnknownError    = "Unknown error";
-
-
-const char* Error::toString(Code code)
+const std::string & Error::toString(Code code)
 {
+	static const std::string kBadGateway      = "Bad gateway";
+	static const std::string kInvalidJobId    = "Invalid job id";
+	static const std::string kInvalidMethod   = "Invalid method";
+	static const std::string kInvalidNonce    = "Invalid nonce; is miner not compatible with NiceHash?";
+	static const std::string kLowDifficulty   = "Low difficulty share";
+	static const std::string kUnauthenticated = "Unauthenticated";
+	static const std::string kUnknownError    = "Unknown error";
+
 	switch(code)
 	{
 	case BadGateway:

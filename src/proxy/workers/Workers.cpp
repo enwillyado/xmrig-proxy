@@ -59,8 +59,6 @@ void Workers::printWorkers()
 	}
 
 	static std::string localhostName = "127.0.0.1";
-	char workerName[51];
-	size_t size = 0;
 
 	if(Options::i()->colors())
 	{
@@ -76,21 +74,22 @@ void Workers::printWorkers()
 	for(size_t w = 0; w < m_workers.size(); ++w)
 	{
 		Worker & worker = m_workers[w];
-		const char* name = worker.name();
-		size = strlen(name);
+		const std::string & name = worker.name();
+		size_t size = name.size();
 
+		char workerName[51];
 		if(size > sizeof(workerName) - 1)
 		{
-			memcpy(workerName, name, 6);
+			memcpy(workerName, name.c_str(), 6);
 			memcpy(workerName + 6, "...", 3);
-			memcpy(workerName + 9, name + size - sizeof(workerName) + 10, sizeof(workerName) - 10);
+			memcpy(workerName + 9, name.substr(size - sizeof(workerName) + 10).c_str(), sizeof(workerName) - 10);
 			i = 0;
 		}
 		else
 		{
 			memset(workerName, '-', sizeof(workerName) - 1);
-			strncpy(workerName, name, std::min(strlen(name), sizeof(workerName) - 1));
-			workerName[strlen(name)] = (i++ % 3 == 1) ? ' ' : '\0';
+			strncpy(workerName, name.c_str(), std::min(size, sizeof(workerName) - 1));
+			workerName[size] = (i++ % 3 == 1) ? ' ' : '\0';
 		}
 		workerName[sizeof(workerName) - 1] = '\0';
 
