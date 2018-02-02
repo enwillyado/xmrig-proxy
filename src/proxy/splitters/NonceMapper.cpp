@@ -63,7 +63,7 @@ NonceMapper::NonceMapper(size_t id, const Options* options, const std::string & 
 		m_strategy = new SinglePoolStrategy(pools.front(), m_agent, this);
 	}
 
-	if(id != 0 && m_options->donateLevel() > 0)
+	if(m_options->donateLevel() > 0)
 	{
 		m_donate = new DonateStrategy(m_agent, this);
 	}

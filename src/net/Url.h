@@ -103,6 +103,14 @@ public:
 	{
 		return m_proxy_port;
 	}
+	inline void setProxyHost(const std::string & value)
+	{
+		m_proxy_host = value;
+	}
+	inline void setProxyPort(const uint16_t value)
+	{
+		m_proxy_port = value;
+	}
 	inline void setKeepAlive(bool keepAlive)
 	{
 		m_keepAlive = keepAlive;

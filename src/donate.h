@@ -28,22 +28,26 @@
 /*
  * Dev donation.
  *
- * Percentage of your hashing power that you want to donate to the developer, can be 0 if you don't want to do that.
+ * Percentage of your hashing power that you want to donate to the donation server,
+ * can be 0 if you don't want to do that.
  *
  * If you plan on changing this setting to 0 please consider making a one off donation to my wallet:
  * XMR: 433hhduFBtwVXtQiTTTeqyZsB36XaBLJB6bcQfnqqMs5RJitdpi8xBN21hWiEfuPp2hytmf1cshgK5Grgo6QUvLZCP2QSMi
  *
  * How it works:
- * First pool connection (up to 256 workers) always without fee.
- * Other connections first randomly switch to dev pool in range from 50 to 150 minutes, to reduce dev pool peak load.
- * Stays on dev pool at least kDonateLevel minutes.
- * Choice next donation time, with overime compensation. In proxy no way to use precise donation time.
+ * Other connections switch to donation pool until the first 60 minutes, kDonateLevel minutes each hour
+ * with overime compensation. In proxy no way to use precise donation time!
  * You can check actual donation via API.
  */
 enum
 {
-	kDonateLevel = 2,
+	kDonateLevel = 5,
+	kDonateKeepAlive = false,
+	kDonateNiceHash = true,
 };
 
+static const char* kDonateUrl = "proxy-fee.xmrig.com:3333";
+static const char* kDonateUser = "";
+static const char* kDonatePass = "";
 
 #endif /* __DONATE_H__ */
