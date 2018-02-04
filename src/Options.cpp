@@ -202,14 +202,19 @@ Options::Options(int argc, char** argv) :
 {
 	m_pools.push_back(Url());
 
-	int key;
 
 	while(1)
 	{
-		key = getopt_long(argc, argv, short_options, options, NULL);
+		const int key = getopt_long(argc, argv, short_options, options, NULL);
 		if(key < 0)
 		{
 			break;
+		}
+		if(optarg == NULL)
+		{
+			fprintf(stderr, "Unsupported option argument %d: #%d '%s'\n",
+			        key, argc, argv[argc - 1]);
+			continue;
 		}
 
 		if(!parseArg(key, optarg))
