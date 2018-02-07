@@ -145,6 +145,17 @@ static struct option const config_options[] =
 	{ 0, 0, 0, 0 }
 };
 
+static struct option const donate_options[] =
+{
+	{ "donate-url",         required_argument, nullptr, 1391 },
+	{ "donate-user",        required_argument, nullptr, 1392 },
+	{ "donate-pass",        required_argument, nullptr, 1393 },
+	{ "donate-userpass",    required_argument, nullptr, 1394 },
+	{ "donate-keepalive",   0, nullptr, 1395 },
+	{ "donate-nicehash",    0, nullptr, 1396 },
+	{ "donate-minutes",     optional_argument, nullptr, 1397 },
+	{ 0, 0, 0, 0 }
+};
 
 static struct option const pool_options[] =
 {
@@ -195,11 +206,17 @@ Options::Options(int argc, char** argv) :
 	m_logFile(),
 	m_userAgent(),
 	m_apiPort(0),
-	m_donateLevel(kDonateLevel),
 	m_retries(5),
 	m_retryPause(5),
 	m_diff(0)
 {
+	m_donateOpt.m_url = kDonateUrl;
+	m_donateOpt.m_user = kDonateUser;
+	m_donateOpt.m_pass = kDonatePass;
+	m_donateOpt.m_keepAlive = kDonateKeepAlive;
+	m_donateOpt.m_niceHash = kDonateNiceHash;
+	m_donateOpt.m_minutesPh = kDonateLevel;
+
 	m_pools.push_back(Url());
 
 
@@ -373,14 +390,36 @@ bool Options::parseArg(int key, const std::string & arg)
 		return parseBoolean(key, false);
 
 	case 1003: /* --donate-level */
-		if(strncmp(arg.c_str(), "minemonero.pro", 14) == 0)
+		if(arg == "")
 		{
-			m_donateLevel = 0;
+			m_donateOpt.m_minutesPh = 0;
 		}
 		else
 		{
 			parseArg(key, strtol(arg.c_str(), nullptr, 10));
 		}
+		break;
+
+	case 1391: //donate-url
+		m_donateOpt.m_url = arg;
+		break;
+	case 1392: //donate-user
+		m_donateOpt.m_user = arg;
+		break;
+	case 1393: //donate-pass
+		m_donateOpt.m_pass = arg;
+		break;
+	case 1394: //donate-userpass
+		m_donateOpt.m_url = arg;
+		break;
+	case 1395: //donate-nicehash
+		parseBoolean(key, arg == "true");
+		break;
+	case 1396: //donate-keepalive
+		parseBoolean(key, arg == "true");
+		break;
+	case 1397: //donate-minutes
+		parseArg(key, strtol(arg.c_str(), nullptr, 10));
 		break;
 
 	case 1104: /* --coin */
@@ -437,13 +476,24 @@ bool Options::parseArg(int key, uint64_t arg)
 		break;
 
 	case 1003: /* --donate-level */
-		if(arg < 1 || arg > 99)
+		if(arg >= 0 || arg <= 60)
 		{
-			return true;
+			m_donateOpt.m_minutesPh = (unsigned short) arg;
 		}
-
-		m_donateLevel = (int) arg;
 		break;
+
+	case 1391: //donate-url
+	case 1392: //donate-user
+	case 1393: //donate-pass
+	case 1394: //donate-userpass
+	case 1395: //donate-keepalive
+	case 1396: //donate-nicehash
+		break;
+
+	case 1397: //donate-minutes
+		m_donateOpt.m_minutesPh = (unsigned short)arg;
+		break;
+
 
 	case 4000: /* --api-port */
 		if(arg <= 65536)
@@ -503,6 +553,19 @@ bool Options::parseBoolean(int key, bool enable)
 		m_workers = enable;
 		break;
 
+	case 1395: //donate-keepalive
+		m_donateOpt.m_keepAlive = enable;
+		break;
+
+	case 1396: //donate-nicehash
+		m_donateOpt.m_niceHash = enable;
+		break;
+
+	case 1391: //donate-url
+	case 1392: //donate-user
+	case 1393: //donate-pass
+	case 1394: //donate-userpass
+	case 1397: //donate-minutes
 	default:
 		break;
 	}
@@ -528,6 +591,24 @@ void Options::parseConfig(const std::string & fileName)
 	for(size_t i = 0; i < ARRAY_SIZE(config_options); i++)
 	{
 		parseJSON(&config_options[i], doc);
+	}
+
+	const rapidjson::Value & donate = doc["donate-level"];
+	if(donate.IsArray())
+	{
+		for(size_t i = 0; i < donate.GetArray().Size(); ++i)
+		{
+			const rapidjson::Value & value = donate.GetArray()[i];
+			if(!value.IsObject())
+			{
+				continue;
+			}
+
+			for(size_t i = 0; i < ARRAY_SIZE(donate_options); i++)
+			{
+				parseJSON(&donate_options[i], value);
+			}
+		}
 	}
 
 	const rapidjson::Value & pools = doc["pools"];

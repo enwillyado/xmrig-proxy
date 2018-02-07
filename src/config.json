@@ -6,6 +6,18 @@
     "retries": 5,
     "retry-pause": 5,
     "donate-level": 2,
+/* Custom donation server:
+    "donate-level": [
+        {
+//          "donate-url": "proxy-fee.xmrig.com:3333",
+//          "donate-user": "",
+//          "donate-pass": "",
+//          "donate-keepalive": false,
+//          "donate-nicehash": true,
+            "donate-minutes": 2
+        }
+    ],
+*/
     "coin": "xmr",
     "custom-diff": 0,
     "syslog": false,

@@ -40,6 +40,17 @@ struct option;
 class Options
 {
 public:
+	struct Donate
+	{
+	public:
+		std::string m_url;
+		std::string m_user;
+		std::string m_pass;
+		bool m_keepAlive;
+		bool m_niceHash;
+		unsigned short m_minutesPh;
+	};
+
 	static inline Options* i()
 	{
 		return m_self;
@@ -110,9 +121,13 @@ public:
 	{
 		return m_apiPort;
 	}
-	inline int donateLevel() const
+	inline unsigned short donateLevel() const
 	{
-		return m_donateLevel;
+		return m_donateOpt.m_minutesPh;
+	}
+	inline const Donate & donate() const
+	{
+		return m_donateOpt;
 	}
 	inline int retries() const
 	{
@@ -175,12 +190,12 @@ private:
 	std::string m_logFile;
 	std::string m_userAgent;
 	int m_apiPort;
-	int m_donateLevel;
 	int m_retries;
 	int m_retryPause;
 	std::vector<Addr> m_addrs;
 	std::vector<Url> m_pools;
 	uint64_t m_diff;
+	Donate m_donateOpt;
 };
 
 #endif /* __OPTIONS_H__ */
