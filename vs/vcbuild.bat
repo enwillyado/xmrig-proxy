@@ -12,7 +12,7 @@ if /i "%1"=="--?" goto help
 if /i "%1"=="/?" goto help
 
 @rem Process arguments.
-set config=vs
+set config=vs-release
 set target=Build
 set target_arch=x64
 set target_env=
@@ -20,11 +20,14 @@ set noprojgen=
 set nobuild=
 set run=
 set vs_toolset=x86
-set msbuild_platform=Win32
+set msbuild_platform=x64
 set library=static_library
 
 :next-arg
 if "%1"=="" goto args-done
+if /i "%1"=="release"      set config=vs-release&goto arg-ok
+if /i "%1"=="debug"        set config=vs-debug&goto arg-ok
+if /i "%1"=="x64"          set target_arch=x64&set msbuild_platform=x64&set vs_toolset=x64&goto arg-ok
 if /i "%1"=="ia32"         set target_arch=ia32&set msbuild_platform=Win32&set vs_toolset=x86&goto arg-ok
 if /i "%1"=="x64"          set target_arch=x64&set msbuild_platform=x64&set vs_toolset=x64&goto arg-ok
 :arg-ok
@@ -104,6 +107,7 @@ echo Warning: Visual Studio not found
 :select-target
 :project-gen
 :msbuild-found
+echo Configuration=%config% Platform=%msbuild_platform%
 msbuild xmrig-proxy.sln /m /t:%target% /p:Configuration=%config% /p:Platform="%msbuild_platform%" /clp:NoSummary;NoItemAndPropertyList;Verbosity=minimal /nologo
 if errorlevel 1 exit /b 1
 goto exit
@@ -111,8 +115,12 @@ goto exit
 :help
 echo vcbuild.bat [x86/x64]
 echo Examples:
-echo   vcbuild.bat ia32         : builds debug ia32 build
-echo   vcbuild.bat x64         : builds release x64 build
+echo   vcbuild.bat ia32         : builds release ia32 build
+echo   vcbuild.bat x64          : builds release x64 build
+echo   vcbuild.bat release ia32 : builds release ia32 build
+echo   vcbuild.bat release x64  : builds release x64 build
+echo   vcbuild.bat debug ia32   : builds debug ia32 build
+echo   vcbuild.bat debug x64    : builds debug x64 build
 goto exit
 
 :exit
