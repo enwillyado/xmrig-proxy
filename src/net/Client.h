@@ -130,6 +130,7 @@ private:
 	static void onAllocBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf);
 	static void onClose(uv_handle_t* handle);
 	static void onConnect(uv_connect_t* req, int status);
+	static void onTimeout(uv_timer_t* handle);
 	static void onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf);
 	static void onResolved(uv_getaddrinfo_t* req, int status, struct addrinfo* res);
 
