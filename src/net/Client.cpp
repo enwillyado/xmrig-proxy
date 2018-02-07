@@ -175,10 +175,12 @@ int64_t Client::submit(const JobResult & result)
 	char nonce_buffer[9];
 	char data_buffer[65];
 
-	Job::toHex(std::string(reinterpret_cast<const unsigned char*>(&result.nonce), 4), nonce_buffer);
+	char* nonceChar = (char*)(&result.nonce);
+	Job::toHex(std::string(nonceChar, 4), nonce_buffer);
 	nonce_buffer[8] = '\0';
 
-	Job::toHex(std::string(result.result, 32), data_buffer);
+	char* resultChar = (char*)(&result.result);
+	Job::toHex(std::string(resultChar, 32), data_buffer);
 	data_buffer[64] = '\0';
 
 	const std::string nonce = nonce_buffer;
@@ -320,7 +322,7 @@ int64_t Client::send(size_t size, const bool encrypted)
 	if(encrypted && m_encrypted)
 	{
 		// Encrypt
-		for(size_t i = 0; i < std::min(size, sizeof(m_keystream)); ++i)
+		for(size_t i = 0; i < std::min(size, sizeof(SendBuf)); ++i)
 		{
 			m_sendBuf[i] ^= m_keystream[i];
 		}
@@ -329,7 +331,7 @@ int64_t Client::send(size_t size, const bool encrypted)
 		memset(send_encr_hex, 0, size * 2 + 1);
 		Job::toHex(std::string(m_sendBuf, size), send_encr_hex);
 		send_encr_hex[size * 2] = '\0';
-		LOG_DEBUG("[" << m_url.host() << ":" << m_url.port() << "] send encr.(" << size << " bytes): 0x\""  <<
+		LOG_DEBUG("[" << m_url.host() << ":" << m_url.port() << "] send encr.(" << size << " bytes): \"0x"  <<
 		          send_encr_hex << "\"");
 		free(send_encr_hex);
 	}
@@ -633,13 +635,14 @@ void Client::startTimeout()
 		return;
 	}
 
-	uv_timer_start(&m_keepAliveTimer, [](uv_timer_t* handle)
-	{
-		getClient(handle->data)->ping();
-	}, kKeepAliveTimeout, 0);
+	uv_timer_start(&m_keepAliveTimer, &Client::onTimeout, kKeepAliveTimeout, 0);
 #endif
 }
 
+void Client::onTimeout(uv_timer_t* handle)
+{
+	getClient(handle->data)->ping();
+}
 
 void Client::onAllocBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf)
 {

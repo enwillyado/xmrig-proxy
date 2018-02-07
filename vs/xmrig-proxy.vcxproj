@@ -9,12 +9,20 @@
       <Configuration>make</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="vs|Win32">
-      <Configuration>vs</Configuration>
+    <ProjectConfiguration Include="vs-release|Win32">
+      <Configuration>vs-release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="vs|x64">
-      <Configuration>vs</Configuration>
+    <ProjectConfiguration Include="vs-release|x64">
+      <Configuration>vs-release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="vs-debug|Win32">
+      <Configuration>vs-debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="vs-debug|x64">
+      <Configuration>vs-debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
@@ -36,7 +44,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <OutDir>$(SolutionDir)\..\build</OutDir>
-    <IntDir>$(SolutionDir)\..\build\obj</IntDir>
+    <IntDir>$(SolutionDir)\..\build\CMakeFiles\</IntDir>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ConfigurationType>Makefile</ConfigurationType>
@@ -48,8 +56,12 @@
     <OutDir>$(SolutionDir)\..\build</OutDir>
     <IntDir>$(SolutionDir)\..\build\obj</IntDir>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='vs|Win32'" />
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='vs|x64'">
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='vs-debug|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs-release|Win32'" Label="Configuration" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='vs-debug|x64'">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs-release|x64'" Label="Configuration">
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -72,19 +84,39 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='make|x64'">
     <LinkIncremental>true</LinkIncremental>
     <CustomBuildBeforeTargets>InitializeBuildStatus</CustomBuildBeforeTargets>
-    <NMakeReBuildCommandLine>cd $(OutDir) &amp;&amp; make clean &amp;&amp; make</NMakeReBuildCommandLine>
+    <NMakeReBuildCommandLine>cd $(OutDir) &amp;&amp; make clean &amp;&amp; make -j$(NUMBER_OF_PROCESSORS)</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>cd $(OutDir) &amp;&amp; make clean</NMakeCleanCommandLine>
     <NMakeBuildCommandLine>cd $(OutDir) &amp;&amp; make -j$(NUMBER_OF_PROCESSORS)</NMakeBuildCommandLine>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|Win32'">
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)\..\build\</OutDir>
     <TargetName>$(ProjectName)$(Platform)</TargetName>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs-release|Win32'">
+    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)\..\build\</OutDir>
+    <TargetName>$(ProjectName)$(Platform)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|x64'">
     <OutDir>$(SolutionDir)\..\build\</OutDir>
     <TargetName>$(ProjectName)_$(Platform)</TargetName>
     <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs-release|x64'">
+    <OutDir>$(SolutionDir)\..\build\</OutDir>
+    <TargetName>$(ProjectName)$(Platform)</TargetName>
+    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|Win32'">
+    <TargetName>$(ProjectName)$(Platform)d</TargetName>
+    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)\..\build\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|x64'">
+    <OutDir>$(SolutionDir)\..\build\</OutDir>
+    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)$(Platform)d</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='make|Win32'">
     <ClCompile>
@@ -122,7 +154,7 @@
       <Message>MAKE</Message>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\src\;$(SolutionDir)\..\src\3rdparty;$(SolutionDir)\..\src\3rdparty\rapidjson\msinttypes;$(SolutionDir)\..\..\libuv-1.x\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -145,7 +177,28 @@
       <AssemblyDebug>true</AssemblyDebug>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\src\;$(SolutionDir)\..\src\3rdparty;$(SolutionDir)\..\src\3rdparty\rapidjson\msinttypes;$(SolutionDir)\..\..\libuv-1.x\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>XMRIG_PROXY_PROJECT;XMRIG_NO_HTTPD;XMRIG_NO_GOOGLE_BREAKPAD;XMRIG_NO_API;__STDC_FORMAT_MACROS;APP_DEBUG</PreprocessorDefinitions>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <OmitFramePointers>true</OmitFramePointers>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\..\libuv-1.x\Release\$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libuv.lib;advapi32.lib;iphlpapi.lib;psapi.lib;shell32.lib;user32.lib;userenv.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBCMTD;LIBCMT</IgnoreSpecificDefaultLibraries>
+      <SubSystem>Console</SubSystem>
+      <LinkStatus>true</LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)\..\src\;$(SolutionDir)\..\src\3rdparty;$(SolutionDir)\..\src\3rdparty\rapidjson\msinttypes;$(SolutionDir)\..\..\libuv-1.x\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>XMRIG_PROXY_PROJECT;XMRIG_NO_HTTPD;XMRIG_NO_GOOGLE_BREAKPAD;XMRIG_NO_API;__STDC_FORMAT_MACROS</PreprocessorDefinitions>
@@ -162,6 +215,72 @@
       <AdditionalLibraryDirectories>$(SolutionDir)\..\..\libuv-1.x\Release\$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libuv.lib;advapi32.lib;iphlpapi.lib;psapi.lib;shell32.lib;user32.lib;userenv.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMTD;LIBCMT</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)\..\src\;$(SolutionDir)\..\src\3rdparty;$(SolutionDir)\..\src\3rdparty\rapidjson\msinttypes;$(SolutionDir)\..\..\libuv-1.x\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>XMRIG_PROXY_PROJECT;XMRIG_NO_HTTPD;XMRIG_NO_GOOGLE_BREAKPAD;XMRIG_NO_API;__STDC_FORMAT_MACROS</PreprocessorDefinitions>
+      <Optimization>Full</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\..\libuv-1.x\Release\$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libuv.lib;advapi32.lib;iphlpapi.lib;psapi.lib;shell32.lib;user32.lib;userenv.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>LIBCMTD;LIBCMT</IgnoreSpecificDefaultLibraries>
+      <LinkStatus>true</LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|Win32'">
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|Win32'">
+    <Link>
+      <GenerateMapFile>true</GenerateMapFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|Win32'">
+    <Link>
+      <MapExports>true</MapExports>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|Win32'">
+    <Link>
+      <AssemblyDebug>true</AssemblyDebug>
+      <ProgramDatabaseFile>$(ProjectName)$(Platform)d.pdb</ProgramDatabaseFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\..\libuv-1.x\Release\$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkStatus>true</LinkStatus>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|x64'">
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|x64'">
+    <Link>
+      <GenerateMapFile>true</GenerateMapFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|x64'">
+    <Link>
+      <MapExports>true</MapExports>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='vs-debug|x64'">
+    <Link>
+      <AssemblyDebug>true</AssemblyDebug>
+      <ProgramDatabaseFile>$(ProjectName)$(Platform)d.pdb</ProgramDatabaseFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\..\libuv-1.x\Release\$(Platform)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkStatus>true</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
