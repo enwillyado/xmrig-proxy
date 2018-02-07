@@ -284,8 +284,8 @@ void ApiState::getWorkers(rapidjson::Document & doc) const
 		}
 
 		rapidjson::Value array(rapidjson::kArrayType);
-		array.PushBack(rapidjson::StringRef(worker.name()), allocator);
-		array.PushBack(rapidjson::StringRef(worker.ip()), allocator);
+		array.PushBack(rapidjson::StringRef(worker.name().c_str()), allocator);
+		array.PushBack(rapidjson::StringRef(worker.ip().c_str()), allocator);
 		array.PushBack(worker.connections(), allocator);
 		array.PushBack(worker.accepted(), allocator);
 		array.PushBack(worker.rejected(), allocator);
