@@ -148,7 +148,14 @@ bool Url::parse(const std::string & url)
 		{
 			m_host = path.substr(0, keystream);
 		}
-		m_keystream = path.substr(keystream + 1);
+		if(proxy != std::string::npos)
+		{
+			m_keystream = path.substr(keystream + 1, proxy - keystream - 1);
+		}
+		else
+		{
+			m_keystream = path.substr(keystream + 1);
+		}
 	}
 
 	if(proxy == std::string::npos)
