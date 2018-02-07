@@ -59,9 +59,9 @@ public:
 	bool accept(uv_stream_t* server);
 	void replyWithError(int64_t id, const std::string & message);
 	void setJob(Job & job);
-	void success(int64_t id, const char* status);
+	void success(int64_t id, const std::string & status);
 
-	inline const char* ip() const
+	inline const std::string & ip() const
 	{
 		return m_ip;
 	}
@@ -129,7 +129,7 @@ private:
 		kSocketTimeout = 60 * 10 * 1000,
 	};
 
-	bool parseRequest(int64_t id, const char* method, const rapidjson::Value & params);
+	bool parseRequest(int64_t id, const std::string & method, const rapidjson::Value & params);
 	void heartbeat();
 	void parse(char* line, size_t len);
 	void send(const std::string & data, int size);
@@ -152,7 +152,7 @@ private:
 	typedef char SendBuf[768];
 
 	Buf m_buf;
-	char m_ip[17];
+	std::string m_ip;
 	char m_rpcId[37];
 	SendBuf m_sendBuf;
 	char m_keystream[sizeof(SendBuf)];

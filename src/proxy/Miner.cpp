@@ -60,7 +60,6 @@ Miner::Miner(const Addr & addr) :
 	m_tx(0),
 	m_fixedByte(0)
 {
-	memset(m_ip, 0, sizeof(m_ip));
 	addr.copyKeystream(m_keystream, sizeof(m_keystream));
 	Uuid::create(m_rpcId, sizeof(m_rpcId));
 
@@ -95,7 +94,10 @@ bool Miner::accept(uv_stream_t* server)
 	int size = sizeof(addr);
 
 	uv_tcp_getpeername(&m_socket, reinterpret_cast<sockaddr*>(&addr), &size);
-	uv_ip4_name(reinterpret_cast<sockaddr_in*>(&addr), m_ip, 16);
+
+	char ip[16];
+	uv_ip4_name(reinterpret_cast<sockaddr_in*>(&addr), ip, sizeof(ip));
+	m_ip = ip;
 
 	uv_read_start(reinterpret_cast<uv_stream_t*>(&m_socket), Miner::onAllocBuffer, Miner::onRead);
 
@@ -150,23 +152,24 @@ void Miner::setJob(Job & job)
 }
 
 
-void Miner::success(int64_t id, const char* status)
+void Miner::success(int64_t id, const std::string & status)
 {
 	send(snprintf(m_sendBuf, sizeof(m_sendBuf),
-	              "{\"id\":%" PRId64 ",\"jsonrpc\":\"2.0\",\"error\":null,\"result\":{\"status\":\"%s\"}}\n", id, status));
+	              "{\"id\":%" PRId64 ",\"jsonrpc\":\"2.0\",\"error\":null,\"result\":{\"status\":\"%s\"}}\n",
+	              id, status.c_str()));
 }
 
 
-bool Miner::parseRequest(int64_t id, const char* method, const rapidjson::Value & params)
+bool Miner::parseRequest(int64_t id, const std::string & method, const rapidjson::Value & params)
 {
-	if(!method || !params.IsObject())
+	if("" == method || !params.IsObject())
 	{
 		return false;
 	}
 
 	if(m_state == WaitLoginState)
 	{
-		if(strcmp(method, "login") == 0)
+		if(method == "login")
 		{
 			setState(WaitReadyState);
 			m_loginId = id;
@@ -184,7 +187,7 @@ bool Miner::parseRequest(int64_t id, const char* method, const rapidjson::Value 
 		return false;
 	}
 
-	if(strcmp(method, "submit") == 0)
+	if(method == "submit")
 	{
 		heartbeat();
 
@@ -221,7 +224,7 @@ bool Miner::parseRequest(int64_t id, const char* method, const rapidjson::Value 
 		return true;
 	}
 
-	if(strcmp(method, "keepalived") == 0)
+	if(method == "keepalived")
 	{
 		heartbeat();
 		success(id, "KEEPALIVED");

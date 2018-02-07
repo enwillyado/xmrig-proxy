@@ -43,13 +43,13 @@ public:
 	void add(const SubmitResult & result);
 	void tick(uint64_t ticks);
 
-	inline const char* ip() const
+	inline const std::string & ip() const
 	{
-		return m_ip.c_str();
+		return m_ip;
 	}
-	inline const char* name() const
+	inline const std::string & name() const
 	{
-		return m_name.c_str();
+		return m_name;
 	}
 	inline double hashrate(int seconds) const
 	{
@@ -83,7 +83,7 @@ public:
 	{
 		return m_rejected;
 	}
-	inline void add(const char* ip)
+	inline void add(const std::string & ip)
 	{
 		m_ip = ip;
 		m_connections++;

@@ -24,6 +24,7 @@
 #ifndef __ERROR_H__
 #define __ERROR_H__
 
+#include <string>
 
 class Error
 {
@@ -39,7 +40,7 @@ public:
 		Unauthenticated
 	};
 
-	static const char* toString(Code code);
+	static const std::string & toString(Code code);
 };
 
 #endif /* __ERROR_H__ */

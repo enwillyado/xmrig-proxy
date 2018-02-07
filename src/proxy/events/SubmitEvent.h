@@ -48,7 +48,7 @@ public:
 	{
 		return m_error != Error::NoError;
 	}
-	inline const char* message() const
+	inline std::string message() const
 	{
 		return Error::toString(m_error);
 	}
