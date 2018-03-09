@@ -26,6 +26,7 @@
 #include <algorithm>
 
 #include "net/Url.h"
+#include "interfaces/interface.h"
 
 #ifdef _MSC_VER
 #define strncasecmp(x,y,z) _strnicmp(x,y,z)
@@ -197,8 +198,8 @@ bool Url::setUserpass(const std::string & userpass)
 		return false;
 	}
 
-	m_user = userpass.substr(0, p);
-	m_password = userpass.substr(p + 1);
+	setUser(userpass.substr(0, p));
+	setPassword(userpass.substr(p + 1));
 
 	return true;
 }
@@ -220,19 +221,4 @@ void Url::copyKeystream(char* keystreamDest, const size_t keystreamLen) const
 		memset(keystreamDest, 1, keystreamLen);
 		memcpy(keystreamDest, m_keystream.c_str(), std::min(keystreamLen, m_keystream.size()));
 	}
-}
-
-Url & Url::operator=(const Url* other)
-{
-	m_keepAlive = other->m_keepAlive;
-	m_nicehash = other->m_nicehash;
-	m_port = other->m_port;
-	m_proxy_port = other->m_proxy_port;
-	m_host = other->m_host;
-	m_proxy_host = other->m_proxy_host;
-	m_password = other->m_password;
-	m_user = other->m_user;
-	m_keystream = other->m_keystream;
-
-	return *this;
 }

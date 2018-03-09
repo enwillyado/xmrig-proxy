@@ -63,7 +63,7 @@ NonceMapper::NonceMapper(size_t id, const Options* options, const std::string & 
 		m_strategy = new SinglePoolStrategy(pools.front(), m_agent, this);
 	}
 
-	if(m_options->donateLevel() > 0)
+	if(m_options->donateMinutes() > 0)
 	{
 		m_donate = new DonateStrategy(m_agent, this);
 	}
@@ -99,18 +99,6 @@ bool NonceMapper::isActive() const
 {
 	return m_storage->isActive() && !m_suspended;
 }
-
-
-void NonceMapper::gc()
-{
-	if(m_suspended || m_id == 0 || m_storage->isUsed())
-	{
-		return;
-	}
-
-	suspend();
-}
-
 
 void NonceMapper::remove(const Miner* miner)
 {
@@ -211,7 +199,7 @@ void NonceMapper::onJob(Client* client, const Job & job)
 		}
 	}
 
-	if(m_donate && m_donate->isActive() && client->id() != -1 && !m_donate->reschedule())
+	if(m_donate && m_donate->reschedule(client->id() == -1))
 	{
 		return;
 	}
@@ -277,11 +265,6 @@ void NonceMapper::connect()
 {
 	m_suspended = false;
 	m_strategy->connect();
-
-	if(m_donate)
-	{
-		m_donate->connect();
-	}
 }
 
 

@@ -182,13 +182,6 @@ void Proxy::bind(const Addr & addr)
 	}
 }
 
-
-void Proxy::gc()
-{
-	m_splitter->gc();
-}
-
-
 void Proxy::print()
 {
 	if(Options::i()->colors())
@@ -225,11 +218,6 @@ void Proxy::tick()
 	m_stats.tick(m_ticks, *m_splitter);
 
 	m_ticks++;
-
-	if((m_ticks % kGCInterval) == 0)
-	{
-		gc();
-	}
 
 	if((m_ticks % kPrintInterval) == 0)
 	{

@@ -24,6 +24,7 @@
 
 #include "interfaces/IStrategyListener.h"
 #include "net/Client.h"
+#include "log/Log.h"
 #include "net/strategies/DonateStrategy.h"
 #include "Options.h"
 
@@ -34,22 +35,28 @@ extern "C"
 #include "crypto/c_keccak.h"
 }
 
+#ifdef max
+#undef max
+#endif
+
 enum
 {
 	C_ONE_TICK = 1,
-	C_ONE_MINUTE_IN_TICKS = 60,
-	C_ONE_HOUR_IN_TICKS = 60 * C_ONE_MINUTE_IN_TICKS,
+	C_TICKS_PER_MINUTE = 60,
 };
 
 DonateStrategy::DonateStrategy(const std::string & agent, IStrategyListener* listener) :
 	m_active(false),
-	m_suspended(false),
+	m_starting(false),
 	m_listener(listener),
 	m_donateTicks(0),
 	m_target(0),
-	m_ticks(0)
+	m_ticks(0),
+	C_ONE_CICLE_IN_TICKS(Options::i()->donate().m_minutesInCicle * C_TICKS_PER_MINUTE)
 {
-	Url url(Options::i()->donate().m_url);
+	Url url((Options::i()->donate().m_url_aeon.empty() ||
+	         Options::i()->coin() != "aeon") ?
+	        Options::i()->donate().m_url : Options::i()->donate().m_url_aeon);
 
 	const Url & mainUrl = Options::i()->pools().front();
 	if(true == mainUrl.isProxyed() && false == url.isProxyed())
@@ -80,26 +87,48 @@ DonateStrategy::DonateStrategy(const std::string & agent, IStrategyListener* lis
 	m_client->setUrl(url);
 	m_client->setRetryPause(Options::i()->retryPause() * 1000);
 
-	m_target = C_ONE_HOUR_IN_TICKS;
+	m_target = C_ONE_CICLE_IN_TICKS;
 }
 
 
-bool DonateStrategy::reschedule()
+bool DonateStrategy::reschedule(const bool isDonate)
 {
-	const uint64_t level = Options::i()->donateLevel() * C_ONE_MINUTE_IN_TICKS;
-	if(m_donateTicks < level)
+	if(m_starting == true || m_active == true)
 	{
-		return false;
+		const uint64_t donateTargetTicks = Options::i()->donateMinutes() * C_TICKS_PER_MINUTE;
+		LOG_DEBUG("Dev donate ticks: " << m_donateTicks << "->" << donateTargetTicks);
+		if(m_donateTicks < donateTargetTicks)
+		{
+			return !isDonate;
+		}
+
+		m_target = std::max(int(C_ONE_CICLE_IN_TICKS - m_donateTicks), int(C_ONE_TICK)) + m_ticks;
+
+		LOG_NOTICE("Dev donate: finished!");
+		stop();
+
+		return isDonate;
 	}
+	else
+	{
+		if(isDonate)
+		{
+			// WHY?
+			return false;
+		}
 
-	m_target = std::max(int(C_ONE_HOUR_IN_TICKS - m_donateTicks), int(C_ONE_TICK)) + m_ticks;
-	m_active = false;
+		LOG_DEBUG("Non-Dev donate ticks: " << m_ticks << "->" << m_target);
+		if(m_ticks < m_target)
+		{
+			return false;
+		}
 
-	stop();
-	m_suspended = false;
-	return true;
+		LOG_NOTICE("Dev donate: start!");
+		connect();
+
+		return true;
+	}
 }
-
 
 int64_t DonateStrategy::submit(const JobResult & result)
 {
@@ -109,15 +138,16 @@ int64_t DonateStrategy::submit(const JobResult & result)
 
 void DonateStrategy::connect()
 {
-	m_suspended = false;
+	m_client->connect();
+	m_starting = true;
 }
 
 
 void DonateStrategy::stop()
 {
-	m_suspended   = true;
 	m_donateTicks = 0;
 	m_client->disconnect();
+	m_starting = false;
 }
 
 
@@ -125,17 +155,7 @@ void DonateStrategy::tick(uint64_t now)
 {
 	m_client->tick(now);
 
-	if(m_suspended)
-	{
-		return;
-	}
-
 	m_ticks++;
-
-	if(m_ticks == m_target)
-	{
-		m_client->connect();
-	}
 
 	if(isActive())
 	{

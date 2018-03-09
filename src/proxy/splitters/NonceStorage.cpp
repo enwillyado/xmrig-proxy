@@ -164,8 +164,9 @@ void NonceStorage::printState(size_t id) const
 	int available = 0;
 	int dead      = 0;
 
-	for(const int64_t v : m_used)
+	for(size_t i = m_index; i < m_used.size(); ++i)
 	{
+		const int64_t v = m_used[i];
 		if(v == 0)
 		{
 			available++;

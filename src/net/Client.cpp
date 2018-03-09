@@ -591,6 +591,11 @@ void Client::ping()
 
 void Client::reconnect()
 {
+	if(m_failures == -1)
+	{
+		return m_listener->onClose(this, -1);
+	}
+
 	setState(ConnectingState);
 
 #ifndef XMRIG_PROXY_PROJECT
@@ -599,11 +604,6 @@ void Client::reconnect()
 		uv_timer_stop(&m_keepAliveTimer);
 	}
 #endif
-
-	if(m_failures == -1)
-	{
-		return m_listener->onClose(this, -1);
-	}
 
 	m_failures++;
 	m_listener->onClose(this, (int) m_failures);
@@ -649,7 +649,7 @@ void Client::onAllocBuffer(uv_handle_t* handle, size_t suggested_size, uv_buf_t*
 	auto client = getClient(handle->data);
 
 	buf->base = &client->m_recvBuf.base[client->m_recvBufPos];
-	buf->len  = client->m_recvBuf.len - client->m_recvBufPos;
+	buf->len  = client->m_recvBuf.len - (unsigned long)client->m_recvBufPos;
 }
 
 
@@ -731,7 +731,7 @@ void Client::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 	client->m_recvBufPos += nread;
 
 	char* end;
-	char* start = buf->base;
+	char* start = client->m_recvBuf.base;
 	size_t remaining = client->m_recvBufPos;
 
 	if(client->m_encrypted)
@@ -739,7 +739,7 @@ void Client::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 		char* read_encr_hex = static_cast<char*>(malloc(nread * 2 + 1));
 		memset(read_encr_hex, 0, nread * 2 + 1);
 		Job::toHex(std::string(start, nread), read_encr_hex);
-		LOG_DEBUG("[" <<  client->m_ip << "] read encr. (" << nread << "  bytes): 0x\"" << read_encr_hex << "\"");
+		LOG_DEBUG("[" <<  client->m_ip << "] read encr. (" << nread << "  bytes): \"0x" << read_encr_hex << "\"");
 		free(read_encr_hex);
 
 		// DeEncrypt
@@ -765,12 +765,12 @@ void Client::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 		return;
 	}
 
-	if(start == buf->base)
+	if(start == client->m_recvBuf.base)
 	{
 		return;
 	}
 
-	memcpy(buf->base, start, remaining);
+	memcpy(client->m_recvBuf.base, start, remaining);
 	client->m_recvBufPos = remaining;
 }
 

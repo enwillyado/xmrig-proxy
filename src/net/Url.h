@@ -28,6 +28,8 @@
 
 #include <string>
 
+#include "interfaces/interface.h"
+
 class Url
 {
 public:
@@ -38,7 +40,7 @@ public:
 	}
 	static const std::string & DefaultUser()
 	{
-		static const std::string kDefaultUser = "x";
+		static const std::string kDefaultUser = "";
 		return kDefaultUser;
 	}
 
@@ -126,8 +128,6 @@ public:
 	void setPassword(const std::string & password);
 	void setUser(const std::string & user);
 	void copyKeystream(char* keystreamDest, const size_t keystreamLen) const;
-
-	Url & operator=(const Url* other);
 
 private:
 	bool m_keepAlive;

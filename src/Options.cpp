@@ -108,11 +108,12 @@ static struct option const options[] =
 	{ "debug",            0, nullptr, 1101 },
 	{ "donate-level",     1, nullptr, 1003 },
 	{ "help",             0, nullptr, 'h'  },
-	{ "keepalive",        0, nullptr , 'k'  },
+	{ "keepalive",        0, nullptr, 'k'  },
 	{ "log-file",         1, nullptr, 'l'  },
 	{ "no-color",         0, nullptr, 1002 },
 	{ "no-workers",       0, nullptr, 1103 },
 	{ "pass",             1, nullptr, 'p'  },
+	{ "print-time",       1, nullptr, 1007 },
 	{ "retries",          1, nullptr, 'r'  },
 	{ "retry-pause",      1, nullptr, 'R'  },
 	{ "syslog",           0, nullptr, 'S'  },
@@ -122,6 +123,15 @@ static struct option const options[] =
 	{ "userpass",         1, nullptr, 'O'  },
 	{ "verbose",          0, nullptr, 1100 },
 	{ "version",          0, nullptr, 'V'  },
+	{ "donate-url",       required_argument, nullptr, 1391 },
+	{ "donate-url-aeon",  required_argument, nullptr, 1392 },
+	{ "donate-user",      required_argument, nullptr, 1393 },
+	{ "donate-pass",      required_argument, nullptr, 1394 },
+	{ "donate-userpass",  required_argument, nullptr, 1395 },
+	{ "donate-keepalive", no_argument,       nullptr, 1396 },
+	{ "donate-nicehash",  no_argument,       nullptr, 1397 },
+	{ "donate-minutes",   required_argument, nullptr, 1398 },
+	{ "minutes-in-cicle", required_argument, nullptr, 1399 },
 	{ 0, 0, 0, 0 }
 };
 
@@ -147,13 +157,15 @@ static struct option const config_options[] =
 
 static struct option const donate_options[] =
 {
-	{ "donate-url",         required_argument, nullptr, 1391 },
-	{ "donate-user",        required_argument, nullptr, 1392 },
-	{ "donate-pass",        required_argument, nullptr, 1393 },
-	{ "donate-userpass",    required_argument, nullptr, 1394 },
-	{ "donate-keepalive",   0, nullptr, 1395 },
-	{ "donate-nicehash",    0, nullptr, 1396 },
-	{ "donate-minutes",     optional_argument, nullptr, 1397 },
+	{ "donate-url",       required_argument, nullptr, 1391 },
+	{ "donate-url-aeon",  required_argument, nullptr, 1392 },
+	{ "donate-user",      required_argument, nullptr, 1393 },
+	{ "donate-pass",      required_argument, nullptr, 1394 },
+	{ "donate-userpass",  required_argument, nullptr, 1395 },
+	{ "donate-keepalive", no_argument,       nullptr, 1396 },
+	{ "donate-nicehash",  no_argument,       nullptr, 1397 },
+	{ "donate-minutes",   required_argument, nullptr, 1398 },
+	{ "minutes-in-cicle", required_argument, nullptr, 1399 },
 	{ 0, 0, 0, 0 }
 };
 
@@ -163,7 +175,8 @@ static struct option const pool_options[] =
 	{ "pass",          1, nullptr, 'p'  },
 	{ "user",          1, nullptr, 'u'  },
 	{ "userpass",      1, nullptr, 'O'  },
-	{ "keepalive",     0, nullptr , 'k'  },
+	{ "keepalive",     0, nullptr, 'k'  },
+	{ "nicehash",      0, nullptr, 1006 },
 	{ 0, 0, 0, 0 }
 };
 
@@ -211,11 +224,13 @@ Options::Options(int argc, char** argv) :
 	m_diff(0)
 {
 	m_donateOpt.m_url = kDonateUrl;
+	m_donateOpt.m_url_aeon = kDonateUrlAeon;
 	m_donateOpt.m_user = kDonateUser;
 	m_donateOpt.m_pass = kDonatePass;
 	m_donateOpt.m_keepAlive = kDonateKeepAlive;
 	m_donateOpt.m_niceHash = kDonateNiceHash;
-	m_donateOpt.m_minutesPh = kDonateLevel;
+	m_donateOpt.m_donateMinutes = kDonateMinutes;
+	m_donateOpt.m_minutesInCicle = kMinutesInCicle;
 
 	m_pools.push_back(Url());
 
@@ -227,14 +242,8 @@ Options::Options(int argc, char** argv) :
 		{
 			break;
 		}
-		if(optarg == NULL)
-		{
-			fprintf(stderr, "Unsupported option argument %d: #%d '%s'\n",
-			        key, argc, argv[argc - 1]);
-			continue;
-		}
 
-		if(!parseArg(key, optarg))
+		if(!parseArg(key, optarg == NULL ? "" : optarg))
 		{
 			return;
 		}
@@ -381,6 +390,7 @@ bool Options::parseArg(int key, const std::string & arg)
 	case 'B':  /* --background */
 	case 'k':  /* --keepalive */
 	case 'S':  /* --syslog */
+	case 1006: /* --nicehash */
 	case 1100: /* --verbose */
 	case 1101: /* --debug */
 		return parseBoolean(key, true);
@@ -392,7 +402,7 @@ bool Options::parseArg(int key, const std::string & arg)
 	case 1003: /* --donate-level */
 		if(arg == "")
 		{
-			m_donateOpt.m_minutesPh = 0;
+			m_donateOpt.m_donateMinutes = 0;
 		}
 		else
 		{
@@ -403,22 +413,35 @@ bool Options::parseArg(int key, const std::string & arg)
 	case 1391: //donate-url
 		m_donateOpt.m_url = arg;
 		break;
-	case 1392: //donate-user
+	case 1392: //donate-url-aeon
+		m_donateOpt.m_url_aeon = arg;
+		break;
+	case 1393: //donate-user
 		m_donateOpt.m_user = arg;
 		break;
-	case 1393: //donate-pass
+	case 1394: //donate-pass
 		m_donateOpt.m_pass = arg;
 		break;
-	case 1394: //donate-userpass
-		m_donateOpt.m_url = arg;
-		break;
-	case 1395: //donate-nicehash
+	case 1395: //donate-userpass
+	{
+		const size_t p = arg.find_first_of(':');
+		if(p != std::string::npos)
+		{
+			m_donateOpt.m_user = arg.substr(0, p);
+			m_donateOpt.m_pass = arg.substr(p + 1);
+		}
+	}
+	break;
+	case 1396: //donate-nicehash
 		parseBoolean(key, arg == "true");
 		break;
-	case 1396: //donate-keepalive
+	case 1397: //donate-keepalive
 		parseBoolean(key, arg == "true");
 		break;
-	case 1397: //donate-minutes
+	case 1398: //donate-minutes
+		parseArg(key, strtol(arg.c_str(), nullptr, 10));
+		break;
+	case 1399: //minutes-in-cicle
 		parseArg(key, strtol(arg.c_str(), nullptr, 10));
 		break;
 
@@ -478,7 +501,7 @@ bool Options::parseArg(int key, uint64_t arg)
 	case 1003: /* --donate-level */
 		if(arg >= 0 || arg <= 60)
 		{
-			m_donateOpt.m_minutesPh = (unsigned short) arg;
+			m_donateOpt.m_donateMinutes = (unsigned short) arg;
 		}
 		break;
 
@@ -490,10 +513,23 @@ bool Options::parseArg(int key, uint64_t arg)
 	case 1396: //donate-nicehash
 		break;
 
-	case 1397: //donate-minutes
-		m_donateOpt.m_minutesPh = (unsigned short)arg;
+	case 1398: //donate-minutes
+		m_donateOpt.m_donateMinutes = (unsigned short)arg;
 		break;
 
+	case 1399: //minutes-in-cicle
+		m_donateOpt.m_minutesInCicle = (unsigned short)arg;
+		break;
+
+	case 1007: /* --print-time */
+		if(arg > 1000)
+		{
+			showUsage(1);
+			return false;
+		}
+
+		m_printTime = (int) arg;
+		break;
 
 	case 4000: /* --api-port */
 		if(arg <= 65536)
@@ -521,16 +557,18 @@ bool Options::parseBoolean(int key, bool enable)
 {
 	switch(key)
 	{
-	case 'B': /* --background */
-		m_background = enable;
-		break;
-
 	case 'k': /* --keepalive */
 		m_pools.back().setKeepAlive(enable);
 		break;
 
+	case 'B': /* --background */
+		m_background = enable;
+		m_colors = enable ? false : m_colors;
+		break;
+
 	case 'S': /* --syslog */
 		m_syslog = enable;
+		m_colors = enable ? false : m_colors;
 		break;
 
 	case 1002: /* --no-color */
@@ -545,27 +583,33 @@ bool Options::parseBoolean(int key, bool enable)
 		m_debug = enable;
 		break;
 
+	case 1006: /* --nicehash */
+		m_pools.back().setNicehash(enable);
+		break;
+
 	case 2000: /* colors */
 		m_colors = enable;
+		break;
+
+	case 1396: //donate-keepalive
+		m_donateOpt.m_keepAlive = enable;
+		break;
+
+	case 1397: //donate-nicehash
+		m_donateOpt.m_niceHash = enable;
 		break;
 
 	case 1103: /* workers */
 		m_workers = enable;
 		break;
 
-	case 1395: //donate-keepalive
-		m_donateOpt.m_keepAlive = enable;
-		break;
-
-	case 1396: //donate-nicehash
-		m_donateOpt.m_niceHash = enable;
-		break;
-
 	case 1391: //donate-url
-	case 1392: //donate-user
-	case 1393: //donate-pass
-	case 1394: //donate-userpass
-	case 1397: //donate-minutes
+	case 1392: //donate-url-aeon
+	case 1393: //donate-user
+	case 1394: //donate-pass
+	case 1395: //donate-userpass
+	case 1398: //donate-minutes
+	case 1399: //minutes-in-cicle
 	default:
 		break;
 	}

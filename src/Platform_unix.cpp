@@ -29,7 +29,9 @@
 #include <string.h>
 #include <sys/resource.h>
 #include <uv.h>
+#include <sched.h>
 
+#include "log/Log.h"
 
 #include "Platform.h"
 #include "version.h"
@@ -72,6 +74,7 @@ void Platform::init(const std::string & userAgent)
 
 void Platform::release()
 {
+	m_userAgent.clear();
 }
 
 void Platform::setProcessPriority(int priority)
@@ -122,9 +125,13 @@ void Platform::setThreadPriority(int priority)
 
 		if(sched_setscheduler(0, SCHED_IDLE, &param) != 0)
 		{
-			sched_setscheduler(0, SCHED_BATCH, &param);
+			const int err = sched_setscheduler(0, SCHED_BATCH, &param);
+			LOG_WARN("SCHED_BATCH priority: " << err << ".");
 		}
 	}
-#endif
+#else
+	LOG_INFO("NONE priority.");
+#   endif
 }
+
 #endif

@@ -48,7 +48,6 @@ public:
 
 	uint32_t activeUpstreams() const;
 	void connect();
-	void gc();
 	void printConnections();
 	void tick(uint64_t ticks);
 

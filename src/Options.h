@@ -44,11 +44,13 @@ public:
 	{
 	public:
 		std::string m_url;
+		std::string m_url_aeon;
 		std::string m_user;
 		std::string m_pass;
 		bool m_keepAlive;
 		bool m_niceHash;
-		unsigned short m_minutesPh;
+		unsigned short m_donateMinutes;
+		unsigned short m_minutesInCicle;
 	};
 
 	static inline Options* i()
@@ -99,7 +101,7 @@ public:
 	}
 	inline const std::string & coin() const
 	{
-		return m_userAgent;
+		return m_coin;
 	}
 	inline const std::string & logFile() const
 	{
@@ -121,13 +123,21 @@ public:
 	{
 		return m_apiPort;
 	}
-	inline unsigned short donateLevel() const
+	inline unsigned short donateMinutes() const
 	{
-		return m_donateOpt.m_minutesPh;
+		return m_donateOpt.m_donateMinutes;
+	}
+	inline unsigned short minutesInCicle() const
+	{
+		return m_donateOpt.m_minutesInCicle;
 	}
 	inline const Donate & donate() const
 	{
 		return m_donateOpt;
+	}
+	inline int printTime() const
+	{
+		return m_printTime;
 	}
 	inline int retries() const
 	{
@@ -190,6 +200,7 @@ private:
 	std::string m_logFile;
 	std::string m_userAgent;
 	int m_apiPort;
+	int m_printTime;
 	int m_retries;
 	int m_retryPause;
 	std::vector<Addr> m_addrs;

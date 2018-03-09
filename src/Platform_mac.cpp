@@ -64,6 +64,7 @@ void Platform::init(const std::string & userAgent)
 
 void Platform::release()
 {
+	m_userAgent.clear();
 }
 
 

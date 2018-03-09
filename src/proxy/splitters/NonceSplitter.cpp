@@ -77,16 +77,6 @@ void NonceSplitter::connect()
 }
 
 
-void NonceSplitter::gc()
-{
-	for(size_t i = 0; i < m_upstreams.size(); ++i)
-	{
-		NonceMapper* mapper = m_upstreams[i];
-		mapper->gc();
-	}
-}
-
-
 void NonceSplitter::printConnections()
 {
 	int active    = 0;

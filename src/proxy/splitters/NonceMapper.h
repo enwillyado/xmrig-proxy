@@ -66,7 +66,6 @@ public:
 
 	bool add(Miner* miner, const LoginRequest & request);
 	bool isActive() const;
-	void gc();
 	void remove(const Miner* miner);
 	void start();
 	void submit(SubmitEvent* event);

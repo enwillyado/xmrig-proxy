@@ -69,7 +69,6 @@ private:
 	};
 
 	void bind(const Addr & addr);
-	void gc();
 	void tick();
 
 	static void onTick(uv_timer_t* handle);
