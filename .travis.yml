@@ -2,15 +2,23 @@ dist: trusty
 
 osx_image: xcode8.3
 
-sudo: false
-
 language: cpp
+
+dist: trusty
+
+sudo: required
+
+before_install:
+  - sudo add-apt-repository 'deb http://de.archive.ubuntu.com/ubuntu xenial main universe' -y
+  - sudo apt-get update -q
+  - sudo apt-get install g++/xenial -y
+  - sudo apt-get install libuv1/xenial -y
+  - sudo apt-get install libuv1-dev/xenial -y
 
 addons:
   apt:
     packages: &default_packages
       - cmake
-      - libuv1-dev
       - uuid-dev
 
 matrix:

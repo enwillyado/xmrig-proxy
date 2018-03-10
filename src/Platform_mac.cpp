@@ -52,7 +52,7 @@ static inline std::string createUserAgent()
 	         uv_version_string(), __clang_major__, __clang_minor__, __clang_patchlevel__);
 #endif
 
-	return ret;
+	return buf;
 }
 
 
