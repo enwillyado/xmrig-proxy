@@ -24,6 +24,7 @@
 #ifndef __ADDR_H__
 #define __ADDR_H__
 
+#include "interfaces/interface.h"
 
 #include <stdint.h>
 #include <string.h>
