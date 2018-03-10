@@ -65,9 +65,6 @@ matrix:
         - CMAKE_CXX_COMPILER=g++-7
         - CMAKE_C_COMPILER=gcc-7
 
-    - os: osx
-      compiler: gcc
-
 script:
   - if [ $TRAVIS_OS_NAME = osx ]; then
       brew install libuv;
