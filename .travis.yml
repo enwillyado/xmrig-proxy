@@ -10,7 +10,7 @@ addons:
   apt:
     packages: &default_packages
       - cmake
-      - libuv-dev
+      - libuv1-dev
       - uuid-dev
 
 matrix:
