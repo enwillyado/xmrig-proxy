@@ -68,8 +68,9 @@ void AccessLog::onEvent(IEvent* event)
 	case IEvent::LoginType:
 	{
 		auto e = static_cast<LoginEvent*>(event);
-		write("#%03." PRId64 " login: %s, \"%s\", ua: \"%s\", count: %" PRIu64, e->miner()->id(), e->miner()->ip(),
-		      e->request.login(), e->request.agent(), Counters::miners());
+		write("#%03." PRId64 " login: %s, \"%s\", ua: \"%s\", count: %" PRIu64, e->miner()->id(),
+		      e->miner()->ip().c_str(),
+		      e->request.login().c_str(), e->request.agent().c_str(), Counters::miners());
 	}
 	break;
 
@@ -84,7 +85,7 @@ void AccessLog::onEvent(IEvent* event)
 		const double time = (double)(uv_now(uv_default_loop()) - e->miner()->timestamp()) / 1000;
 
 		write("#%03." PRId64 " close: %s, time: %03.1fs, rx/tx: %" PRIu64 "/%" PRIu64 ", count: %" PRIu64,
-		      e->miner()->id(), e->miner()->ip(), time, e->miner()->rx(), e->miner()->tx(), Counters::miners());
+		      e->miner()->id(), e->miner()->ip().c_str(), time, e->miner()->rx(), e->miner()->tx(), Counters::miners());
 	}
 	break;
 
