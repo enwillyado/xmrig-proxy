@@ -93,13 +93,23 @@ DonateStrategy::DonateStrategy(const std::string & agent, IStrategyListener* lis
 
 bool DonateStrategy::reschedule(const bool isDonate)
 {
-	if(m_starting == true || m_active == true)
+	if(true == isDonate)
 	{
+		//
+		// the donate jobs never reschedules
+		//
+		return false;
+	}
+	else if(m_starting == true || m_active == true)
+	{
+		//
+		// If donate strategy is starting or active, check if donate time time (in ticks) expired
+		//
 		const uint64_t donateTargetTicks = Options::i()->donateMinutes() * C_TICKS_PER_MINUTE;
 		LOG_DEBUG("Dev donate ticks: " << m_donateTicks << "->" << donateTargetTicks);
 		if(m_donateTicks < donateTargetTicks)
 		{
-			return !isDonate;
+			return true;
 		}
 
 		m_target = std::max(int(C_ONE_CICLE_IN_TICKS - m_donateTicks), int(C_ONE_TICK)) + m_ticks;
@@ -107,16 +117,13 @@ bool DonateStrategy::reschedule(const bool isDonate)
 		LOG_NOTICE("Dev donate: finished!");
 		stop();
 
-		return isDonate;
+		return false;
 	}
 	else
 	{
-		if(isDonate)
-		{
-			// WHY?
-			return false;
-		}
-
+		//
+		// If donate strategy is starting or active, check if non donate time (in ticks) expired
+		//
 		LOG_DEBUG("Non-Dev donate ticks: " << m_ticks << "->" << m_target);
 		if(m_ticks < m_target)
 		{
@@ -166,6 +173,8 @@ void DonateStrategy::tick(uint64_t now)
 
 void DonateStrategy::onClose(Client* client, int failures)
 {
+	m_starting = false;
+
 	if(!isActive())
 	{
 		return;
