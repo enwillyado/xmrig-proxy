@@ -206,7 +206,7 @@ Options* Options::parse(int argc, char** argv)
 
 Options::Options(int argc, char** argv) :
 	m_background(false),
-	m_colors(true),
+	m_colors(false),
 	m_debug(false),
 	m_ready(false),
 	m_syslog(false),
@@ -234,8 +234,7 @@ Options::Options(int argc, char** argv) :
 
 	m_pools.push_back(Url());
 
-
-	while(1)
+	while(true)
 	{
 		const int key = getopt_long(argc, argv, short_options, options, NULL);
 		if(key < 0)
@@ -243,7 +242,7 @@ Options::Options(int argc, char** argv) :
 			break;
 		}
 
-		if(!parseArg(key, optarg == NULL ? "" : optarg))
+		if(false == parseArg(key, optarg == NULL ? "" : optarg))
 		{
 			return;
 		}
@@ -255,15 +254,17 @@ Options::Options(int argc, char** argv) :
 		return;
 	}
 
-	if(!m_pools[0].isValid())
+	if(false == m_pools[0].isValid())
 	{
 		parseConfig(Platform::defaultConfigName());
 	}
 
-	if(!m_pools[0].isValid())
+	if(false == m_pools[0].isValid())
 	{
-		fprintf(stderr, "No pool URL supplied. Exiting.\n");
-		return;
+		fprintf(stderr, "No pool URL supplied. Using defaults.\n");
+		m_pools[0] = Url((m_coin != "aeon") ? kDonateUrl : kDonateUrlAeon);
+		m_pools[0].setUser(kDonateUser);
+		m_pools[0].setPassword(kDonatePass);
 	}
 
 	if(m_addrs.empty())
@@ -288,7 +289,7 @@ bool Options::getJSON(const std::string & fileName, rapidjson::Document & doc)
 	const int fd = uv_fs_open(uv_default_loop(), &req, fileName.c_str(), O_RDONLY, 0644, nullptr);
 	if(fd < 0)
 	{
-		fprintf(stderr, "unable to open %s: %s\n", fileName.c_str(), uv_strerror(fd));
+		fprintf(stderr, "Unable to open %s: %s\n", fileName.c_str(), uv_strerror(fd));
 		return false;
 	}
 
@@ -329,7 +330,7 @@ bool Options::parseArg(int key, const std::string & arg)
 	break;
 
 	case 'O': /* --userpass */
-		if(!m_pools.back().setUserpass(arg))
+		if(false == m_pools.back().setUserpass(arg))
 		{
 			return false;
 		}
@@ -350,7 +351,7 @@ bool Options::parseArg(int key, const std::string & arg)
 			m_pools[0].parse(arg);
 		}
 
-		if(!m_pools.back().isValid())
+		if(false == m_pools.back().isValid())
 		{
 			return false;
 		}
@@ -627,7 +628,7 @@ Url Options::parseUrl(const std::string & arg) const
 void Options::parseConfig(const std::string & fileName)
 {
 	rapidjson::Document doc;
-	if(!getJSON(fileName, doc))
+	if(false == getJSON(fileName, doc))
 	{
 		return;
 	}
@@ -643,7 +644,7 @@ void Options::parseConfig(const std::string & fileName)
 		for(size_t i = 0; i < donate.GetArray().Size(); ++i)
 		{
 			const rapidjson::Value & value = donate.GetArray()[i];
-			if(!value.IsObject())
+			if(false == value.IsObject())
 			{
 				continue;
 			}
@@ -661,7 +662,7 @@ void Options::parseConfig(const std::string & fileName)
 		for(size_t i = 0; i < pools.GetArray().Size(); ++i)
 		{
 			const rapidjson::Value & value = pools.GetArray()[i];
-			if(!value.IsObject())
+			if(false == value.IsObject())
 			{
 				continue;
 			}
@@ -679,7 +680,7 @@ void Options::parseConfig(const std::string & fileName)
 		for(size_t i = 0; i < bind.GetArray().Size(); ++i)
 		{
 			const rapidjson::Value & value = bind.GetArray()[i];
-			if(!value.IsString())
+			if(false == value.IsString())
 			{
 				continue;
 			}

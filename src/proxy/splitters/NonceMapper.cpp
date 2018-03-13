@@ -144,7 +144,6 @@ void NonceMapper::tick(uint64_t ticks, uint64_t now)
 }
 
 
-#ifdef APP_DEVEL
 void NonceMapper::printState() const
 {
 	if(m_suspended)
@@ -154,7 +153,6 @@ void NonceMapper::printState() const
 
 	m_storage->printState(m_id);
 }
-#endif
 
 
 void NonceMapper::onActive(Client* client)

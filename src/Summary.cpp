@@ -51,7 +51,7 @@ static void print_versions()
 	if(Options::i()->colors())
 	{
 		/*TODO LOG
-		Log::i()->text("\x1B[01;32m * \x1B[01;37mVERSIONS:     \x1B[01;36mxmrig-proxy/%s\x1B[01;37m libuv/%s%s",
+		PRINT_MSG("\x1B[01;32m * \x1B[01;37mVERSIONS:     \x1B[01;36mxmrig-proxy/%s\x1B[01;37m libuv/%s%s",
 		               APP_VERSION, uv_version_string(), buf);
 		*/
 	}
@@ -71,7 +71,7 @@ static void print_pools()
 		if(Options::i()->colors())
 		{
 			/*TODO LOG
-			Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mPOOL #%d:\x1B[0m      \x1B[36m%s:%d" :
+			PRINT_MSG(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mPOOL #%d:\x1B[0m      \x1B[36m%s:%d" :
 			               " * POOL #%d:      %s:%d",
 			               i + 1,
 			               pools[i]->host(),
@@ -81,17 +81,12 @@ static void print_pools()
 		else
 		{
 			PRINT_MSG(" * POOL #" << (i + 1) << ":      " << pools[i].host() << ":" << pools[i].port());
+			PRINT_DEBUG("" <<
+			            " -- user: " << pools[i].user() << std::endl <<
+			            "  -- pass: " << pools[i].password() << std::endl <<
+			            "  -- ka: " << pools[i].isKeepAlive() << ", nicehash: " << pools[i].isNicehash());
 		}
 	}
-
-#ifdef APP_DEBUG
-	for(size_t i = 0; i < pools.size(); ++i)
-	{
-		LOG_INFO("" << pools[i].host() << ":" << pools[i].port() << ", user: " << pools[i].user() <<
-		         ", pass: " << pools[i].password() << ", ka: " << pools[i].isKeepAlive() << ", nicehash: " <<
-		         pools[i].isNicehash());
-	}
-#endif
 }
 
 
@@ -104,7 +99,7 @@ static void print_bind()
 		if(Options::i()->colors())
 		{
 			/*TODO LOG
-			Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mBIND #%d:\x1B[0m      \x1B[36m%s:%d" :
+			PRINT_MSG(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mBIND #%d:\x1B[0m      \x1B[36m%s:%d" :
 			               " * BIND #%d:      %s:%d",
 			               i + 1,
 			               addrs[i].host(),
@@ -130,7 +125,7 @@ static void print_api()
 	if(Options::i()->colors())
 	{
 		/*TODO LOG
-		Log::i()->text(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mAPI PORT:     \x1B[01;36m%d" :
+		PRINT_MSG(Options::i()->colors() ? "\x1B[01;32m * \x1B[01;37mAPI PORT:     \x1B[01;36m%d" :
 		               " * API PORT:     %d", Options::i()->apiPort());
 		*/
 	}
@@ -146,11 +141,11 @@ static void print_commands()
 {
 	if(Options::i()->colors())
 	{
-		Log::i()->text("\x1B[01;32m * \x1B[01;37mCOMMANDS:     \x1B[01;35mh\x1B[01;37mashrate, \x1B[01;35mc\x1B[01;37monnections, \x1B[01;35mv\x1B[01;37merbose, \x1B[01;35mw\x1B[01;37morkers");
+		PRINT_MSG("\x1B[01;32m * \x1B[01;37mCOMMANDS:     \x1B[01;35mh\x1B[01;37mashrate, \x1B[01;35mc\x1B[01;37monnections, \x1B[01;35mv\x1B[01;37merbose, \x1B[01;35mw\x1B[01;37morkers");
 	}
 	else
 	{
-		Log::i()->text(" * COMMANDS:     'h' hashrate, 'c' connections, 'v' verbose, 'w' workers");
+		PRINT_MSG(" * COMMANDS:     'h' hashrate, 's' stats, 'c' connections, 'v' verbose, 'd' debug, 'w' workers");
 	}
 }
 

@@ -76,9 +76,7 @@ public:
 		return m_suspended;
 	}
 
-#ifdef APP_DEVEL
 	void printState() const;
-#endif
 
 protected:
 	void onActive(Client* client) override;

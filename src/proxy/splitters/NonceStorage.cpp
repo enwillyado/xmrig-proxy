@@ -158,7 +158,6 @@ void NonceStorage::setJob(const Job & job)
 }
 
 
-#ifdef APP_DEVEL
 void NonceStorage::printState(size_t id) const
 {
 	int available = 0;
@@ -192,7 +191,6 @@ void NonceStorage::printState(size_t id) const
 		         (int)m_index << ", " << ((double) miners / 256 * 100.0) << "%");
 	}
 }
-#endif
 
 
 int NonceStorage::nextIndex(int start) const

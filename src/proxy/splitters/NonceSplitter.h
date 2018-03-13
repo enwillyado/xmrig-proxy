@@ -51,9 +51,7 @@ public:
 	void printConnections();
 	void tick(uint64_t ticks);
 
-#ifdef APP_DEVEL
 	void printState();
-#endif
 
 protected:
 	void onEvent(IEvent* event) override;

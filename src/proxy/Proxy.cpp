@@ -156,7 +156,6 @@ void Proxy::toggleDebug()
 }
 
 
-#ifdef APP_DEVEL
 void Proxy::printState()
 {
 	LOG_NOTICE("---------------------------------");
@@ -165,7 +164,6 @@ void Proxy::printState()
 
 	LOG_INFO(Counters::miners() << "(" << Counters::connections << ")");
 }
-#endif
 
 
 void Proxy::bind(const Addr & addr)

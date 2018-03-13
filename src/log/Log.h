@@ -118,8 +118,10 @@ private:
 
 #ifdef APP_DEBUG
 #define LOG_DEBUG(x)		 Log::i()->message(ILogBackend::DEBUG,   Log::TO_STRING(std::ostringstream() << " " << x))
+#define PRINT_DEBUG(x)		 Log::i()->text(Log::TO_STRING(std::ostringstream() << " " << x))
 #else
 #define LOG_DEBUG(x)
+#define PRINT_DEBUG(x)
 #endif
 
 #if defined(APP_DEBUG) || defined(APP_DEVEL)

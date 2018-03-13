@@ -144,7 +144,6 @@ void NonceSplitter::tick(uint64_t ticks)
 }
 
 
-#ifdef APP_DEVEL
 void NonceSplitter::printState()
 {
 	for(size_t i = 0; i < m_upstreams.size(); ++i)
@@ -153,7 +152,6 @@ void NonceSplitter::printState()
 		mapper->printState();
 	}
 }
-#endif
 
 
 void NonceSplitter::onEvent(IEvent* event)

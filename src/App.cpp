@@ -150,12 +150,10 @@ void App::onConsoleCommand(char command)
 {
 	switch(command)
 	{
-#ifdef APP_DEVEL
 	case 's':
 	case 'S':
 		m_proxy->printState();
 		break;
-#endif
 
 	case 'v':
 	case 'V':

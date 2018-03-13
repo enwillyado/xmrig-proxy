@@ -57,9 +57,7 @@ public:
 	void toggleDebug();
 	void print();
 
-#ifdef APP_DEVEL
 	void printState();
-#endif
 
 private:
 	enum
