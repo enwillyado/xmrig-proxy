@@ -725,6 +725,10 @@ void Client::onRead(uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf)
 			client->setState(ConnectedState);
 			client->login();
 		}
+		else
+		{
+			return client->close();
+		}
 		return;
 	}
 
