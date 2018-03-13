@@ -210,7 +210,7 @@ bool Miner::parseRequest(int64_t id, const std::string & method, const rapidjson
 			event->reject(Error::InvalidNonce);
 		}
 
-		if(m_customDiff && event->request.actualDiff() < m_diff)
+		if(event->error() == Error::NoError && m_customDiff && event->request.actualDiff() < m_diff)
 		{
 			success(id, "OK");
 			return true;
@@ -221,7 +221,7 @@ bool Miner::parseRequest(int64_t id, const std::string & method, const rapidjson
 			replyWithError(id, event->message());
 		}
 
-		return true;
+		return event->error() != Error::InvalidNonce;
 	}
 
 	if(method == "keepalived")
