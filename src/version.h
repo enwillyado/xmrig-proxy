@@ -27,14 +27,14 @@
 #define APP_ID        "xmrig-proxy-ewa"
 #define APP_NAME      "xmrig-proxy-ewa"
 #define APP_DESC      "XMRig Stratum proxy-eWa"
-#define APP_VERSION   "3.0.3-3"
+#define APP_VERSION   "3.3.3-3"
 #define APP_DOMAIN    "enWILLYado.com"
 #define APP_SITE      "www.enWILLYado.com"
 #define APP_COPYRIGHT "Copyright (C) 2016-2018 xmrig.com by enWILLYado.com"
 #define APP_KIND      "proxy"
 
 #define APP_VER_MAJOR  3
-#define APP_VER_MINOR  0
+#define APP_VER_MINOR  3
 #define APP_VER_BUILD  3
 #define APP_VER_REV    3
 
