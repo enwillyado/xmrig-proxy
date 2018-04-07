@@ -205,7 +205,10 @@ void ApiState::getMiner(rapidjson::Document & doc) const
 	doc.AddMember("kind",         APP_KIND, allocator);
 	doc.AddMember("ua",           rapidjson::StringRef(Platform::userAgent().c_str()), allocator);
 	doc.AddMember("uptime",       m_stats.uptime(), allocator);
-	doc.AddMember("donate_level", Options::i()->donateLevel(), allocator);
+	doc.AddMember("donate_level", Options::i()->donateMinutes(), allocator);
+
+	doc.AddMember("donate_minutes_per_cicle",  Options::i()->donateMinutes(), allocator);
+	doc.AddMember("minutes_per_cicle", Options::i()->minutesInCicle(), allocator);
 
 	if(m_stats.hashes && m_stats.donateHashes)
 	{
@@ -276,8 +279,9 @@ void ApiState::getWorkers(rapidjson::Document & doc) const
 	auto & allocator = doc.GetAllocator();
 	rapidjson::Value workers(rapidjson::kArrayType);
 
-	for(const Worker & worker : m_workers)
+	for(size_t i = 0; i < m_workers.size(); ++i)
 	{
+		const Worker & worker = m_workers[i];
 		if(worker.connections() == 0 && worker.lastHash() == 0)
 		{
 			continue;

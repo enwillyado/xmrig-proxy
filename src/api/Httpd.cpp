@@ -43,17 +43,8 @@ bool Httpd::start()
 		return false;
 	}
 
-	unsigned int flags = 0;
-	if(MHD_is_feature_supported(MHD_FEATURE_EPOLL))
-	{
-		flags = MHD_USE_EPOLL_LINUX_ONLY | MHD_USE_EPOLL_INTERNALLY_LINUX_ONLY;
-	}
-	else
-	{
-		flags = MHD_USE_SELECT_INTERNALLY;
-	}
-
-	m_daemon = MHD_start_daemon(flags, m_port, nullptr, nullptr, &Httpd::handler, this, MHD_OPTION_END);
+	m_daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, m_port, nullptr, nullptr, &Httpd::handler, this,
+	                            MHD_OPTION_END);
 	if(!m_daemon)
 	{
 		LOG_ERR("HTTP Daemon failed to start.");
