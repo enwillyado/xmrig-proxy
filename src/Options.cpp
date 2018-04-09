@@ -219,6 +219,7 @@ Options::Options(int argc, char** argv) :
 	m_logFile(),
 	m_userAgent(),
 	m_apiPort(0),
+	m_printTime(1),
 	m_retries(5),
 	m_retryPause(5),
 	m_diff(0)

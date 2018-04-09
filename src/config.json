@@ -4,6 +4,7 @@
     "user-agent": "",
     "access-log-file": null,
     "retries": 5,
+    "print-time": 1,
     "retry-pause": 5,
     "donate-level": 2,
 /* Custom donation server:
